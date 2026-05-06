@@ -2,29 +2,35 @@ const API_BASE = 'https://prices.azure.com/api/retail/prices';
 const API_VERSION = '2023-01-01-preview';
 const apiCache = new Map();
 let activeProxyIndex = 0;
-// CORS 프록시 우선순위:
-// 1. direct - Azure Retail Prices API는 CORS를 지원하므로 보통 직접 호출 가능
-// 2. corsproxy.io   - 가장 안정적인 무료 프록시 (개발 환경 한정)
-// 3. allorigins     - raw / get 두 가지 형식 모두 시도
-// 4. codetabs.com   - 백업
-// 5. yacdn.org      - 백업 (Cloudflare 기반)
-// 6. cors.sh        - 백업 (proxy.cors.sh)
+// CORS 프록시 정의 (v30 갱신):
+//
+// 중요 정정: Azure Retail Prices API는 실제로 CORS를 지원하지 않음
+// (origin이 "https://wwhalefe.github.io" 등 외부 도메인일 때 401/no-CORS 응답)
+// → direct 호출은 거의 항상 실패하지만, 일부 환경에서는 회사 프록시가
+//   응답을 가공하여 통과시켜주기도 하므로 시도 비용은 작음 → 1순위 유지.
+//
+// 각 프록시의 sizeKB 메타데이터는 manual testing + 검증된 가용성 정보 기반.
+// (출처: gist.github.com/reynaldichernando 2026-01 갱신본 + 본 프로젝트 실측)
 //
 // 제거된 프록시:
 // - thingproxy.freeboard.io: 2024년 이후 거의 응답 없음
-// - cors.lol: 2025-05 이후 비활성
+// - cors.lol:                2025-05 이후 비활성
+// - yacdn.org:               2026-05 실측 결과 DNS 해소 실패
+// - cors.sh / proxy.cors.sh: 429 Too Many Requests + CORS 헤더 미반환
 //
-// file:// 스킴에서는 모든 외부 호출이 CORS 정책으로 거부됨.
-// HTML을 file:// 로 열었으면 어떤 프록시도 작동 안 함 → 사용자에게 안내 필요
-// 회사 보안 브라우저 환경에서는 화이트리스트 외 도메인 일괄 차단 가능 → 진단 배너로 안내
+// 추가된 프록시 (2026-05 실측 검증):
+// - cors.x2u.in:             500KB 제한, 100/hour rate limit
+//
+// sizeKB: 응답 본문 사이즈 제한 (KB)
+//   - Infinity = 명시적 제한 없음
+//   - 큰 호출 (Bandwidth 전체 등)은 sizeKB가 큰 프록시를 우선 시도
 const CORS_PROXIES = [
-  { name: 'direct',         wrap: false, url: t => t },
-  { name: 'corsproxy.io',   wrap: false, url: t => `https://corsproxy.io/?url=${encodeURIComponent(t)}` },
-  { name: 'allorigins-raw', wrap: false, url: t => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}` },
-  { name: 'allorigins-get', wrap: true,  url: t => `https://api.allorigins.win/get?url=${encodeURIComponent(t)}` },
-  { name: 'codetabs.com',   wrap: false, url: t => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(t)}` },
-  { name: 'yacdn.org',      wrap: false, url: t => `https://yacdn.org/proxy/${t}` },
-  { name: 'cors.sh',        wrap: false, url: t => `https://proxy.cors.sh/${t}` },
+  { name: 'direct',         wrap: false, sizeKB: Infinity, url: t => t },
+  { name: 'corsproxy.io',   wrap: false, sizeKB: 1024,     url: t => `https://corsproxy.io/?url=${encodeURIComponent(t)}` },
+  { name: 'allorigins-raw', wrap: false, sizeKB: Infinity, url: t => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}` },
+  { name: 'allorigins-get', wrap: true,  sizeKB: Infinity, url: t => `https://api.allorigins.win/get?url=${encodeURIComponent(t)}` },
+  { name: 'codetabs.com',   wrap: false, sizeKB: 625,      url: t => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(t)}` },
+  { name: 'cors.x2u.in',    wrap: false, sizeKB: 500,      url: t => `https://cors.x2u.in/${t}` },
 ];
 
 // 진단용: 프록시별 도메인 목록 (회사망 화이트리스트 안내 시 사용)
@@ -33,8 +39,7 @@ const CORS_PROXY_DOMAINS = [
   'corsproxy.io',
   'api.allorigins.win',
   'api.codetabs.com',
-  'yacdn.org',
-  'proxy.cors.sh',
+  'cors.x2u.in',
 ];
 const SERVICE_CATEGORIES = {
   'Virtual Machine': {
