@@ -704,25 +704,21 @@ async function resolveStoragePrices(row, currencyCode) {
   updateTotalsRow();
 }
 
+
 /**
- * VPN Gateway 가격 조회
+ * VPN Gateway 가격 조회 (v30)
  *
- * Azure Pricing Calculator의 VPN Gateway 화면 구조 (이미지 기준):
+ * v30 변경사항:
+ * 1. 부분 실패 처리: 게이트웨이 / S2S / P2S / VNET 각각 독립 try-catch
+ *    → VNET 매칭 실패해도 게이트웨이 가격은 정상 표시 (이전엔 전체 폐기)
+ * 2. VNET 매칭 호출 비용 절감: 광범위 Bandwidth 호출 대신 좁은 필터 우선
+ * 3. apiFetch 호출 시 expectedSizeKB 메타데이터 전달 (큰 호출은 큰 프록시 우선)
+ *
+ * Azure Pricing Calculator의 VPN Gateway 화면 구조:
  * 1) 게이트웨이 시간 (예: VpnGw3AZ ≈ ₩2,033.50/h)
- *    · 사용자가 옵션 패널의 "게이트웨이 시간(Hours)"에 직접 입력
- *    · 월 비용 = 시간당 단가 × 게이트웨이 시간
- * 2) S2S 추가 터널 (기본 포함 분 초과)
- *    · 시간/터널당 단가 (예: ₩0.015/h)
- *    · 월 비용 = 단가 × 추가 터널 수 × 게이트웨이 시간
- * 3) P2S 추가 연결 (기본 포함 분 초과)
- *    · 시간/연결당 단가 (예: ₩0.01/h)
- *    · 월 비용 = 단가 × 추가 연결 수 × 게이트웨이 시간
- * 4) VNET 간 데이터 전송 (예: ₩132.62/GB)
- *    · 월 비용 = 단가 × GB (시간 무관)
- *
- * VPN Gateway 행은 Storage와 마찬가지로 _billingMode='monthly' 사용:
- *   _monthlyTotal = 위 4개 합산 월 비용
- *   표의 "사용량(Hours)" 칸은 영향 없음 (옵션 패널의 게이트웨이 시간이 진짜 사용량)
+ * 2) S2S 추가 터널 (기본 포함 분 초과, 시간/터널당)
+ * 3) P2S 추가 연결 (기본 포함 분 초과, 시간/연결당)
+ * 4) VNET 간 데이터 전송 (예: ₩132.62/GB, 시간 무관)
  *
  * VPN Gateway는 Reservation/Savings Plan 미지원 → PAYG만 채움
  */
@@ -734,9 +730,24 @@ async function resolveVpnGatewayPrices(row, currencyCode) {
   const extraP2s = Number(o.extraP2sConnections || 0);
   const vnetGB = Number(o.vnetGB || 0);
 
+  // 결과 누적 (각 항목별 독립적으로)
+  let allItems = [];          // VPN Gateway 응답
+  let gateway = null;          // 게이트웨이 시간 단가 미터
+  let s2sItem = null;          // S2S 추가 터널 미터
+  let p2sItem = null;          // P2S 추가 연결 미터
+  let vnetItem = null;         // VNET 데이터 전송 미터
+  let gwCandsAll = [];         // 디버그용 후보 목록
+  let s2sCandsAll = [];
+  let p2sCandsAll = [];
+  let vnetCandsAll = [];
+  let vnetSearchSteps = [];    // 검색 단계 기록
+  let errors = [];             // 부분 실패 누적
+
+  // ============================================================
+  // 1단계: VPN Gateway 응답 가져오기 (게이트웨이/S2S/P2S 매칭의 베이스)
+  // ============================================================
   try {
-    // VPN Gateway 전체 응답
-    const allItems = await apiFetch(
+    allItems = await apiFetch(
       {
         serviceName: 'VPN Gateway',
         armRegionName: row.region,
@@ -744,261 +755,222 @@ async function resolveVpnGatewayPrices(row, currencyCode) {
       },
       currencyCode, 200, 3
     );
+  } catch (err) {
+    errors.push(`VPN Gateway 조회 실패: ${err.message}`);
+    console.error('[VPN Gateway] 메인 API 호출 실패:', err);
+    // 메인 API 실패 시 더 진행할 수 없으므로 종료
+    row.paygItem = null;
+    row.sp1Item = null;
+    row.sp3Item = null;
+    row.ri1Item = null;
+    row.ri3Item = null;
+    setStatus('error', `VPN Gateway 조회 실패: ${err.message.slice(0, 100)}`);
+    updatePriceCells(row);
+    updateTotalsRow();
+    return;
+  }
 
-    // [v27 진단] VPN Gateway 응답에 포함된 모든 GB 단위 미터를 즉시 콘솔에 덤프
-    // - 사용자 region + serviceName='VPN Gateway' 조합 응답이므로,
-    //   여기에 있는 GB 미터는 거의 확실히 우리가 찾는 VNET 데이터 전송 미터
-    // - 매칭 로직이 키워드를 잘못 잡고 있는지 즉시 확인 가능
-    if (vnetGB > 0) {
-      const gbInGwResponse = allItems.filter(it => {
-        const uom = (it.unitOfMeasure || '').toLowerCase();
-        return uom.includes('gb') && !uom.includes('hour');
-      });
-      console.log(`▣▣▣ [v27 진단] VPN Gateway 응답 ${allItems.length}건 중 GB 단위 미터 ${gbInGwResponse.length}건 ▣▣▣`);
-      gbInGwResponse.forEach((it, i) => {
-        console.log(`   <${i}> meter="${it.meterName}" / unitPrice=${it.unitPrice} ${it.currencyCode} / unitOfMeasure="${it.unitOfMeasure}" / sku="${it.skuName}" / product="${it.productName}" / type=${it.type} / region=${it.armRegionName}`);
-      });
-      if (gbInGwResponse.length === 0) {
-        console.warn(`   ※ VPN Gateway 응답에 GB 미터 없음 → 다른 서비스(Bandwidth/Networking)에서 찾아야 함`);
-      }
-    }
+  const normalize = (s) => String(s || '').toLowerCase().replace(/\s+/g, '');
+  const skuNorm = normalize(sku);
 
-    const normalize = (s) => String(s || '').toLowerCase().replace(/\s+/g, '');
-    const skuNorm = normalize(sku);
-
-    // ============================================================
-    // (1) 게이트웨이 시간 단가 매칭 — 더 관대하게
-    //  - meterName 또는 skuName 정규화 비교, "Gateway" 단어 포함 허용
-    //  - "Tunnel" / "S2S" / "P2S" / "Connection" / "Data Transfer" 등 부속 미터 제외
-    // ============================================================
+  // ============================================================
+  // 2단계: 게이트웨이 시간 단가 매칭 (VPN Gateway 응답 안에서)
+  // ============================================================
+  try {
     const isExtraMeter = (it) => {
       const meter = (it.meterName || '').toLowerCase();
       return meter.includes('tunnel') || meter.includes('s2s') ||
              meter.includes('p2s') || meter.includes('connection') ||
              meter.includes('data transfer') || meter.includes('inter-');
     };
-    const gwCandsAll = allItems.filter(it => {
+    gwCandsAll = allItems.filter(it => {
       if ((it.type || '').toLowerCase() !== 'consumption') return false;
       const uom = (it.unitOfMeasure || '').toLowerCase();
       if (!uom.includes('hour')) return false;
       if (isExtraMeter(it)) return false;
-      // SKU 정규화 일치 (meterName 또는 skuName)
       const mNorm = normalize(it.meterName);
       const sNorm = normalize(it.skuName);
-      // 정확 일치 또는 SKU로 시작
       return mNorm === skuNorm || sNorm === skuNorm ||
              mNorm.startsWith(skuNorm) || sNorm.startsWith(skuNorm) ||
-             mNorm.endsWith(skuNorm)   || sNorm.endsWith(skuNorm);
+             mNorm.endsWith(skuNorm) || sNorm.endsWith(skuNorm);
     });
-    // 정확 일치 우선, 그 다음 unitPrice 가장 높은 것 (게이트웨이 시간이 가장 비쌈)
     gwCandsAll.sort((a, b) => {
       const aExact = (normalize(a.meterName) === skuNorm || normalize(a.skuName) === skuNorm) ? 0 : 1;
       const bExact = (normalize(b.meterName) === skuNorm || normalize(b.skuName) === skuNorm) ? 0 : 1;
       if (aExact !== bExact) return aExact - bExact;
       return Number(b.unitPrice || 0) - Number(a.unitPrice || 0);
     });
-    const gateway = gwCandsAll[0] || null;
+    gateway = gwCandsAll[0] || null;
+  } catch (err) {
+    errors.push(`게이트웨이 매칭 실패: ${err.message}`);
+    console.error('[VPN Gateway] 게이트웨이 매칭 실패:', err);
+  }
 
-    // ============================================================
-    // (2) S2S 추가 터널 단가
-    //  - meterName에 "Tunnel" 포함 또는 "S2S" 포함, P2S 제외
-    //  - unitOfMeasure: "1 Hour"
-    // ============================================================
-    const s2sCandsAll = allItems.filter(it => {
-      if ((it.type || '').toLowerCase() !== 'consumption') return false;
-      const uom = (it.unitOfMeasure || '').toLowerCase();
-      if (!uom.includes('hour')) return false;
-      const meter = (it.meterName || '').toLowerCase();
-      if (meter.includes('p2s') || meter.includes('point-to-site')) return false;
-      return meter.includes('s2s') || meter.includes('site-to-site') ||
-             meter.includes('tunnel');
-    }).sort((a, b) => Number(a.unitPrice || 0) - Number(b.unitPrice || 0));
-    const s2sItem = (extraS2s > 0) ? (s2sCandsAll[0] || null) : null;
+  // ============================================================
+  // 3단계: S2S 추가 터널 단가 매칭 (extraS2s > 0인 경우만)
+  // ============================================================
+  if (extraS2s > 0) {
+    try {
+      s2sCandsAll = allItems.filter(it => {
+        if ((it.type || '').toLowerCase() !== 'consumption') return false;
+        const uom = (it.unitOfMeasure || '').toLowerCase();
+        if (!uom.includes('hour')) return false;
+        const meter = (it.meterName || '').toLowerCase();
+        if (meter.includes('p2s') || meter.includes('point-to-site')) return false;
+        return meter.includes('s2s') || meter.includes('site-to-site') ||
+               meter.includes('tunnel');
+      }).sort((a, b) => Number(a.unitPrice || 0) - Number(b.unitPrice || 0));
+      s2sItem = s2sCandsAll[0] || null;
+    } catch (err) {
+      errors.push(`S2S 매칭 실패: ${err.message}`);
+      console.error('[VPN Gateway] S2S 매칭 실패:', err);
+    }
+  }
 
-    // ============================================================
-    // (3) P2S 추가 연결 단가
-    // ============================================================
-    const p2sCandsAll = allItems.filter(it => {
-      if ((it.type || '').toLowerCase() !== 'consumption') return false;
-      const uom = (it.unitOfMeasure || '').toLowerCase();
-      if (!uom.includes('hour')) return false;
-      const meter = (it.meterName || '').toLowerCase();
-      if (meter.includes('s2s') || meter.includes('site-to-site') || meter.includes('tunnel')) return false;
-      return meter.includes('p2s') || meter.includes('point-to-site') ||
-             meter.includes('connection');
-    }).sort((a, b) => Number(a.unitPrice || 0) - Number(b.unitPrice || 0));
-    const p2sItem = (extraP2s > 0) ? (p2sCandsAll[0] || null) : null;
+  // ============================================================
+  // 4단계: P2S 추가 연결 단가 매칭 (extraP2s > 0인 경우만)
+  // ============================================================
+  if (extraP2s > 0) {
+    try {
+      p2sCandsAll = allItems.filter(it => {
+        if ((it.type || '').toLowerCase() !== 'consumption') return false;
+        const uom = (it.unitOfMeasure || '').toLowerCase();
+        if (!uom.includes('hour')) return false;
+        const meter = (it.meterName || '').toLowerCase();
+        if (meter.includes('s2s') || meter.includes('site-to-site') || meter.includes('tunnel')) return false;
+        return meter.includes('p2s') || meter.includes('point-to-site') ||
+               meter.includes('connection');
+      }).sort((a, b) => Number(a.unitPrice || 0) - Number(b.unitPrice || 0));
+      p2sItem = p2sCandsAll[0] || null;
+    } catch (err) {
+      errors.push(`P2S 매칭 실패: ${err.message}`);
+      console.error('[VPN Gateway] P2S 매칭 실패:', err);
+    }
+  }
 
-    // ============================================================
-    // (4) VNET 간 데이터 전송 단가 - Copilot 권고 기반 탐색 → 매칭
-    //
-    // 참고: Microsoft Q&A / Copilot 답변에서 권장하는 패턴
-    //   "VNET 간 나가는 데이터 전송"의 출처 후보:
-    //   1) VNet Peering (Virtual Network 서비스, "Outbound" 키워드)
-    //   2) VPN Gateway 경유 Inter-VNet (Bandwidth 또는 VPN Gateway 서비스)
-    //   3) Inter-Virtual Network Data Transfer Out (Bandwidth/Networking)
-    //
-    // 핵심 권고:
-    //  - "Outbound" 키워드를 매칭에 포함 (Peering outbound 미터)
-    //  - serviceName 필터를 Bandwidth만이 아니라 Virtual Network, VPN Gateway
-    //    까지 확장
-    //  - region 필터를 빼서 Global region 미터도 잡기
-    //  - currencyCode를 사용자 통화로 호출하면 응답이 자동 변환되어 옴
-    //
-    // 유형:
-    //  - "VNET 간": Inter-VNet Outbound 단가 (자동)
-    //  - "VPN": 같은 region 내 무료 (₩0)
-    //
-    // Korea Central은 Zone 2
-    // ============================================================
-    const ZONE_MAP = {
-      eastus: 1, eastus2: 1, westus: 1, westus2: 1, westus3: 1,
-      northcentralus: 1, southcentralus: 1, centralus: 1, westcentralus: 1,
-      westeurope: 1, northeurope: 1, francecentral: 1, francesouth: 1,
-      uksouth: 1, ukwest: 1, canadacentral: 1, canadaeast: 1,
-      germanynorth: 1, germanywestcentral: 1, swedencentral: 1, swedensouth: 1,
-      switzerlandnorth: 1, switzerlandwest: 1, norwayeast: 1, norwaywest: 1,
-      polandcentral: 1, italynorth: 1, spaincentral: 1,
-      koreacentral: 2, koreasouth: 2, japaneast: 2, japanwest: 2,
-      eastasia: 2, southeastasia: 2,
-      australiaeast: 2, australiasoutheast: 2, australiacentral: 2, australiacentral2: 2,
-      centralindia: 2, southindia: 2, westindia: 2, qatarcentral: 2,
-      brazilsouth: 3, brazilsoutheast: 3,
-      southafricanorth: 3, southafricawest: 3,
-      uaenorth: 3, uaecentral: 3, israelcentral: 3,
-    };
-    const userZone = ZONE_MAP[row.region] || 1;
-    const transferType = o.vnetTransferType || 'VNET 간';
+  // ============================================================
+  // 5단계: VNET 데이터 전송 단가 매칭 (vnetGB > 0인 경우만)
+  //   ★ 핵심 변경: 부분 실패 격리 + 좁은 필터 우선 + 광범위 폴백
+  // ============================================================
+  const ZONE_MAP = {
+    eastus: 1, eastus2: 1, westus: 1, westus2: 1, westus3: 1,
+    northcentralus: 1, southcentralus: 1, centralus: 1, westcentralus: 1,
+    westeurope: 1, northeurope: 1, francecentral: 1, francesouth: 1,
+    uksouth: 1, ukwest: 1, canadacentral: 1, canadaeast: 1,
+    germanynorth: 1, germanywestcentral: 1, swedencentral: 1, swedensouth: 1,
+    switzerlandnorth: 1, switzerlandwest: 1, norwayeast: 1, norwaywest: 1,
+    polandcentral: 1, italynorth: 1, spaincentral: 1,
+    koreacentral: 2, koreasouth: 2, japaneast: 2, japanwest: 2,
+    eastasia: 2, southeastasia: 2,
+    australiaeast: 2, australiasoutheast: 2, australiacentral: 2, australiacentral2: 2,
+    centralindia: 2, southindia: 2, westindia: 2, qatarcentral: 2,
+    brazilsouth: 3, brazilsoutheast: 3,
+    southafricanorth: 3, southafricawest: 3,
+    uaenorth: 3, uaecentral: 3, israelcentral: 3,
+  };
+  const userZone = ZONE_MAP[row.region] || 1;
+  const transferType = o.vnetTransferType || 'VNET 간';
 
-    // GB 단위 + Consumption 항목 추출
-    const extractGbCands = (items) => items.filter(it => {
-      if ((it.type || '').toLowerCase() !== 'consumption') return false;
-      const uom = (it.unitOfMeasure || '').toLowerCase();
-      if (!uom.includes('gb')) return false;
-      if (uom.includes('hour')) return false;
-      return true;
+  const extractGbCands = (items) => items.filter(it => {
+    if ((it.type || '').toLowerCase() !== 'consumption') return false;
+    const uom = (it.unitOfMeasure || '').toLowerCase();
+    if (!uom.includes('gb')) return false;
+    if (uom.includes('hour')) return false;
+    return true;
+  });
+
+  const isVnetOutbound = (it) => {
+    const meter = (it.meterName || '').toLowerCase();
+    const product = (it.productName || '').toLowerCase();
+    const sku = (it.skuName || '').toLowerCase();
+    const all = `${meter} ${product} ${sku}`;
+    const hasInterVnet = all.includes('inter-virtual network') ||
+                         all.includes('inter virtual network') ||
+                         all.includes('inter-vnet') ||
+                         all.includes('inter vnet') ||
+                         all.includes('vnet to vnet') ||
+                         all.includes('vnet-to-vnet') ||
+                         all.includes('intervnet');
+    const hasPeering = all.includes('peering') && all.includes('out');
+    const hasVnetOutbound = all.includes('outbound') &&
+                            (all.includes('vnet') || all.includes('virtual network'));
+    return hasInterVnet || hasPeering || hasVnetOutbound;
+  };
+
+  const isVpnEgress = (it) => {
+    const meter = (it.meterName || '').toLowerCase();
+    const product = (it.productName || '').toLowerCase();
+    const sku = (it.skuName || '').toLowerCase();
+    const all = `${meter} ${product} ${sku}`;
+    if (all.includes('inter-virtual network')) return false;
+    if (all.includes('inter virtual network')) return false;
+    if (all.includes('inter-vnet')) return false;
+    if (all.includes('inter vnet')) return false;
+    if (all.includes('vnet to vnet')) return false;
+    if (all.includes('vnet-to-vnet')) return false;
+    if (all.includes('intervnet')) return false;
+    if (all.includes('peering')) return false;
+    if (all.includes('inter-region')) return false;
+    if (all.includes('inter region')) return false;
+    if (all.includes('inter continent')) return false;
+    if (all.includes('inter-continent')) return false;
+    if (all.includes('intercontinent')) return false;
+    if (all.includes('intra-continent')) return false;
+    if (all.includes('intra continent')) return false;
+    if (all.includes('cross region')) return false;
+    if (all.includes('cross-region')) return false;
+    return all.includes('vpn') || all.includes('data transfer');
+  };
+
+  const filterByType = (gbCands, type) => {
+    if (type === 'VNET 간') {
+      return gbCands.filter(it => Number(it.unitPrice || 0) > 0 && isVnetOutbound(it));
+    } else {
+      return gbCands.filter(it => isVpnEgress(it));
+    }
+  };
+
+  const sortCands = (cands) => {
+    const zoneRe = new RegExp(`zone\\s*${userZone}\\b`, 'i');
+    const checkZone = (it) =>
+      zoneRe.test(it.meterName || '') ||
+      zoneRe.test(it.skuName || '') ||
+      zoneRe.test(it.productName || '');
+    return cands.slice().sort((a, b) => {
+      const aZone = checkZone(a) ? 0 : 1;
+      const bZone = checkZone(b) ? 0 : 1;
+      if (aZone !== bZone) return aZone - bZone;
+      const aOut = /\bout\b|outbound/i.test(a.meterName || '') ? 0 : 1;
+      const bOut = /\bout\b|outbound/i.test(b.meterName || '') ? 0 : 1;
+      if (aOut !== bOut) return aOut - bOut;
+      return Number(a.unitPrice || 0) - Number(b.unitPrice || 0);
     });
+  };
 
-    // "VNET 간" 유형 키워드 (Copilot 권고: Outbound 포함 + Peering + Inter-VNet)
-    const isVnetOutbound = (it) => {
-      const meter = (it.meterName || '').toLowerCase();
-      const product = (it.productName || '').toLowerCase();
-      const sku = (it.skuName || '').toLowerCase();
-      const all = `${meter} ${product} ${sku}`;
+  const makeCandidateId = (it) =>
+    it.meterId || `${it.serviceName}|${it.armRegionName}|${it.meterName}|${it.unitPrice}`;
 
-      // Inter-VNet 키워드 변형
-      const hasInterVnet = all.includes('inter-virtual network') ||
-                           all.includes('inter virtual network') ||
-                           all.includes('inter-vnet') ||
-                           all.includes('inter vnet') ||
-                           all.includes('vnet to vnet') ||
-                           all.includes('vnet-to-vnet') ||
-                           all.includes('intervnet');
-      // Peering Outbound (Virtual Network 서비스의 미터)
-      const hasPeering = all.includes('peering') && all.includes('out');
-      // 일반 Outbound + VNet 컨텍스트
-      const hasVnetOutbound = all.includes('outbound') &&
-                              (all.includes('vnet') || all.includes('virtual network'));
-
-      return hasInterVnet || hasPeering || hasVnetOutbound;
-    };
-
-    // "VPN" 유형 키워드 (Inter-VNet 명시 / cross-zone 명시 제외)
-    const isVpnEgress = (it) => {
-      const meter = (it.meterName || '').toLowerCase();
-      const product = (it.productName || '').toLowerCase();
-      const sku = (it.skuName || '').toLowerCase();
-      const all = `${meter} ${product} ${sku}`;
-      // Inter-VNet 변형 모두 제외
-      if (all.includes('inter-virtual network')) return false;
-      if (all.includes('inter virtual network')) return false;
-      if (all.includes('inter-vnet')) return false;
-      if (all.includes('inter vnet')) return false;
-      if (all.includes('vnet to vnet')) return false;
-      if (all.includes('vnet-to-vnet')) return false;
-      if (all.includes('intervnet')) return false;
-      // Peering 미터 제외 (Peering은 VNet 간 전송으로 분류)
-      if (all.includes('peering')) return false;
-      // cross-zone/region/continent 제외
-      if (all.includes('inter-region')) return false;
-      if (all.includes('inter region')) return false;
-      if (all.includes('inter continent')) return false;
-      if (all.includes('inter-continent')) return false;
-      if (all.includes('intercontinent')) return false;
-      if (all.includes('intra-continent')) return false;
-      if (all.includes('intra continent')) return false;
-      if (all.includes('cross region')) return false;
-      if (all.includes('cross-region')) return false;
-      // VPN 또는 일반 Data Transfer
-      return all.includes('vpn') || all.includes('data transfer');
-    };
-
-    const filterByType = (gbCands, type) => {
-      if (type === 'VNET 간') {
-        // 단가 > 0 (Inter-VNet은 항상 과금)
-        return gbCands.filter(it => Number(it.unitPrice || 0) > 0 && isVnetOutbound(it));
-      } else {
-        return gbCands.filter(it => isVpnEgress(it));
-      }
-    };
-
-    // 정렬: zone 매칭 우선 → Out 방향 우선 → 단가 작은 것 우선
-    const sortCands = (cands) => {
-      const zoneRe = new RegExp(`zone\\s*${userZone}\\b`, 'i');
-      const checkZone = (it) =>
-        zoneRe.test(it.meterName || '') ||
-        zoneRe.test(it.skuName || '') ||
-        zoneRe.test(it.productName || '');
-      return cands.slice().sort((a, b) => {
-        const aZone = checkZone(a) ? 0 : 1;
-        const bZone = checkZone(b) ? 0 : 1;
-        if (aZone !== bZone) return aZone - bZone;
-        const aOut = /\bout\b|outbound/i.test(a.meterName || '') ? 0 : 1;
-        const bOut = /\bout\b|outbound/i.test(b.meterName || '') ? 0 : 1;
-        if (aOut !== bOut) return aOut - bOut;
-        return Number(a.unitPrice || 0) - Number(b.unitPrice || 0);
-      });
-    };
-
-    // 후보 미터에 합성 ID 부여 (중복 제거용)
-    const makeCandidateId = (it) =>
-      it.meterId || `${it.serviceName}|${it.armRegionName}|${it.meterName}|${it.unitPrice}`;
-
-    // ============================================================
-    // 다중 서비스 탐색 (Copilot 권고 §3-A 절차)
-    // 1) VPN Gateway 응답 안 (이미 있음)
-    // 2) Virtual Network 서비스 (Peering Outbound 미터)
-    // 3) Bandwidth 서비스 (Inter-VNet Data Transfer Out 미터)
-    // 4) Networking 패밀리 전체 (마지막 안전망)
-    //
-    // region 필터는 빼서 Global region 미터도 잡기
-    // ============================================================
+  if (vnetGB > 0) {
     let allTypeMatched = [];
-    let searchSteps = [];
 
-    if (vnetGB > 0) {
-      // 1차: VPN Gateway 응답 안 (이미 사용자 region + 서비스로 좁혀진 응답)
-      // - 키워드 매칭 시도
+    // ----------------------------------------------------------
+    // 5-A. VPN Gateway 응답 안에서 키워드 매칭
+    // ----------------------------------------------------------
+    try {
       const cands1Strict = filterByType(extractGbCands(allItems), transferType);
       if (cands1Strict.length > 0) {
         allTypeMatched = allTypeMatched.concat(cands1Strict);
-        searchSteps.push(`VPN Gateway 응답 키워드매칭 ${cands1Strict.length}건`);
+        vnetSearchSteps.push(`VPN Gateway 응답 키워드매칭 ${cands1Strict.length}건`);
       } else {
-        // 키워드 매칭 실패 → GB 단위 미터 자체를 후보로 사용
-        // (VPN Gateway + 사용자 region 조합이라 이 응답의 GB 미터는 거의
-        //  확실히 VNET 데이터 전송 미터)
         const gbAll = extractGbCands(allItems);
         if (transferType === 'VNET 간') {
-          // 단가 > 0인 GB 미터 (Inter-VNet은 항상 과금)
           const gbPositive = gbAll.filter(it => Number(it.unitPrice || 0) > 0);
           if (gbPositive.length > 0) {
             allTypeMatched = allTypeMatched.concat(gbPositive);
-            searchSteps.push(`VPN Gateway 응답 GB(단가>0) 폴백 ${gbPositive.length}건`);
+            vnetSearchSteps.push(`VPN Gateway 응답 GB(단가>0) 폴백 ${gbPositive.length}건`);
           }
         } else {
-          // VPN: 단가 0도 OK (한 region 내 무료)
           if (gbAll.length > 0) {
-            // Inter-VNet 키워드 명시된 미터는 제외 (그건 "VNET 간" 유형)
             const gbForVpn = gbAll.filter(it => {
               const all = `${it.meterName || ''} ${it.productName || ''} ${it.skuName || ''}`.toLowerCase();
               return !all.includes('inter-virtual network') &&
@@ -1008,255 +980,247 @@ async function resolveVpnGatewayPrices(row, currencyCode) {
             });
             if (gbForVpn.length > 0) {
               allTypeMatched = allTypeMatched.concat(gbForVpn);
-              searchSteps.push(`VPN Gateway 응답 GB 폴백 ${gbForVpn.length}건`);
+              vnetSearchSteps.push(`VPN Gateway 응답 GB 폴백 ${gbForVpn.length}건`);
             }
           }
         }
       }
+    } catch (err) {
+      errors.push(`VNET 1차 매칭 실패: ${err.message}`);
+    }
 
-      // 2차: Virtual Network 서비스 (Peering Outbound 미터)
+    // ----------------------------------------------------------
+    // 5-B. [v30 신규] 좁은 필터 — Bandwidth + Inter-Virtual Network 명시
+    //   응답이 작아 codetabs(625KB)도 통과 가능
+    // ----------------------------------------------------------
+    if (allTypeMatched.length === 0) {
       try {
-        const vnetSvcItems = await apiFetch(
-          { serviceName: 'Virtual Network', priceType: 'Consumption' },
-          currencyCode, 5000, 25
+        const narrowItems = await apiFetch(
+          {
+            serviceName: 'Bandwidth',
+            __raw: "contains(meterName, 'Inter-Virtual Network')",
+            priceType: 'Consumption',
+          },
+          currencyCode, 200, 2,
+          { pageSize: 200, expectedSizeKB: 100 }
         );
-        const cands2 = filterByType(extractGbCands(vnetSvcItems), transferType);
-        if (cands2.length > 0) {
-          allTypeMatched = allTypeMatched.concat(cands2);
-          searchSteps.push(`Virtual Network ${cands2.length}건`);
+        const cands = filterByType(extractGbCands(narrowItems), transferType);
+        if (cands.length > 0) {
+          allTypeMatched = allTypeMatched.concat(cands);
+          vnetSearchSteps.push(`Bandwidth(Inter-Virtual 좁은필터) ${cands.length}건/${narrowItems.length}응답`);
         } else {
-          searchSteps.push(`Virtual Network 0건 (응답 ${vnetSvcItems.length})`);
+          vnetSearchSteps.push(`Bandwidth(Inter-Virtual) 0건/${narrowItems.length}응답`);
         }
-      } catch (e) {
-        console.warn('Virtual Network 조회 실패:', e.message);
-        searchSteps.push(`Virtual Network 실패`);
-      }
-
-      // 3차: Bandwidth 서비스 (Inter-VNet Data Transfer Out)
-      try {
-        const bandwidthItems = await apiFetch(
-          { serviceName: 'Bandwidth', priceType: 'Consumption' },
-          currencyCode, 20000, 100
-        );
-        const cands3 = filterByType(extractGbCands(bandwidthItems), transferType);
-        if (cands3.length > 0) {
-          allTypeMatched = allTypeMatched.concat(cands3);
-          searchSteps.push(`Bandwidth ${cands3.length}건`);
-        } else {
-          searchSteps.push(`Bandwidth 0건 (응답 ${bandwidthItems.length})`);
-        }
-      } catch (e) {
-        console.warn('Bandwidth 조회 실패:', e.message);
-        searchSteps.push(`Bandwidth 실패`);
-      }
-
-      // 4차: priceType 필터 없이 Bandwidth (다른 type에 분류된 미터까지)
-      if (allTypeMatched.length === 0) {
-        try {
-          const allBw = await apiFetch(
-            { serviceName: 'Bandwidth' },
-            currencyCode, 30000, 200
-          );
-          const cands4 = filterByType(extractGbCands(allBw), transferType);
-          if (cands4.length > 0) {
-            allTypeMatched = allTypeMatched.concat(cands4);
-            searchSteps.push(`Bandwidth(priceType무관) ${cands4.length}건`);
-          }
-        } catch (e) {
-          console.warn('Bandwidth 전체 조회 실패:', e.message);
-        }
-      }
-
-      // 5차: Networking 패밀리 전체
-      if (allTypeMatched.length === 0) {
-        try {
-          const netItems = await apiFetch(
-            { serviceFamily: 'Networking' },
-            currencyCode, 30000, 200
-          );
-          const cands5 = filterByType(extractGbCands(netItems), transferType);
-          if (cands5.length > 0) {
-            allTypeMatched = allTypeMatched.concat(cands5);
-            searchSteps.push(`Networking ${cands5.length}건`);
-          }
-        } catch (e) {
-          console.warn('Networking 조회 실패:', e.message);
-        }
+      } catch (err) {
+        vnetSearchSteps.push(`Bandwidth(Inter-Virtual) 호출실패: ${err.message.slice(0, 60)}`);
       }
     }
 
-    // 중복 제거 + 정렬
+    // ----------------------------------------------------------
+    // 5-C. Virtual Network 서비스 (Peering Outbound)
+    //   응답 사이즈 작은 편 (~수백 KB)
+    // ----------------------------------------------------------
+    if (allTypeMatched.length === 0) {
+      try {
+        const vnetSvcItems = await apiFetch(
+          { serviceName: 'Virtual Network', priceType: 'Consumption' },
+          currencyCode, 2000, 5,
+          { pageSize: 1000, expectedSizeKB: 800 }
+        );
+        const cands = filterByType(extractGbCands(vnetSvcItems), transferType);
+        if (cands.length > 0) {
+          allTypeMatched = allTypeMatched.concat(cands);
+          vnetSearchSteps.push(`Virtual Network ${cands.length}건/${vnetSvcItems.length}응답`);
+        } else {
+          vnetSearchSteps.push(`Virtual Network 0건/${vnetSvcItems.length}응답`);
+        }
+      } catch (err) {
+        vnetSearchSteps.push(`Virtual Network 호출실패: ${err.message.slice(0, 60)}`);
+      }
+    }
+
+    // ----------------------------------------------------------
+    // 5-D. Bandwidth 광범위 (큰 응답 → 큰 프록시 우선)
+    //   v30: pageSize 작게 + expectedSizeKB 명시 → 작은 페이지로 분할
+    // ----------------------------------------------------------
+    if (allTypeMatched.length === 0) {
+      try {
+        const bandwidthItems = await apiFetch(
+          { serviceName: 'Bandwidth', priceType: 'Consumption' },
+          currencyCode, 5000, 10,
+          { pageSize: 500, expectedSizeKB: 2000 }
+        );
+        const cands = filterByType(extractGbCands(bandwidthItems), transferType);
+        if (cands.length > 0) {
+          allTypeMatched = allTypeMatched.concat(cands);
+          vnetSearchSteps.push(`Bandwidth 광범위 ${cands.length}건/${bandwidthItems.length}응답`);
+        } else {
+          vnetSearchSteps.push(`Bandwidth 광범위 0건/${bandwidthItems.length}응답`);
+        }
+      } catch (err) {
+        vnetSearchSteps.push(`Bandwidth 광범위 호출실패: ${err.message.slice(0, 60)}`);
+      }
+    }
+
+    // ----------------------------------------------------------
+    // 5-E. 중복 제거 + 정렬 + 최종 선택
+    // ----------------------------------------------------------
     const uniqMap = new Map();
     allTypeMatched.forEach(it => {
       const id = makeCandidateId(it);
       if (!uniqMap.has(id)) uniqMap.set(id, it);
     });
-    const sortedCands = sortCands(Array.from(uniqMap.values()));
-    const vnetSource = searchSteps.length > 0 ? searchSteps.join(' / ') : '검색 미실행';
+    vnetCandsAll = sortCands(Array.from(uniqMap.values()));
 
-    // ============================================================
-    // 자동 매칭 (1순위)
-    // ============================================================
-    let vnetItem = null;
-    if (vnetGB > 0) {
-      if (sortedCands.length > 0) {
-        vnetItem = sortedCands[0];
-      } else if (transferType === 'VPN') {
-        // VPN 유형이고 매칭 0건 → ₩0 처리 (calculator 동작과 일치)
-        vnetItem = {
-          meterName: `[VPN zone ${userZone} 내 무료]`,
-          skuName: 'Free',
-          unitPrice: 0,
-          retailPrice: 0,
-          unitOfMeasure: '1 GB',
-          currencyCode: currencyCode,
-          productName: 'VPN intra-zone',
-          serviceName: 'VPN Gateway',
-        };
-      }
-    }
-
-    const vnetCandsAll = sortedCands;
-    const vnetCands = sortedCands;
-
-    // ============================================================
-    // 월 비용 합산 (각 항목별)
-    // ============================================================
-    let monthly = 0;
-    let breakdown = [];
-
-    let gwMonthly = 0, s2sMonthly = 0, p2sMonthly = 0, vnetMonthly = 0;
-    let gwHourly = 0, s2sHourly = 0, p2sHourly = 0, vnetGbPrice = 0;
-
-    if (gateway) {
-      gwHourly = Number(gateway.unitPrice);
-      gwMonthly = gwHourly * gatewayHours;
-      monthly += gwMonthly;
-      breakdown.push(`GW ${gwHourly.toFixed(4)}/h × ${gatewayHours}h = ${gwMonthly.toFixed(2)}/월`);
-    }
-    if (s2sItem && extraS2s > 0) {
-      s2sHourly = Number(s2sItem.unitPrice);
-      s2sMonthly = s2sHourly * extraS2s * gatewayHours;
-      monthly += s2sMonthly;
-      breakdown.push(`S2S ${s2sHourly}/터널/h × ${extraS2s}터널 × ${gatewayHours}h = ${s2sMonthly.toFixed(2)}/월`);
-    }
-    if (p2sItem && extraP2s > 0) {
-      p2sHourly = Number(p2sItem.unitPrice);
-      p2sMonthly = p2sHourly * extraP2s * gatewayHours;
-      monthly += p2sMonthly;
-      breakdown.push(`P2S ${p2sHourly}/연결/h × ${extraP2s}연결 × ${gatewayHours}h = ${p2sMonthly.toFixed(2)}/월`);
-    }
-    if (vnetItem && vnetGB > 0) {
-      vnetGbPrice = Number(vnetItem.unitPrice);
-      vnetMonthly = vnetGbPrice * vnetGB;
-      monthly += vnetMonthly;
-      breakdown.push(`VNET ${vnetGbPrice}/GB × ${vnetGB}GB = ${vnetMonthly.toFixed(2)}/월`);
-    }
-
-    // 표시용 시간당 단가 (Storage와 동일하게 730시간 기준)
-    const hourlyEquivalent = monthly / 730;
-
-    let payg = null;
-    if (gateway) {
-      payg = {
-        ...gateway,
-        unitPrice: hourlyEquivalent,
-        retailPrice: hourlyEquivalent,
-        unitOfMeasure: '1 Hour (equivalent)',
-        _billingMode: 'monthly',
-        _monthlyTotal: monthly,
-        _gwMonthly: gwMonthly,
-        _s2sMonthly: s2sMonthly,
-        _p2sMonthly: p2sMonthly,
-        _vnetMonthly: vnetMonthly,
-        _gwHourly: gwHourly,
-        _s2sHourly: s2sHourly,
-        _p2sHourly: p2sHourly,
-        _vnetGbPrice: vnetGbPrice,
-        _gatewayHours: gatewayHours,
-        _extraS2s: extraS2s,
-        _extraP2s: extraP2s,
-        _vnetGB: vnetGB,
+    if (vnetCandsAll.length > 0) {
+      vnetItem = vnetCandsAll[0];
+    } else if (transferType === 'VPN') {
+      // VPN 유형이고 매칭 0건 → ₩0 처리 (calculator 동작과 일치)
+      vnetItem = {
+        meterName: `[VPN zone ${userZone} 내 무료]`,
+        skuName: 'Free',
+        unitPrice: 0,
+        retailPrice: 0,
+        unitOfMeasure: '1 GB',
+        currencyCode: currencyCode,
+        productName: 'VPN intra-zone',
+        serviceName: 'VPN Gateway',
       };
     }
-
-    // VPN Gateway는 RI/SP 미지원
-    row.paygItem = payg;
-    row.sp1Item = null;
-    row.sp3Item = null;
-    row.ri1Item = null;
-    row.ri3Item = null;
-
-    // ============================================================
-    // 디버그 콘솔 출력
-    // ============================================================
-    console.group(`[VPN Gateway] sku=${sku} / hours=${gatewayHours} / S2S+${extraS2s} / P2S+${extraP2s} / VNET=${vnetGB}GB / ${row.region}`);
-    console.log(`전체 응답: ${allItems.length}건`);
-
-    console.log(`▣ 게이트웨이 후보 ${gwCandsAll.length}건:`);
-    gwCandsAll.forEach((it, i) => {
-      console.log(`   [${i}] meter="${it.meterName}" / sku="${it.skuName}" / unitPrice=${it.unitPrice} ${it.currencyCode} / uom=${it.unitOfMeasure}`);
-    });
-    if (gateway) console.log(`✓ 게이트웨이 선택: meter="${gateway.meterName}" / unitPrice=${gateway.unitPrice}/h`);
-    else console.warn(`✗ 게이트웨이 매칭 실패 — sku="${sku}" 와 일치하는 미터가 없음. 응답 확인 필요`);
-
-    if (extraS2s > 0) {
-      console.log(`▣ S2S 후보 ${s2sCandsAll.length}건:`);
-      s2sCandsAll.forEach((it, i) => {
-        console.log(`   [${i}] meter="${it.meterName}" / unitPrice=${it.unitPrice}/${it.unitOfMeasure}`);
-      });
-      if (s2sItem) console.log(`✓ S2S 선택: ${s2sItem.meterName} = ${s2sItem.unitPrice}/h`);
-      else console.warn(`✗ S2S 매칭 실패`);
-    }
-
-    if (extraP2s > 0) {
-      console.log(`▣ P2S 후보 ${p2sCandsAll.length}건:`);
-      p2sCandsAll.forEach((it, i) => {
-        console.log(`   [${i}] meter="${it.meterName}" / unitPrice=${it.unitPrice}/${it.unitOfMeasure}`);
-      });
-      if (p2sItem) console.log(`✓ P2S 선택: ${p2sItem.meterName} = ${p2sItem.unitPrice}/h`);
-      else console.warn(`✗ P2S 매칭 실패`);
-    }
-
-    if (vnetGB > 0) {
-      console.log(`▣ VNET 데이터 전송 - 유형: ${transferType} / region=${row.region} (zone ${userZone})`);
-      console.log(`▣ 검색 단계: ${vnetSource}`);
-      console.log(`▣ ${transferType} 유형 후보 미터 ${sortedCands.length}건 (정렬: zone ${userZone} 우선, Out 우선, 단가 작은 것 우선):`);
-      sortedCands.slice(0, 30).forEach((it, i) => {
-        console.log(`   [${i}] meter="${it.meterName}" / unitPrice=${it.unitPrice} / region=${it.armRegionName} / sku="${it.skuName}" / product="${it.productName}" / service=${it.serviceName}`);
-      });
-      if (sortedCands.length > 30) console.log(`   ... 총 ${sortedCands.length}건 중 처음 30건만 표시`);
-      if (vnetItem) {
-        console.log(`✓ VNET 선택 (${transferType}): meter="${vnetItem.meterName}" / unitPrice=${vnetItem.unitPrice}/GB × ${vnetGB} GB = ${(Number(vnetItem.unitPrice) * vnetGB).toFixed(2)}/월`);
-      } else {
-        console.warn(`✗ VNET 매칭 실패 (${transferType}) — ${vnetSource}`);
-      }
-    }
-
-    console.log(`▣ 항목별 월 비용:`);
-    breakdown.forEach(b => console.log(`   · ${b}`));
-    console.log(`▣ 총 월 비용 = ${monthly.toFixed(2)}/월 (표시용 시간당 = ${hourlyEquivalent.toFixed(6)}/h)`);
-    console.groupEnd();
-
-    if (payg) {
-      const tags = [];
-      tags.push(gateway ? `GW✓` : `GW✗`);
-      if (extraS2s > 0) tags.push(s2sItem ? `S2S✓` : `S2S✗`);
-      if (extraP2s > 0) tags.push(p2sItem ? `P2S✓` : `P2S✗`);
-      if (vnetGB > 0)   tags.push(vnetItem ? `VNET✓` : `VNET✗`);
-      setStatus('ok', `${sku} 완료 [${tags.join(', ')}] · ${monthly.toFixed(2)}/월`);
-    } else {
-      setStatus('error', `${sku}: 게이트웨이 매칭 실패 - F12 콘솔 확인`);
-    }
-  } catch (err) {
-    row.paygItem = null; row.sp1Item = null; row.sp3Item = null;
-    row.ri1Item = null; row.ri3Item = null;
-    setStatus('error', `VPN Gateway 조회 실패: ${err.message.slice(0, 100)}`);
-    console.error('VPN Gateway 가격 조회 실패:', err);
   }
+
+  // ============================================================
+  // 6단계: 월 비용 합산 + 결과 저장
+  // ============================================================
+  let monthly = 0;
+  let breakdown = [];
+  let gwMonthly = 0, s2sMonthly = 0, p2sMonthly = 0, vnetMonthly = 0;
+  let gwHourly = 0, s2sHourly = 0, p2sHourly = 0, vnetGbPrice = 0;
+
+  if (gateway) {
+    gwHourly = Number(gateway.unitPrice);
+    gwMonthly = gwHourly * gatewayHours;
+    monthly += gwMonthly;
+    breakdown.push(`GW ${gwHourly.toFixed(4)}/h × ${gatewayHours}h = ${gwMonthly.toFixed(2)}/월`);
+  }
+  if (s2sItem && extraS2s > 0) {
+    s2sHourly = Number(s2sItem.unitPrice);
+    s2sMonthly = s2sHourly * extraS2s * gatewayHours;
+    monthly += s2sMonthly;
+    breakdown.push(`S2S ${s2sHourly}/터널/h × ${extraS2s}터널 × ${gatewayHours}h = ${s2sMonthly.toFixed(2)}/월`);
+  }
+  if (p2sItem && extraP2s > 0) {
+    p2sHourly = Number(p2sItem.unitPrice);
+    p2sMonthly = p2sHourly * extraP2s * gatewayHours;
+    monthly += p2sMonthly;
+    breakdown.push(`P2S ${p2sHourly}/연결/h × ${extraP2s}연결 × ${gatewayHours}h = ${p2sMonthly.toFixed(2)}/월`);
+  }
+  if (vnetItem && vnetGB > 0) {
+    vnetGbPrice = Number(vnetItem.unitPrice);
+    vnetMonthly = vnetGbPrice * vnetGB;
+    monthly += vnetMonthly;
+    breakdown.push(`VNET ${vnetGbPrice}/GB × ${vnetGB}GB = ${vnetMonthly.toFixed(2)}/월`);
+  }
+
+  const hourlyEquivalent = monthly / 730;
+
+  let payg = null;
+  if (gateway) {
+    payg = {
+      ...gateway,
+      unitPrice: hourlyEquivalent,
+      retailPrice: hourlyEquivalent,
+      unitOfMeasure: '1 Hour (equivalent)',
+      _billingMode: 'monthly',
+      _monthlyTotal: monthly,
+      _gwMonthly: gwMonthly,
+      _s2sMonthly: s2sMonthly,
+      _p2sMonthly: p2sMonthly,
+      _vnetMonthly: vnetMonthly,
+      _gwHourly: gwHourly,
+      _s2sHourly: s2sHourly,
+      _p2sHourly: p2sHourly,
+      _vnetGbPrice: vnetGbPrice,
+      _gatewayHours: gatewayHours,
+      _extraS2s: extraS2s,
+      _extraP2s: extraP2s,
+      _vnetGB: vnetGB,
+      _partialErrors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
+  row.paygItem = payg;
+  row.sp1Item = null;
+  row.sp3Item = null;
+  row.ri1Item = null;
+  row.ri3Item = null;
+
+  // ============================================================
+  // 디버그 콘솔 출력
+  // ============================================================
+  console.group(`[VPN Gateway v30] sku=${sku} / hours=${gatewayHours} / S2S+${extraS2s} / P2S+${extraP2s} / VNET=${vnetGB}GB / ${row.region}`);
+  console.log(`전체 응답: ${allItems.length}건`);
+
+  console.log(`▣ 게이트웨이 후보 ${gwCandsAll.length}건:`);
+  gwCandsAll.forEach((it, i) => {
+    console.log(`   [${i}] meter="${it.meterName}" / sku="${it.skuName}" / unitPrice=${it.unitPrice} ${it.currencyCode} / uom=${it.unitOfMeasure}`);
+  });
+  if (gateway) console.log(`✓ 게이트웨이 선택: meter="${gateway.meterName}" / unitPrice=${gateway.unitPrice}/h`);
+  else console.warn(`✗ 게이트웨이 매칭 실패 — sku="${sku}" 와 일치하는 미터가 없음`);
+
+  if (extraS2s > 0) {
+    console.log(`▣ S2S 후보 ${s2sCandsAll.length}건`);
+    if (s2sItem) console.log(`✓ S2S 선택: ${s2sItem.meterName} = ${s2sItem.unitPrice}/h`);
+    else console.warn(`✗ S2S 매칭 실패`);
+  }
+
+  if (extraP2s > 0) {
+    console.log(`▣ P2S 후보 ${p2sCandsAll.length}건`);
+    if (p2sItem) console.log(`✓ P2S 선택: ${p2sItem.meterName} = ${p2sItem.unitPrice}/h`);
+    else console.warn(`✗ P2S 매칭 실패`);
+  }
+
+  if (vnetGB > 0) {
+    console.log(`▣ VNET 데이터 전송 - 유형: ${transferType} / region=${row.region} (zone ${userZone})`);
+    console.log(`▣ 검색 단계: ${vnetSearchSteps.join(' / ') || '검색 미실행'}`);
+    console.log(`▣ ${transferType} 유형 후보 ${vnetCandsAll.length}건 (정렬: zone ${userZone}, Out, 단가):`);
+    vnetCandsAll.slice(0, 20).forEach((it, i) => {
+      console.log(`   [${i}] meter="${it.meterName}" / unitPrice=${it.unitPrice} / region=${it.armRegionName} / sku="${it.skuName}" / service=${it.serviceName}`);
+    });
+    if (vnetCandsAll.length > 20) console.log(`   ... 총 ${vnetCandsAll.length}건 중 처음 20건만 표시`);
+    if (vnetItem) {
+      console.log(`✓ VNET 선택 (${transferType}): meter="${vnetItem.meterName}" / unitPrice=${vnetItem.unitPrice}/GB × ${vnetGB} GB = ${(Number(vnetItem.unitPrice) * vnetGB).toFixed(2)}/월`);
+    } else {
+      console.warn(`✗ VNET 매칭 실패 (${transferType})`);
+    }
+  }
+
+  console.log(`▣ 항목별 월 비용:`);
+  breakdown.forEach(b => console.log(`   · ${b}`));
+  console.log(`▣ 총 월 비용 = ${monthly.toFixed(2)}/월 (표시용 시간당 = ${hourlyEquivalent.toFixed(6)}/h)`);
+  if (errors.length > 0) {
+    console.warn(`▣ 부분 실패 항목 ${errors.length}건:`);
+    errors.forEach(e => console.warn(`   ! ${e}`));
+  }
+  console.groupEnd();
+
+  // 상태 메시지: 부분 성공 표시
+  if (payg) {
+    const tags = [];
+    tags.push(gateway ? `GW✓` : `GW✗`);
+    if (extraS2s > 0) tags.push(s2sItem ? `S2S✓` : `S2S✗`);
+    if (extraP2s > 0) tags.push(p2sItem ? `P2S✓` : `P2S✗`);
+    if (vnetGB > 0) tags.push(vnetItem ? `VNET✓` : `VNET✗`);
+    const errSuffix = errors.length > 0 ? ` (부분실패 ${errors.length}건)` : '';
+    setStatus('ok', `${sku} 완료 [${tags.join(', ')}] · ${monthly.toFixed(2)}/월${errSuffix}`);
+  } else {
+    setStatus('error', `${sku}: 게이트웨이 매칭 실패 - F12 콘솔 확인`);
+  }
+
   updatePriceCells(row);
   updateTotalsRow();
 }
+
 
 async function tryResolveItem(row) {
   if (!row.serviceCategory || !row.skuName) {
