@@ -32,6 +32,26 @@ const DIAG_STATUS = {
   PROXY_DOWN: 'PROXY_DOWN',
 };
 
+// [v30] window.fetch 가로채기 감지
+// 회사 보안 솔루션이 모든 브라우저에 fetch wrapper를 설치하여
+// 외부 요청을 가로채는 환경. 일반적인 native fetch는
+// "function fetch() { [native code] }" 형태를 가짐.
+// 가로채기가 있으면 함수 본문이 주입된 JavaScript 코드.
+//
+// 주의: 일부 브라우저 확장(passwords, ad blockers)도 fetch를 wrap하므로
+// 가로채기 감지 ≠ 회사 보안 솔루션. 진단 정보로만 사용.
+function detectFetchInterception() {
+  try {
+    const fnStr = window.fetch.toString();
+    // native code 패턴이면 가로채기 없음
+    if (/\[native code\]/.test(fnStr)) return false;
+    // 그 외에는 가로채기 의심
+    return true;
+  } catch (e) {
+    return false; // 접근 불가 시 모름으로 처리
+  }
+}
+
 // <img> 태그로 도메인 reachability를 확인
 // CORS와 무관하게 단순히 "DNS 해소 + TCP 연결 + HTTP 응답"이 가능한지만 봄
 // HTTP 4xx/5xx도 onerror 발동시키지만, "도달은 한 것"이므로 onerror 시점의
@@ -75,6 +95,7 @@ async function runDiagnostics() {
     activeProxy: null,
     proxyErrors: [],       // [{ name, message }]
     blockedDomains: [],    // 차단 후보 도메인 목록 (회사망 안내용)
+    fetchIntercepted: detectFetchInterception(), // [v30] window.fetch 가로채기 감지
   };
 
   // 1) file:// 감지 - 가장 먼저 체크 (네트워크 호출 안 함)
@@ -359,7 +380,17 @@ function renderNetworkBlockGuide(diag) {
 
 // CORS/확장 차단 가이드
 function renderCorsBlockGuide(diag) {
+  // [v30] fetch 가로채기 감지 시 추가 안내
+  const interceptedNotice = diag.fetchIntercepted ? `
+    <div style="background:#fff4e5; border-left:4px solid #f59e0b; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#7c2d12;">
+      <strong>회사 보안 솔루션 감지됨:</strong>
+      <code>window.fetch</code>가 가로채진 상태입니다 (브라우저 확장 또는 회사 배포 보안 솔루션).
+      이 환경에서는 외부 fetch 요청이 검사 후 변형되거나 차단될 수 있습니다.
+    </div>
+  ` : '';
+
   return `
+    ${interceptedNotice}
     <p style="margin:0 0 12px 0; font-size:13px; color:#323130;">
       도메인 도달은 가능하나 (probe OK, ${diag.probe.elapsed}ms),
       모든 fetch 요청이 브라우저에서 차단됩니다.
@@ -435,6 +466,7 @@ function renderDiagDetails(diag) {
 location.protocol: ${location.protocol}
 location.href: ${escapeHtmlSafe(location.href)}
 userAgent: ${escapeHtmlSafe(navigator.userAgent)}
+fetchIntercepted: ${diag.fetchIntercepted ? 'YES (window.fetch wrapped — 보안 솔루션 또는 확장)' : 'no (native fetch)'}
 probe(prices.azure.com): ${probeText}
 fetchOk: ${diag.fetchOk}
 activeProxy: ${diag.activeProxy || 'n/a'}
@@ -471,6 +503,7 @@ async function bootDiagnostics() {
       activeProxy: null,
       proxyErrors: [],
       blockedDomains: [],
+      fetchIntercepted: detectFetchInterception(),
     };
     updateConnectionBanner(diag);
     showDiagnosticModal(diag);
