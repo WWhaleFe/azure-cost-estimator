@@ -2,28 +2,14 @@ const API_BASE = 'https://prices.azure.com/api/retail/prices';
 const API_VERSION = '2023-01-01-preview';
 const apiCache = new Map();
 let activeProxyIndex = 0;
-// CORS 프록시 정의 (v30 갱신):
+// CORS 프록시 정의 (v31):
 //
 // 중요 정정: Azure Retail Prices API는 실제로 CORS를 지원하지 않음
 // (origin이 "https://wwhalefe.github.io" 등 외부 도메인일 때 401/no-CORS 응답)
 // → direct 호출은 거의 항상 실패하지만, 일부 환경에서는 회사 프록시가
 //   응답을 가공하여 통과시켜주기도 하므로 시도 비용은 작음 → 1순위 유지.
 //
-// 각 프록시의 sizeKB 메타데이터는 manual testing + 검증된 가용성 정보 기반.
-// (출처: gist.github.com/reynaldichernando 2026-01 갱신본 + 본 프로젝트 실측)
-//
-// 제거된 프록시:
-// - thingproxy.freeboard.io: 2024년 이후 거의 응답 없음
-// - cors.lol:                2025-05 이후 비활성
-// - yacdn.org:               2026-05 실측 결과 DNS 해소 실패
-// - cors.sh / proxy.cors.sh: 429 Too Many Requests + CORS 헤더 미반환
-//
-// 추가된 프록시 (2026-05 실측 검증):
-// - cors.x2u.in:             500KB 제한, 100/hour rate limit
-//
 // sizeKB: 응답 본문 사이즈 제한 (KB)
-//   - Infinity = 명시적 제한 없음
-//   - 큰 호출 (Bandwidth 전체 등)은 sizeKB가 큰 프록시를 우선 시도
 const CORS_PROXIES = [
   { name: 'direct',         wrap: false, sizeKB: Infinity, url: t => t },
   { name: 'corsproxy.io',   wrap: false, sizeKB: 1024,     url: t => `https://corsproxy.io/?url=${encodeURIComponent(t)}` },
@@ -51,8 +37,11 @@ const SERVICE_CATEGORIES = {
       { key: 'series', label: '시리즈', options: ['B-series', 'D-series v6', 'D-series v5', 'D-series v3', 'Dl-series v6', 'Ds-series v6', 'E-series v6', 'E-series v5', 'F-series v2', 'M-series', 'N-series'] },
     ],
     instanceField: true,
+    // instanceKey: instance 드롭다운을 갱신해야 하는 상위 옵션 키
+    instanceParentKey: 'series',
   },
-  'Storage': {
+  // Storage 카테고리명을 'Disk'로 변경 (구분 명확화)
+  'Disk': {
     apiServiceName: 'Storage',
     steps: [
       { key: 'storageType', label: 'Storage Type', options: ['Premium SSD Managed Disks', 'Standard SSD Managed Disks', 'Standard HDD Managed Disks'] },
@@ -60,6 +49,7 @@ const SERVICE_CATEGORIES = {
       { key: 'transactionUnits', label: 'Storage 트랜잭션 (10,000 단위, 월)', type: 'number', min: 0, step: 1, default: 0 },
     ],
     instanceField: true,
+    instanceParentKey: 'storageType',
   },
   'Azure Files': {
     apiServiceName: 'Storage',

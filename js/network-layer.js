@@ -1,25 +1,16 @@
 // ==================================================================
-// network-layer.js (v30)
+// network-layer.js (v31)
 // ------------------------------------------------------------------
-// CORS 프록시 폴백 + 응답 무결성 검증
-//
-// v30 변경사항:
-// 1. 잘린 JSON에 대한 "lastBrace 폴백" 제거
-//    → codetabs (625KB) / cors.x2u.in (500KB) 등이 응답을 잘랐을 때
-//      이를 정상 데이터로 둔갑시키지 않고 즉시 다음 프록시로 폴백
-// 2. OData 응답 구조 검증 (Items 배열 + 옵션의 NextPageLink)
-//    → Azure Retail Prices API 응답이 아닌 것은 에러로 판정
-// 3. 프록시별 sizeKB 메타데이터 활용
-//    → 큰 응답 페이지를 받을 때 size 제한 작은 프록시는 후순위
-// 4. apiFetch에 pageSize 인자 추가
-//    → 페이지당 항목 수를 줄여 작은 프록시도 통과 가능
+// v31 변경사항:
+// 1. 통화별 캐시 키 분리
+//    → apiCache 키를 `${url}::${currencyCode}` 로 변경
+//    → 통화 전환 시 전체 캐시 삭제 불필요 (currencyCode별 독립 캐시)
+// 2. apiFetch에 cacheKey 파라미터 제거, URL 자체에 currencyCode 포함되므로
+//    기존 targetUrl 그대로 캐시 키 사용 가능
+//    (currencyCode 파라미터가 URL 쿼리에 이미 포함됨)
 // ==================================================================
 
 // 응답 무결성 판정
-//  - data 자체가 객체인지
-//  - Azure Retail Prices API의 OData 페이지 구조인지 (Items 배열 보유)
-//  - 'Count' 필드가 있고 Items 배열 길이와 일치하는지 (잘림 감지)
-// returns: { ok: true } | { ok: false, reason: string }
 function validateApiResponse(data) {
   if (!data || typeof data !== 'object') {
     return { ok: false, reason: 'not an object' };
@@ -27,7 +18,6 @@ function validateApiResponse(data) {
   if (!Array.isArray(data.Items)) {
     return { ok: false, reason: 'no Items array (likely truncated or wrong endpoint)' };
   }
-  // Count 필드가 있고 Items 길이의 2배 이상인데 NextPageLink가 없으면 잘린 것으로 간주
   if (typeof data.Count === 'number' && data.Count > data.Items.length * 2) {
     if (!data.NextPageLink) {
       return { ok: false, reason: `truncated (Count=${data.Count}, Items=${data.Items.length}, no NextPageLink)` };
@@ -44,10 +34,6 @@ async function fetchOnce(targetUrl, proxy, timeoutMs = 25000) {
     const text = await res.text();
     if (!text || text.length < 10) throw new Error('empty response');
 
-    // [v30] 잘린 JSON에 대한 lastBrace 폴백 제거
-    // 이전 코드는 response가 잘렸을 때도 lastIndexOf('}') 위치까지 파싱해서
-    // "정상 데이터처럼 보이는 부분 데이터"를 반환했음 → 다음 프록시로 폴백 안 됨.
-    // v30: JSON parse 실패는 즉시 에러로 처리 → 다음 프록시 시도.
     let data;
     try {
       data = JSON.parse(text);
@@ -55,13 +41,11 @@ async function fetchOnce(targetUrl, proxy, timeoutMs = 25000) {
       throw new Error(`JSON parse error (response size: ${text.length}B, may be truncated by proxy)`);
     }
 
-    // allorigins-get 같은 wrap 모드 프록시: data.contents가 문자열로 들어옴
     if (proxy.wrap && data && typeof data.contents === 'string') {
       try { data = JSON.parse(data.contents); }
       catch { throw new Error(`wrapped JSON parse error (size: ${data.contents.length}B)`); }
     }
 
-    // [v30] OData 응답 구조 검증
     const validation = validateApiResponse(data);
     if (!validation.ok) {
       throw new Error(`invalid OData response: ${validation.reason}`);
@@ -116,13 +100,11 @@ async function fetchWithCorsFallback(targetUrl, expectedSizeKB = 0) {
   throw new Error(`모든 프록시 실패 (${CORS_PROXIES.length}개 시도): ${errors.join(' | ')}`);
 }
 
-// apiFetch (v30)
-//  - opts.pageSize: $top 파라미터로 페이지당 항목 수 제어 (기본 미설정 = API 기본값)
-//  - opts.expectedSizeKB: 응답 사이즈 추정값 (큰 호출은 큰 프록시 우선 시도)
-async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages = 5, opts = {}) {
-  const pageSize = opts.pageSize || 0;
-  const expectedSizeKB = opts.expectedSizeKB || 0;
-
+// apiFetch (v31)
+//  - 캐시 키: URL 자체 (currencyCode가 쿼리 파라미터에 포함되므로 통화별 자동 분리)
+//  - opts.pageSize: $top 파라미터로 페이지당 항목 수 제어
+//  - opts.expectedSizeKB: 응답 사이즈 추정값
+function buildApiUrl(filters, currencyCode, pageSize) {
   const fp = [];
   for (const [k, v] of Object.entries(filters)) {
     if (v === undefined || v === null || v === '') continue;
@@ -139,18 +121,26 @@ async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages
   const filterStr = fp.join(' and ');
   const params = new URLSearchParams();
   params.set('api-version', API_VERSION);
-  if (currencyCode && currencyCode !== 'USD') params.set('currencyCode', currencyCode);
+  // currencyCode가 URL에 포함되므로 캐시는 통화별로 자동 분리됨
+  if (currencyCode) params.set('currencyCode', currencyCode);
   if (filterStr) params.set('$filter', filterStr);
   if (pageSize > 0) params.set('$top', String(pageSize));
+  return `${API_BASE}?${params.toString()}`;
+}
 
-  const targetUrl = `${API_BASE}?${params.toString()}`;
+async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages = 5, opts = {}) {
+  const pageSize = opts.pageSize || 0;
+  const expectedSizeKB = opts.expectedSizeKB || 0;
+
+  const targetUrl = buildApiUrl(filters, currencyCode, pageSize);
+
+  // 캐시 조회 (키 = URL, 통화별로 자동 분리)
   if (apiCache.has(targetUrl)) {
     const cached = apiCache.get(targetUrl);
-    if (!Array.isArray(cached) || cached.length === 0) {
-      apiCache.delete(targetUrl);
-    } else {
+    if (Array.isArray(cached) && cached.length > 0) {
       return cached;
     }
+    apiCache.delete(targetUrl);
   }
 
   const items = [];
@@ -164,4 +154,15 @@ async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages
   }
   if (items.length > 0) apiCache.set(targetUrl, items);
   return items;
+}
+
+// 통화 변경 시 해당 통화 캐시만 삭제 (다른 통화 캐시는 유지)
+function clearCacheForCurrency(currencyCode) {
+  const keyword = `currencyCode=${currencyCode}`;
+  const keysToDelete = [];
+  for (const key of apiCache.keys()) {
+    if (key.includes(keyword)) keysToDelete.push(key);
+  }
+  keysToDelete.forEach(k => apiCache.delete(k));
+  console.log(`[캐시] ${currencyCode} 캐시 ${keysToDelete.length}건 삭제`);
 }
