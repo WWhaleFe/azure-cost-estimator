@@ -24,12 +24,24 @@ function fmtMoney(n){if(n===null||n===undefined||isNaN(n))return'-';return Numbe
 function fmtUnit(n){if(n===null||n===undefined||isNaN(n))return'-';return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function escapeHtml(s){if(s===null||s===undefined)return'';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
 
+/**
+ * calcGroup (v34)
+ * _billingMode==='monthly' 인 경우: Disk/VPN에서만 사용
+ * 월 비용은 _monthlyTotal 기준, usage가 직접 영향하지 않음 (월 정액)
+ * 일반 항목(VM 등): usage Hours 변경 시 실지로 가격 변동
+ */
 function calcGroup(item,qty,usage){
   if(!item)return null;
-  if(item._billingMode==='monthly'&&typeof item._monthlyTotal==='number'){const monthly=Number(item._monthlyTotal);return{unit:monthly/730,monthly:monthly*qty,year:monthly*qty*12};}
+  // Disk/VPN은 _billingMode:'monthly' + _monthlyTotal 사용
+  if(item._billingMode==='monthly'&&typeof item._monthlyTotal==='number'){
+    const monthly=Number(item._monthlyTotal);
+    return{unit:monthly/730,monthly:monthly*qty,year:monthly*qty*12};
+  }
+  // 일반 항목: usage Hours 연동
   const u=Number(item.unitPrice);if(isNaN(u))return null;
   return{unit:u,monthly:u*qty*usage,year:u*qty*usage*12};
 }
+
 function priceCells(data,hasItem){
   if(!hasItem||!data)return`<td class="cell-readonly"></td><td class="cell-readonly"></td><td class="cell-readonly"></td>`;
   return`<td class="cell-readonly cell-ok">${fmtUnit(data.unit)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.monthly)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.year)}</td>`;
@@ -54,7 +66,7 @@ function render(){
       <td><input type="text" class="cell-input text-left" data-act="freetext" data-id="${row.id}" data-field="category" placeholder="예: Web/WAS Server(운영망)" value="${escapeHtml(row.category)}" /></td>
       ${comboCell(row.id,'serviceCategory',row.serviceCategory)}
       <td><input type="text" class="cell-input text-left" data-act="open-config" data-id="${row.id}" ${!row.serviceCategory?'disabled style="background:#f3f2f1;color:#a19f9d;cursor:not-allowed;"':''} placeholder="${row.serviceCategory?'클릭하여 옵션 선택...':''}" value="${escapeHtml(row.skuName)}" readonly /></td>
-      <td><input type="text" class="cell-input text-left" data-act="freetext" data-id="${row.id}" data-field="detail" placeholder="자동 생성됨" value="${escapeHtml(row.detail)}" /></td>
+      <td class="cell-detail"><div class="detail-wrap">${escapeHtml(row.detail)||'<span style="color:#a19f9d;font-size:10px;">자동 생성됨</span>'}</div></td>
       <td><input type="number" min="0" step="any" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="qty" value="${row.qty}" /></td>
       <td><input type="number" min="0" step="1" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="usage" value="${row.usage}" placeholder="730" /></td>
       ${priceCells(payg,!!row.paygItem)}
@@ -78,9 +90,11 @@ function render(){
     <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri3M)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri3Y)}</td>
     <td></td></tr>`;
 }
+
 function comboCell(rowId,field,value,disabled=false){
   return`<td><div class="combo-wrap" data-row="${rowId}" data-field="${field}"><input type="text" class="cell-input combo-input combo-input-with-arrow text-left" ${disabled?'disabled style="background:#f3f2f1;color:#a19f9d;cursor:not-allowed;"':''} data-act="combo-input" data-id="${rowId}" data-field="${field}" placeholder="${disabled?'':'선택...'}" value="${escapeHtml(value)}" autocomplete="off" /><div class="combo-list hidden" data-list="${rowId}-${field}"></div></div></td>`;
 }
+
 function updatePriceCells(row){
   const tr=$body.querySelector(`tr[data-id="${row.id}"]`);if(!tr)return;
   const tds=tr.querySelectorAll('td'),qty=Number(row.qty)||0,usage=Number(row.usage)||0;
@@ -91,6 +105,7 @@ function updatePriceCells(row){
     else{tds[base].className='cell-readonly cell-ok';tds[base].textContent=fmtUnit(data.unit);tds[base+1].className='cell-readonly cell-ok';tds[base+1].textContent=fmtMoney(data.monthly);tds[base+2].className='cell-readonly cell-ok';tds[base+2].textContent=fmtMoney(data.year);}
   });
 }
+
 function updateTotalsRow(){
   let totals={paygM:0,paygY:0,sp1M:0,sp1Y:0,sp3M:0,sp3Y:0,ri1M:0,ri1Y:0,ri3M:0,ri3Y:0};
   rows.forEach(row=>{const qty=Number(row.qty)||0,usage=Number(row.usage)||0;const add=(item,mK,yK)=>{const d=calcGroup(item,qty,usage);if(d){totals[mK]+=d.monthly;totals[yK]+=d.year;}};add(row.paygItem,'paygM','paygY');add(row.sp1Item,'sp1M','sp1Y');add(row.sp3Item,'sp3M','sp3Y');add(row.ri1Item,'ri1M','ri1Y');add(row.ri3Item,'ri3M','ri3Y');});
@@ -100,9 +115,16 @@ function updateTotalsRow(){
   for(let i=0;i<map.length;i++){const td=tds[i+1];if(!td)continue;if(map[i]===null)td.textContent='-';else td.textContent=fmtMoney(totals[map[i]]);}
 }
 
+// [v34] usage 변경 시에 VM 등 일반 항목 가격 실시간 갱신
 $body.addEventListener('input',(e)=>{
   const t=e.target,id=Number(t.dataset.id),r=rows.find(x=>x.id===id);if(!r)return;
-  if(t.dataset.act==='num'){const f=t.dataset.field,raw=String(t.value).trim(),n=raw===''?0:Number(raw);r[f]=isNaN(n)?0:n;updatePriceCells(r);updateTotalsRow();}
+  if(t.dataset.act==='num'){
+    const f=t.dataset.field,raw=String(t.value).trim(),n=raw===''?0:Number(raw);
+    r[f]=isNaN(n)?0:n;
+    // usage 변경 시 가격 업데이트 (monthly mode 아니면 unit가 변함)
+    updatePriceCells(r);
+    updateTotalsRow();
+  }
   else if(t.dataset.act==='freetext')r[t.dataset.field]=t.value;
   else if(t.dataset.act==='combo-input')onComboInput(r,t.dataset.field,t.value,t);
 });
@@ -119,7 +141,14 @@ document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   render();for(const r of rows){if(r.skuName)await tryResolveItem(r);}
 });
 document.getElementById('currencySelect')._prevValue=document.getElementById('currencySelect').value;
-document.getElementById('defaultHours').addEventListener('change',(e)=>{const v=Number(e.target.value)||730;rows.forEach(r=>{r.usage=v;});render();});
+document.getElementById('defaultHours').addEventListener('change',(e)=>{
+  const v=Number(e.target.value)||730;
+  rows.forEach(r=>{r.usage=v;});
+  // usage 변경 후 가격 셀 전체 갱신
+  rows.forEach(r=>{updatePriceCells(r);});
+  updateTotalsRow();
+  render();
+});
 
 let dragSrcId=null;
 $body.addEventListener('mousedown',(e)=>{const h=e.target.closest('[data-act="drag-handle"]');if(h)h.closest('tr').draggable=true;});
@@ -171,47 +200,39 @@ function openConfig(rowId){
 }
 function closeConfig(){activeConfigRowId=null;$configPanel.classList.remove('active');configDirty=false;const $b=document.getElementById('configDirtyBadge');if($b)$b.style.display='none';}
 
-/**
- * 옵션 패널 렌더 (v33)
- * conditionalSteps 지원: storageType 선택에 따라 Premium SSD 전용 옵션 동적 표시
- */
 function renderConfigPanel(){
   const r=rows.find(x=>x.id===activeConfigRowId);if(!r){closeConfig();return;}
   const def=SERVICE_CATEGORIES[r.serviceCategory];if(!def){closeConfig();return;}
   $configTitle.textContent=`${r.serviceCategory} 옵션 (행 #${rows.findIndex(x=>x.id===r.id)+1})`;
 
-  // 현재 storageType에 따라 조건부 steps 합치
   const conditionalSteps=(def.conditionalSteps&&r.options.storageType)
     ? (def.conditionalSteps[r.options.storageType]||[])
     : [];
   const allSteps=[...def.steps,...conditionalSteps];
 
   const renderStep=(step)=>{
+    const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:''
     if(step.type==='number'){
       const cur=(r.options[step.key]!==undefined&&r.options[step.key]!=='')?r.options[step.key]:(step.default!==undefined?step.default:0);
-      const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:''
-      return`<div class="config-field"><label ${tooltip}>${escapeHtml(step.label)}${step.tooltip?' ℹ️':''}</label><input type="number" data-opt-key="${step.key}" data-opt-type="number" min="${step.min!==undefined?step.min:0}" step="${step.step!==undefined?step.step:1}" value="${escapeHtml(String(cur))}" style="text-align:right;" /></div>`;
+      return`<div class="config-field"><label ${tooltip}>${escapeHtml(step.label)}${step.tooltip?' <span style="font-size:10px;color:#0078d4;cursor:help;">[?]</span>':''}</label><input type="number" data-opt-key="${step.key}" data-opt-type="number" min="${step.min!==undefined?step.min:0}" step="${step.step!==undefined?step.step:1}" value="${escapeHtml(String(cur))}" style="text-align:right;" /></div>`;
     }else{
       const sel=r.options[step.key]||'';
-      const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:''
-      return`<div class="config-field"><label ${tooltip}>${escapeHtml(step.label)}${step.tooltip?' ℹ️':''}</label><select data-opt-key="${step.key}"><option value="">선택...</option>${step.options.map(opt=>`<option value="${escapeHtml(opt)}" ${sel===opt?'selected':''}>${escapeHtml(opt)}</option>`).join('')}</select></div>`;
+      return`<div class="config-field"><label ${tooltip}>${escapeHtml(step.label)}${step.tooltip?' <span style="font-size:10px;color:#0078d4;cursor:help;">[?]</span>':''}</label><select data-opt-key="${step.key}"><option value="">선택...</option>${step.options.map(opt=>`<option value="${escapeHtml(opt)}" ${sel===opt?'selected':''}>${escapeHtml(opt)}</option>`).join('')}</select></div>`;
     }
   };
 
-  // instanceField
   let instanceHtml='';
   if(def.instanceField){
     let instanceOptions=[];
     if(r.serviceCategory==='Virtual Machine'){const series=r.options.series;if(series&&VM_INSTANCE_CATALOG[series])instanceOptions=VM_INSTANCE_CATALOG[series].map(i=>({value:i.name,label:`${i.name} (vCPU: ${i.vCPU}, RAM: ${i.ram}GB)`}));}
-    else if(r.serviceCategory==='Disk'){const st=r.options.storageType;if(st&&DISK_CATALOG[st])instanceOptions=DISK_CATALOG[st].map(d=>({value:d.name,label:`${d.name} (${d.size}GB)`}));}
+    else if(r.serviceCategory==='Disk'){const st=r.options.storageType;if(st&&DISK_CATALOG[st])instanceOptions=DISK_CATALOG[st].map(d=>({value:d.name,label:`${d.name} (${d.size}GB${d.iops?`, ${d.iops.toLocaleString()} IOPS`:''})` }));}
     const sel=r.options.instance||r.skuName||'';
-    instanceHtml=`<div class="config-field" style="grid-column: 1 / -1;"><label>인스턴스 / 디스크 크기</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`;
+    instanceHtml=`<div class="config-field" style="grid-column: 1 / -1;"><label>디스크 크기 (SKU)</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`;
   }
 
   $configContent.innerHTML=allSteps.map(renderStep).join('')+instanceHtml;
 
   const KEYS_REBUILD=[def.instanceParentKey].filter(Boolean);
-  // storageType 변경 시 conditionalSteps도 함께 재렌더
   const KEYS_RERENDER=['storageType'];
   const $dirtyBadge=document.getElementById('configDirtyBadge');
   const markDirty=()=>{configDirty=true;if($dirtyBadge)$dirtyBadge.style.display='';};
@@ -222,10 +243,7 @@ function renderConfigPanel(){
     sel.addEventListener('change',(e)=>{
       const key=e.target.dataset.optKey;
       r.options[key]=e.target.value;
-      // storageType 변경: conditionalSteps 변동 + instance 조절 필요
       if(KEYS_RERENDER.includes(key)){
-        // storageType 바뀌면 관련 옵션 전체 사전 제거
-        const conditionalKeys=(def.conditionalSteps&&def.conditionalSteps[r.options[key]]||[]).map(s=>s.key);
         Object.keys(r.options).forEach(k=>{
           if(k!=='storageType'&&k!=='redundancy'&&k!=='instance')delete r.options[k];
         });
@@ -249,9 +267,8 @@ function renderConfigPanel(){
 function setStatus(kind,msg){const cls=kind==='ok'?'badge badge-ok':kind==='error'?'badge badge-error':'badge badge-loading';$apiStatus.innerHTML=`<span class="${cls}">${escapeHtml(msg)}</span>`;}
 
 // ============================================================
-// 엑셀 내보내기 (체크박스 선택 출력)
+// 엑셀 내보내기
 // ============================================================
-// 엑셀 그룹 메타정보
 const EXPORT_GROUPS = [
   { key:'payg', label:'용량제 (PAYG)',   itemKey:'paygItem', color:'2E75B6', totMKey:'paygM', totYKey:'paygY' },
   { key:'sp1',  label:'절약 플랜 1년', itemKey:'sp1Item',  color:'70AD47', totMKey:'sp1M',  totYKey:'sp1Y' },
@@ -260,7 +277,6 @@ const EXPORT_GROUPS = [
   { key:'ri3',  label:'예약 3년',     itemKey:'ri3Item',  color:'843C0C', totMKey:'ri3M',  totYKey:'ri3Y' },
 ];
 
-// 헤더의 체크박스를 읽어 활성화 상태 반환
 function getEnabledGroups(){
   return EXPORT_GROUPS.filter(g=>{
     const chk=document.getElementById(`chk-group-${g.key}`);
@@ -272,102 +288,45 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const cur=document.getElementById('currencySelect').value;
   const enabledGroups=getEnabledGroups();
   if(enabledGroups.length===0){alert('엑셀로 출력할 가격 그룹을 하나 이상 선택하세요.');return;}
-
   const data=[];
   data.push(['Azure 견적 시뮬레이션']);
-  data.push([`통화: ${cur} | 출력 그룹: ${enabledGroups.map(g=>g.label).join(', ')} | 생성: ${new Date().toLocaleString('ko-KR')}`]);
+  data.push([`통화: ${cur} | 출력: ${enabledGroups.map(g=>g.label).join(', ')} | 생성: ${new Date().toLocaleString('ko-KR')}`]);
   data.push([]);
-
-  // 그룹 헤더
-  const baseHeaders=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
-  const groupHeaderRow=[...baseHeaders];
-  const colHeaderRow=[...baseHeaders.map(()=>'')];
-  colHeaderRow.splice(0,baseHeaders.length,...baseHeaders.map((_,i)=>i===0?'':''));
-  // 빈배열 (colHeaderRow는 나중에 채움)
-  const baseColHeaders=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
-
-  const finalGroupHeader=[...baseColHeaders];
-  const finalColHeader=[...baseColHeaders];
-
-  enabledGroups.forEach(g=>{
-    finalGroupHeader.push(g.label,'','');
-    finalColHeader.push('Unit Price','1 Monthly Cost','1 Year cost');
-  });
-  data.push(finalGroupHeader);
-  data.push(finalColHeader);
-
-  // 데이터 행
-  let totals={};
-  enabledGroups.forEach(g=>{totals[g.totMKey]=0;totals[g.totYKey]=0;});
-
+  const bH=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
+  const gHdr=[...bH];const gCol=[...bH];
+  enabledGroups.forEach(g=>{gHdr.push(g.label,'','');gCol.push('Unit Price','1 Monthly Cost','1 Year cost');});
+  data.push(gHdr);data.push(gCol);
+  let totals={};enabledGroups.forEach(g=>{totals[g.totMKey]=0;totals[g.totYKey]=0;});
   rows.forEach((r,idx)=>{
     const qty=Number(r.qty)||0,usage=Number(r.usage)||0;
-    const calc=(it)=>{ if(!it) return['','','']; const d=calcGroup(it,qty,usage); if(!d) return['','','']; return[d.unit,d.monthly,d.year]; };
+    const calc=(it)=>{if(!it)return['','',''];const d=calcGroup(it,qty,usage);if(!d)return['','',''];return[d.unit,d.monthly,d.year];};
     const row=[idx+1,REGION_LABEL[r.region]||r.region,r.category,r.serviceCategory,r.skuName,r.detail,qty,usage];
-    enabledGroups.forEach(g=>{
-      const[u,m,y]=calc(r[g.itemKey]);
-      row.push(u,m,y);
-      if(typeof m==='number'){totals[g.totMKey]+=m;totals[g.totYKey]+=y;}
-    });
+    enabledGroups.forEach(g=>{const[u,m,y]=calc(r[g.itemKey]);row.push(u,m,y);if(typeof m==='number'){totals[g.totMKey]+=m;totals[g.totYKey]+=y;}});
     data.push(row);
   });
-
-  // Total 행
-  const totalRow=['Total','','','','','','',''];
-  enabledGroups.forEach(g=>{totalRow.push('',totals[g.totMKey],totals[g.totYKey]);});
-  data.push(totalRow);
-  data.push([]);
-  data.push(['[Remark]']);
-  data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']);
-  data.push(['2. 절약 플랜(Savings Plan), 예약(Reservation) 단가는 시간당 환산 단가입니다.']);
-
+  const tr=['Total','','','','','','',''];enabledGroups.forEach(g=>{tr.push('',totals[g.totMKey],totals[g.totYKey]);});data.push(tr);
+  data.push([]);data.push(['[Remark]']);data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']);data.push(['2. 절약 플랜/예약 단가는 시간당 환산 단가입니다.']);
   const ws=XLSX.utils.aoa_to_sheet(data);
   const bA={top:{style:'thin',color:{rgb:'BFBFBF'}},bottom:{style:'thin',color:{rgb:'BFBFBF'}},left:{style:'thin',color:{rgb:'BFBFBF'}},right:{style:'thin',color:{rgb:'BFBFBF'}}};
-  const tStyle={font:{bold:true,sz:16,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'305496'}},alignment:{horizontal:'center',vertical:'center'}};
-  const subStyle={font:{italic:true,sz:10,color:{rgb:'595959'}},alignment:{horizontal:'left'}};
-  const hStyle=(c)=>({font:{bold:true,sz:11,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:c}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:bA});
-  const dStyle={font:{sz:10},alignment:{vertical:'center',wrapText:true},border:bA};
-  const nStyle={font:{sz:10},alignment:{horizontal:'right',vertical:'center'},numFmt:'#,##0.00',border:bA};
-  const totStyle={font:{bold:true,sz:11},fill:{fgColor:{rgb:'FFF2CC'}},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'305496'}},bottom:{style:'medium',color:{rgb:'305496'}},left:bA.left,right:bA.right},numFmt:'#,##0.00'};
-  const BASE_COLOR='305496';
-
-  // 제목/부제목 스타일
-  if(!ws['A1'])ws['A1']={v:'Azure 견적 시뮬레이션'};ws['A1'].s=tStyle;
-  if(ws['A2'])ws['A2'].s=subStyle;
-
-  // 헤더 행 3(row idx 3), 4(row idx 4)
-  const totalCols=8+enabledGroups.length*3;
-  for(let c=0;c<totalCols;c++){
-    const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c});
-    let color=BASE_COLOR;
-    if(c>=8){const gi=Math.floor((c-8)/3);if(gi<enabledGroups.length)color=enabledGroups[gi].color;}
-    if(!ws[a3])ws[a3]={v:''};ws[a3].s=hStyle(color);
-    if(!ws[a4])ws[a4]={v:''};ws[a4].s=hStyle(color);
-  }
-  // 데이터 행
-  for(let i=0;i<rows.length;i++){const ri=5+i;for(let c=0;c<totalCols;c++){const addr=XLSX.utils.encode_cell({r:ri,c});if(!ws[addr])ws[addr]={v:''};if(c>=6&&typeof ws[addr].v==='number')ws[addr].s=nStyle;else ws[addr].s={...dStyle,alignment:{...dStyle.alignment,horizontal:c===0?'center':'left'}};}}
-  // Total 행
-  const tri=5+rows.length;
-  for(let c=0;c<totalCols;c++){const addr=XLSX.utils.encode_cell({r:tri,c});if(!ws[addr])ws[addr]={v:''};ws[addr].s=totStyle;}
-  // 콜 너비
-  const baseCW=[{wch:4},{wch:14},{wch:24},{wch:18},{wch:18},{wch:36},{wch:6},{wch:12}];
-  const grpCW=enabledGroups.flatMap(()=>[{wch:13},{wch:16},{wch:16}]);
-  ws['!cols']=[...baseCW,...grpCW];
+  const tSt={font:{bold:true,sz:16,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'305496'}},alignment:{horizontal:'center',vertical:'center'}};
+  const sSt={font:{italic:true,sz:10,color:{rgb:'595959'}},alignment:{horizontal:'left'}};
+  const hSt=(c)=>({font:{bold:true,sz:11,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:c}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:bA});
+  const dSt={font:{sz:10},alignment:{vertical:'center',wrapText:true},border:bA};
+  const nSt={font:{sz:10},alignment:{horizontal:'right',vertical:'center'},numFmt:'#,##0.00',border:bA};
+  const totSt={font:{bold:true,sz:11},fill:{fgColor:{rgb:'FFF2CC'}},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'305496'}},bottom:{style:'medium',color:{rgb:'305496'}},left:bA.left,right:bA.right},numFmt:'#,##0.00'};
+  if(!ws['A1'])ws['A1']={v:'Azure 견적 시뮬레이션'};ws['A1'].s=tSt;
+  if(ws['A2'])ws['A2'].s=sSt;
+  const tC=8+enabledGroups.length*3;
+  for(let c=0;c<tC;c++){const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c});let color='305496';if(c>=8){const gi=Math.floor((c-8)/3);if(gi<enabledGroups.length)color=enabledGroups[gi].color;}if(!ws[a3])ws[a3]={v:''};ws[a3].s=hSt(color);if(!ws[a4])ws[a4]={v:''};ws[a4].s=hSt(color);}
+  for(let i=0;i<rows.length;i++){const ri=5+i;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:ri,c});if(!ws[addr])ws[addr]={v:''};if(c>=6&&typeof ws[addr].v==='number')ws[addr].s=nSt;else ws[addr].s={...dSt,alignment:{...dSt.alignment,horizontal:c===0?'center':'left'}};}}
+  const tri=5+rows.length;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:tri,c});if(!ws[addr])ws[addr]={v:''};ws[addr].s=totSt;}
+  ws['!cols']=[{wch:4},{wch:14},{wch:24},{wch:18},{wch:18},{wch:36},{wch:6},{wch:12},...enabledGroups.flatMap(()=>[{wch:13},{wch:16},{wch:16}])];
   ws['!rows']=[];ws['!rows'][0]={hpt:28};ws['!rows'][3]={hpt:22};ws['!rows'][4]={hpt:22};
-  // 병합
-  const merges=[
-    {s:{r:0,c:0},e:{r:0,c:totalCols-1}},
-    {s:{r:1,c:0},e:{r:1,c:totalCols-1}},
-    ...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),
-    ...enabledGroups.map((_,gi)=>({s:{r:3,c:8+gi*3},e:{r:3,c:8+gi*3+2}})),
-    {s:{r:tri,c:0},e:{r:tri,c:7}},
-  ];
-  ws['!merges']=merges;
-  const rsRow=tri+2;ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsRow+3,c:totalCols-1}});
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:tC-1}},{s:{r:1,c:0},e:{r:1,c:tC-1}},...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),...enabledGroups.map((_,gi)=>({s:{r:3,c:8+gi*3},e:{r:3,c:8+gi*3+2}})),{s:{r:tri,c:0},e:{r:tri,c:7}}];
+  const rsR=tri+2;ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsR+3,c:tC-1}});
   ws['!freeze']={xSplit:0,ySplit:5,topLeftCell:'A6',activePane:'bottomLeft',state:'frozen'};
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 견적');
-  const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-  XLSX.writeFile(wb,`azure-quote-${ts}.xlsx`);
+  XLSX.writeFile(wb,`azure-quote-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.xlsx`);
 });
 
 addRow();addRow();addRow();

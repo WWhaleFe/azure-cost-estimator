@@ -21,14 +21,15 @@ function buildSkuAndDetail(r) {
     if (disk) parts.push(`${disk.size}GB`);
     if (o.redundancy) parts.push(o.redundancy);
     if (o.storageType === 'Premium SSD Managed Disks') {
-      if (o.perfTier && o.perfTier !== '없음 (기본)') parts.push(`성능층: ${o.perfTier}`);
-      if (o.burstingEnabled === '활성화') {
-        const burstTx = Number(o.burstTxUnits || 0);
-        parts.push(`버스팅${burstTx > 0 ? ` Tx:${burstTx.toLocaleString()}×10K` : ''}`);
-      }
+      if (o.perfTier && o.perfTier !== '없음 (기본)') parts.push(`성능업그: ${o.perfTier}`);
+      if (o.snapshotGB > 0) parts.push(`스냅샷 ${o.snapshotGB}GB`);
+      if (o.confEncryptionEnabled === '활성화') parts.push('Conf-Enc');
+      if (o.burstingEnabled === '활성화 (P30 이상)') parts.push('버스팅');
+      if (Number(o.sharedDiskMounts) > 0) parts.push(`공유×${o.sharedDiskMounts}`);
     } else {
       const tx = Number(o.transactionUnits || 0);
       if (tx > 0) parts.push(`Tx ${tx.toLocaleString()}×10K`);
+      if (Number(o.snapshotGB) > 0) parts.push(`스냅샷 ${o.snapshotGB}GB`);
     }
     r.detail = parts.join(', ');
 
@@ -139,9 +140,9 @@ async function resolveVmPrices(row, currencyCode) {
 }
 
 /**
- * Disk (Managed Disks) 가격 조회 (v33)
- * Premium SSD: PAYG + RI 1년 + 성능업그레이드 + 버스팅
- * Standard SSD/HDD: PAYG + RI 1년 + 트랜잭션
+ * Disk (Managed Disks) 가격 조회 (v34)
+ * Premium SSD: PAYG + RI 1년 + 성능업그레이드 + 버스팅 + 스냅샷 + Confidential OS Enc + 공유디스크
+ * Standard SSD/HDD: PAYG + RI 1년 + 트랜잭션 + 스냅샷
  */
 async function resolveStoragePrices(row, currencyCode) {
   const o = row.options || {};
@@ -151,36 +152,51 @@ async function resolveStoragePrices(row, currencyCode) {
   const txUnits = isPremium ? 0 : Number(o.transactionUnits || 0);
   const skuFull = `${row.skuName} ${redundancy}`;
 
-  // Premium SSD 업그레이드 SKU: 성능 대상 SKU (업그레이드 선택시 해당 SKU로 매출 요청)
+  // 스냅샷 GB (공통)
+  const snapshotGB = Number(o.snapshotGB || 0);
+
+  // Premium SSD 시 특별 옵션
   const perfTier = (isPremium && o.perfTier && o.perfTier !== '없음 (기본)') ? o.perfTier : null;
   const effectiveSku = perfTier ? `${perfTier} ${redundancy}` : skuFull;
+  const burstingEnabled = isPremium && o.burstingEnabled === '활성화 (P30 이상)';
+  const confEncEnabled = isPremium && o.confEncryptionEnabled === '활성화';
+  const sharedDiskMounts = isPremium ? Number(o.sharedDiskMounts || 0) : 0;
 
-  // 버스팅 옵션
-  const burstingEnabled = isPremium && o.burstingEnabled === '활성화';
-  const burstTxUnits = burstingEnabled ? Number(o.burstTxUnits || 0) : 0;
+  // 버스트 트랜잭션 양 계산 (IOPS 기반)
+  // MS 가격 계산기와 동일: 트랜잭션 수 = (max IOPS × 분당시간×근무일) / 10,000
+  // 더 정확하게는 API에서 enablement+Tx 용단가 조회
+  const burstMaxIOPS = burstingEnabled ? Number(o.burstMaxIOPS || 0) : 0;
+  const burstMaxThroughput = burstingEnabled ? Number(o.burstMaxThroughputMBs || 0) : 0;
+  const burstMinsPerDay = burstingEnabled ? Number(o.burstMinsPerDay || 30) : 0;
+  const burstWorkDays = burstingEnabled ? Number(o.burstWorkDaysPerMonth || 20) : 0;
+  // IOPS 단위: 초당 IO 수 × 60초 × 분당시간 × 근무일 / 10000 = 10K 단위 트랜잭션 수
+  const burstTxUnits = (burstMaxIOPS > 0)
+    ? Math.ceil(burstMaxIOPS * 60 * burstMinsPerDay * burstWorkDays / 10000)
+    : 0;
+
+  // 디스크 크기 (GiB) for Confidential OS Enc 계산
+  const diskEntry = (DISK_CATALOG[storageType] || []).find(d => d.name === row.skuName);
+  const diskSizeGiB = diskEntry ? diskEntry.size : 0;
 
   try {
-    // 병렬 요청: 디스크단가 + 트랜잭션 + RI
-    // Premium SSD 성능업그레이드: effectiveSku로 병도 요청
+    // 병렬 요청
     const diskFetchFilter = { serviceName:'Storage', armRegionName:row.region, productName:storageType, skuName:skuFull, priceType:'Consumption' };
     const perfFetchFilter = perfTier ? { serviceName:'Storage', armRegionName:row.region, productName:storageType, skuName:effectiveSku, priceType:'Consumption' } : null;
 
-    // 버스팅 활성화 시 전체 리스트 필요 (enablement 비용 + 트랜잭션 단가 조회)
-    const burstFetchFilter = burstingEnabled
-      ? { serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Consumption' }
-      : null;
+    // 버스팅/스냅샷/공유디스크 단가 조회를 위한 전체 리스트
+    const needsExtras = isPremium && (burstingEnabled || snapshotGB > 0 || confEncEnabled || sharedDiskMounts > 0);
+    const extrasFetchFilter = needsExtras ? { serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Consumption' } : null;
 
-    const [diskItems, perfItems, txItemsRaw, reservationItems, burstAllItems] = await Promise.all([
+    const [diskItems, perfItems, txItemsRaw, reservationItems, extrasItems] = await Promise.all([
       apiFetch(diskFetchFilter, currencyCode, 100, 2),
       perfFetchFilter ? apiFetch(perfFetchFilter, currencyCode, 100, 2) : Promise.resolve([]),
       (!isPremium && txUnits > 0) ? apiFetch({ serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Consumption' }, currencyCode, 200, 3) : Promise.resolve([]),
       apiFetch({ serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Reservation' }, currencyCode, 200, 2).catch(()=>[]),
-      burstFetchFilter ? apiFetch(burstFetchFilter, currencyCode, 300, 3) : Promise.resolve([]),
+      extrasFetchFilter ? apiFetch(extrasFetchFilter, currencyCode, 400, 3) : Promise.resolve([]),
     ]);
 
-    // 일반 디스크 단가 매칭
-    const expectedMeter = `${row.skuName} ${redundancy} Disk`.toLowerCase();
-    const isPlain = (it) => { const m=(it.meterName||'').toLowerCase(); return !m.includes('mount')&&!m.includes('burst')&&!m.includes('enablement')&&!m.includes('snapshot')&&!m.includes('one-time'); };
+    // 디스크 단가 매칭
+    const isPlain = (it) => { const m=(it.meterName||'').toLowerCase(); return !m.includes('mount')&&!m.includes('burst')&&!m.includes('enablement')&&!m.includes('snapshot')&&!m.includes('one-time')&&!m.includes('encrypt')&&!m.includes('shared')&&!m.includes('confidential'); };
     const findDisk = (items, skuLabel) => {
       const exp = `${skuLabel} Disk`.toLowerCase();
       const cands = items.filter(it=>{
@@ -194,12 +210,11 @@ async function resolveStoragePrices(row, currencyCode) {
       return cands[0]||null;
     };
 
-    // 디스크 단가: 성능업그레이드 옵션이 있으면 업그레이드 SKU 가격, 없으면 원본 SKU
     const disk = perfTier
       ? (findDisk(perfItems, effectiveSku) || findDisk(diskItems, skuFull))
       : findDisk(diskItems, skuFull);
 
-    // 트랜잭션 (Standard에서만)
+    // Standard 트랜잭션
     let txItem = null;
     if (!isPremium && txUnits > 0) {
       const allTx = txItemsRaw.filter(it=>{ const u=(it.unitOfMeasure||'').toLowerCase(); return u.includes('10k')||u.includes('10,000')||u.includes('10000'); });
@@ -210,19 +225,46 @@ async function resolveStoragePrices(row, currencyCode) {
       txItem=txC[0]||null;
     }
 
-    // 버스팅 enablement 비용 매칭 (P30 이상, 월 정액)
-    let burstEnablementItem = null;
-    let burstTxItem = null;
-    if (burstingEnabled && burstAllItems.length > 0) {
-      const allBurst = burstAllItems.filter(it=>(it.type||'').toLowerCase()==='consumption');
-      // enablement flat fee: meterName에 'burst enablement' 포함
-      const enaC = allBurst.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('burst')&&m.includes('enablement'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-      burstEnablementItem = enaC[0]||null;
-      // 버스트 트랜잭션 단가: 10K 단위, burst난 포함되는 항목
-      if (burstTxUnits > 0) {
-        const txC = allBurst.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('burst')&&(u.includes('10k')||u.includes('10,000')||u.includes('10000')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-        burstTxItem = txC[0]||null;
+    // 스냅샷 단가 (모든 Storage Type 공통)
+    let snapshotPricePerGB = 0;
+    if (snapshotGB > 0 && extrasItems.length > 0) {
+      const snapC = extrasItems.filter(it=>{
+        if((it.type||'').toLowerCase()!=='consumption') return false;
+        const m=(it.meterName||'').toLowerCase();
+        return m.includes('snapshot') && (m.includes('lrs')||m.includes('locally'));
+      }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+      if(snapC[0]) snapshotPricePerGB = Number(snapC[0].unitPrice);
+    } else if (snapshotGB > 0 && !needsExtras) {
+      // Standard 스냅샷은 txItemsRaw에서 찾기
+      const allItems = txItemsRaw.length > 0 ? txItemsRaw : await apiFetch({ serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Consumption' }, currencyCode, 200, 3).catch(()=>[]);
+      const snapC = allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('snapshot')&&(m.includes('lrs')||m.includes('locally')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+      if(snapC[0]) snapshotPricePerGB = Number(snapC[0].unitPrice);
+    }
+
+    // 버스팅 enablement 비용 (P30 이상 월정액)
+    let burstEnablementMonthly = 0;
+    let burstTxPricePerUnit = 0;
+    if (burstingEnabled && extrasItems.length > 0) {
+      const enaC = extrasItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('burst')&&m.includes('enablement'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+      if(enaC[0]) burstEnablementMonthly = Number(enaC[0].unitPrice);
+      if(burstTxUnits > 0) {
+        const bTxC = extrasItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('burst')&&(u.includes('10k')||u.includes('10,000')||u.includes('10000')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+        if(bTxC[0]) burstTxPricePerUnit = Number(bTxC[0].unitPrice);
       }
+    }
+
+    // Confidential OS Encryption: GiB × 730h × 단가(Per GiB)
+    let confEncMonthly = 0;
+    if (confEncEnabled && diskSizeGiB > 0 && extrasItems.length > 0) {
+      const encC = extrasItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('confidential')&&m.includes('encrypt'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+      if(encC[0]) confEncMonthly = diskSizeGiB * 730 * Number(encC[0].unitPrice);
+    }
+
+    // 공유 디스크: 마운트당 단가 × 마운트 수
+    let sharedDiskMonthly = 0;
+    if (sharedDiskMounts > 0 && extrasItems.length > 0) {
+      const shrC = extrasItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('mount')||(m.includes('shared')&&m.includes('disk')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+      if(shrC[0]) sharedDiskMonthly = Number(shrC[0].unitPrice) * sharedDiskMounts;
     }
 
     // 월 비용 합산
@@ -230,8 +272,10 @@ async function resolveStoragePrices(row, currencyCode) {
     let monthly = 0;
     if (disk) monthly += Number(disk.unitPrice);
     if (txItem && txUnits > 0) monthly += Number(txItem.unitPrice) * txUnits;
-    if (burstEnablementItem) monthly += Number(burstEnablementItem.unitPrice);
-    if (burstTxItem && burstTxUnits > 0) monthly += Number(burstTxItem.unitPrice) * burstTxUnits;
+    if (snapshotGB > 0) monthly += snapshotPricePerGB * snapshotGB;
+    if (burstingEnabled) monthly += burstEnablementMonthly + (burstTxPricePerUnit * burstTxUnits);
+    if (confEncEnabled) monthly += confEncMonthly;
+    if (sharedDiskMounts > 0) monthly += sharedDiskMonthly;
     const hourlyEq = usageHours > 0 ? monthly / usageHours : 0;
 
     let payg = null;
@@ -242,20 +286,20 @@ async function resolveStoragePrices(row, currencyCode) {
         unitOfMeasure: '1 Hour (equivalent)',
         _billingMode: 'monthly', _monthlyTotal: monthly,
         _diskMonthly: Number(disk.unitPrice),
-        _perfTier: perfTier,
-        _burstEnablement: burstEnablementItem ? Number(burstEnablementItem.unitPrice) : 0,
-        _burstTxMonthly: burstTxItem ? Number(burstTxItem.unitPrice) * burstTxUnits : 0,
-        _txMonthly: txItem ? Number(txItem.unitPrice) * txUnits : 0,
+        _snapshotMonthly: snapshotPricePerGB * snapshotGB,
+        _burstEnablementMonthly: burstEnablementMonthly,
+        _burstTxMonthly: burstTxPricePerUnit * burstTxUnits,
+        _confEncMonthly: confEncMonthly,
+        _sharedDiskMonthly: sharedDiskMonthly,
       };
     }
 
-    // RI 1년 (Premium SSD: skuFull 기준, Standard: 동일)
+    // RI 1년
     let ri1Item = null;
     const ri1C = reservationItems.filter(it=>{
       if((it.type||'').toLowerCase()!=='reservation') return false;
       if(!/1\s*year/i.test(String(it.reservationTerm||''))) return false;
       const s=(it.skuName||'').toLowerCase();
-      // 성능업그레이드시: effectiveSku 기준
       const matchSku = perfTier ? effectiveSku.toLowerCase() : skuFull.toLowerCase();
       return s.includes(matchSku.split(' ')[0].toLowerCase()) && s.includes(redundancy.toLowerCase());
     }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
@@ -263,33 +307,26 @@ async function resolveStoragePrices(row, currencyCode) {
     if (ri1C[0]) {
       const total = Number(ri1C[0].unitPrice);
       const ri1M = total / 12;
-      // RI 월 비용 = RI 디스크 월상당 + 버스팅/Tx 변동비용 (PAYG와 동일하게)
       const ri1MT = ri1M
         + (txItem && txUnits > 0 ? Number(txItem.unitPrice) * txUnits : 0)
-        + (burstEnablementItem ? Number(burstEnablementItem.unitPrice) : 0)
-        + (burstTxItem && burstTxUnits > 0 ? Number(burstTxItem.unitPrice) * burstTxUnits : 0);
+        + (snapshotGB > 0 ? snapshotPricePerGB * snapshotGB : 0)
+        + (burstingEnabled ? burstEnablementMonthly + (burstTxPricePerUnit * burstTxUnits) : 0)
+        + confEncMonthly
+        + sharedDiskMonthly;
       const ri1H = usageHours > 0 ? ri1MT / usageHours : 0;
-      ri1Item = {
-        ...ri1C[0],
-        unitPrice: ri1H, retailPrice: ri1H,
-        unitOfMeasure: '1 Hour (equivalent)',
-        _billingMode: 'monthly', _monthlyTotal: ri1MT,
-        _originalUnitPrice: total, _termYears: 1, _diskMonthly: ri1M,
-      };
+      ri1Item = { ...ri1C[0], unitPrice:ri1H, retailPrice:ri1H, unitOfMeasure:'1 Hour (equivalent)', _billingMode:'monthly', _monthlyTotal:ri1MT, _originalUnitPrice:total, _termYears:1, _diskMonthly:ri1M };
     }
 
     row.paygItem = payg; row.sp1Item = null; row.sp3Item = null;
     row.ri1Item = ri1Item; row.ri3Item = null;
 
     console.group(`[Disk] ${row.skuName} ${redundancy} / ${storageType}`);
-    console.log(`디스크단가: ${disk ? disk.unitPrice+'/월' : '없음'} | perfTier=${perfTier||'없음'} | 버스팅=${burstingEnabled}`);
-    if (burstEnablementItem) console.log(`Burst enablement: ${burstEnablementItem.unitPrice}/월`);
-    if (burstTxItem) console.log(`Burst Tx: ${burstTxItem.unitPrice}/10K × ${burstTxUnits} = ${Number(burstTxItem.unitPrice)*burstTxUnits}/월`);
-    console.log(`월합계: ${monthly.toFixed(4)} | RI1Y: ${ri1Item ? ri1Item._originalUnitPrice : '없음'}`);
+    console.log(`디스크: ${disk?disk.unitPrice+'/월':'없음'} | perf=${perfTier||'-'} | burst=${burstingEnabled} | snap=${snapshotGB}GB | confEnc=${confEncEnabled} | shared=${sharedDiskMounts}`);
+    console.log(`월합계: ${monthly.toFixed(4)} | RI: ${ri1Item?ri1Item._originalUnitPrice:'없음'}`);
     console.groupEnd();
 
-    if (payg) setStatus('ok', `${row.skuName} ${redundancy} 완료${perfTier?` [업그레이드→${perfTier}]`:''} · ${monthly.toFixed(2)}/월`);
-    else setStatus('error', `${row.skuName}: 디스크 매칭 실패 - F12 콘솔 확인`);
+    if(payg) setStatus('ok',`${row.skuName} ${redundancy} 완료${perfTier?` [업그레이드→${perfTier}]`:''} · ${monthly.toFixed(2)}/월`);
+    else setStatus('error',`${row.skuName}: 디스크 매칭 실패 - F12 콘솔 확인`);
   } catch(err) {
     row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
     setStatus('error',`Disk 조회 실패: ${err.message.slice(0,100)}`); console.error('Disk:',err);
@@ -330,7 +367,6 @@ async function resolveVpnGatewayPrices(row, currencyCode) {
   let payg=null;
   if(gateway)payg={...gateway,unitPrice:hourlyEq,retailPrice:hourlyEq,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly,_gwHourly:gwH,_s2sHourly:s2sH,_p2sHourly:p2sH,_vnetGbPrice:vnetGbP,_gatewayHours:gatewayHours,_partialErrors:errors.length>0?errors:undefined};
   row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
-  console.group(`[VPN] sku=${sku}/zone=${uZ}/${row.region}`);console.log(`전체:${allItems.length}`);if(gateway)console.log(`✓ GW:${gateway.meterName}=${gateway.unitPrice}/h`);else console.warn(`✗ GW 실패`);if(vnetGB>0){console.log(`VNET:${vnetSearchSteps.join('→')}`);if(vnetItem)console.log(`✓ VNET:${vnetItem.meterName}=${vnetItem.unitPrice}/GB`);}console.log(`월=${monthly.toFixed(2)}`);if(errors.length)console.warn(errors.join('|'));console.groupEnd();
   if(payg){const tags=[gateway?'GW✓':'GW✗'];if(extraS2s>0)tags.push(s2sItem?'S2S✓':'S2S✗');if(extraP2s>0)tags.push(p2sItem?'P2S✓':'P2S✗');if(vnetGB>0)tags.push(vnetItem?'VNET✓':'VNET✗');setStatus('ok',`${sku} 완료 [${tags.join(', ')}] · ${monthly.toFixed(2)}/월`);}else setStatus('error',`${sku}: GW 매칭 실패`);
   updatePriceCells(row);updateTotalsRow();
 }

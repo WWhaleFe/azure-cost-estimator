@@ -23,26 +23,6 @@
           <option value="JPY">JPY</option>
         </select>
         <a href="https://azure.microsoft.com/ko-kr/pricing/calculator/" target="_blank" rel="noopener noreferrer" class="btn btn-calculator">가격 계산기 열기</a>
-
-        <!-- 엑셀 옵션 래퍼 + 엑셀 내보내기 버튼 -->
-        <div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #d2d0ce;border-radius:2px;padding:4px 10px;font-size:11px;">
-          <span style="font-weight:600;color:#605e5c;white-space:nowrap;">내보내기 열:</span>
-          <label id="lbl-group-payg" style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="chk-group-payg" checked style="cursor:pointer;"> 용량제
-          </label>
-          <label id="lbl-group-sp1" style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="chk-group-sp1" checked style="cursor:pointer;"> SP 1Y
-          </label>
-          <label id="lbl-group-sp3" style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="chk-group-sp3" checked style="cursor:pointer;"> SP 3Y
-          </label>
-          <label id="lbl-group-ri1" style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="chk-group-ri1" checked style="cursor:pointer;"> 예약 1Y
-          </label>
-          <label id="lbl-group-ri3" style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="chk-group-ri3" checked style="cursor:pointer;"> 예약 3Y
-          </label>
-        </div>
         <button id="btnExport" class="btn btn-excel">엑셀 내보내기</button>
       </div>
     </div>
@@ -76,6 +56,7 @@
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
     <table class="grid-table" id="mainTable" style="min-width:1800px;">
       <thead>
+        <!-- 체크박스를 엑셀 내보내기 열 그룹 헤더 셀 안에 내장 -->
         <tr>
           <th rowspan="2" style="width:24px;"></th>
           <th rowspan="2" style="width:34px;">#</th>
@@ -86,11 +67,37 @@
           <th rowspan="2" style="width:260px;">상세 사양</th>
           <th rowspan="2" style="width:44px;">Qty</th>
           <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
-          <th colspan="3" class="group-payg">용량제 (PAYG)</th>
-          <th colspan="3" class="group-sp1">절약 플랜 1년</th>
-          <th colspan="3" class="group-sp3">절약 플랜 3년</th>
-          <th colspan="3" class="group-ri1">예약 1년</th>
-          <th colspan="3" class="group-ri3">예약 3년</th>
+          <!-- 용량제 (PAYG): 체크박스 내장 -->
+          <th colspan="3" class="group-payg th-with-checkbox">
+            <label class="th-checkbox-label">
+              <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택">
+              용량제 (PAYG)
+            </label>
+          </th>
+          <th colspan="3" class="group-sp1 th-with-checkbox">
+            <label class="th-checkbox-label">
+              <input type="checkbox" id="chk-group-sp1" checked title="엑셀 출력 선택">
+              절약 플랜 1년
+            </label>
+          </th>
+          <th colspan="3" class="group-sp3 th-with-checkbox">
+            <label class="th-checkbox-label">
+              <input type="checkbox" id="chk-group-sp3" checked title="엑셀 출력 선택">
+              절약 플랜 3년
+            </label>
+          </th>
+          <th colspan="3" class="group-ri1 th-with-checkbox">
+            <label class="th-checkbox-label">
+              <input type="checkbox" id="chk-group-ri1" checked title="엑셀 출력 선택">
+              예약 1년
+            </label>
+          </th>
+          <th colspan="3" class="group-ri3 th-with-checkbox">
+            <label class="th-checkbox-label">
+              <input type="checkbox" id="chk-group-ri3" checked title="엑셀 출력 선택">
+              예약 3년
+            </label>
+          </th>
           <th rowspan="2" style="width:74px;">Action</th>
         </tr>
         <tr>
@@ -135,15 +142,13 @@
   <div class="mt-4 bg-white border border-[#e1dfdd] p-3 rounded-sm text-xs text-[#323130] leading-relaxed">
     <p class="font-semibold mb-2">[Remark]</p>
     <ol class="list-decimal ml-5 space-y-0.5 text-[#605e5c]">
-      <li>"분류"는 자유 입력 필드입니다 (예: "Web/WAS Server(운영망)").</li>
+      <li>"분류"는 자유 입력 필드입니다.</li>
       <li>Service Category 선택 시 옵션 패널이 표 아래에 펼쳐집니다.</li>
-      <li><strong>가격 그룹 5종</strong>: 용량제, 절약 플랜 1년/3년, 예약 1년/3년을 동시 비교합니다.</li>
-      <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours.</li>
-      <li>1 Monthly Cost = Unit Price × Qty × 사용량, 1 Year cost = 1 Monthly Cost × 12.</li>
-      <li>가격은 Azure Retail Prices API(api-version=2023-01-01-preview)에서 실시간 조회됩니다.</li>
-      <li><strong>Disk - Premium SSD</strong>: 성능 계층 업그레이드(용량 유지 + 성능 향상), 온디맨드 버스팅(P30이상, 활성화 월정액 + 트랜잭션) 옵션이 추가되었습니다. 예약(RI) 1년 옵션을 지원합니다.</li>
-      <li><strong>엑셀 내보내기</strong>: 로고 우측 "내보내기 열" 체크박스로 출력할 가격 그룹을 선택할 수 있습니다. 선택된 그룹만 엑셀에 포함됩니다.</li>
-      <li>Action 열에서 ⚙ 옵션 재설정, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 핸들로 행 순서 변경.</li>
+      <li><strong>가격 그룹 5종</strong>: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.</li>
+      <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours. 일반 항목(VM 등)은 Hours 변경 시 가격이 실시간으로 반영됩니다.</li>
+      <li><strong>Disk (Premium SSD)</strong>: 성능 계층 업그레이드, 스냅샷, Confidential OS Enc, 디스크 버스팅(예상 IOPS/처리량·근무일당분/월근무일), 공유 디스크 옵션을 지원합니다.</li>
+      <li><strong>엑셀 내보내기</strong>: 헤더의 그룹 체크박스를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
+      <li>Action: ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경.</li>
     </ol>
   </div>
 </div>

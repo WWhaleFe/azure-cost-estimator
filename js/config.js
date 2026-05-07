@@ -31,7 +31,6 @@ const SERVICE_CATEGORIES = {
 
   'Disk': {
     apiServiceName: 'Storage',
-    // 모든 Storage Type 공통 필드
     steps: [
       { key: 'storageType', label: 'Storage Type', options: ['Premium SSD Managed Disks', 'Standard SSD Managed Disks', 'Standard HDD Managed Disks'] },
       { key: 'redundancy',  label: '중복성',      options: ['LRS', 'ZRS'] },
@@ -40,23 +39,66 @@ const SERVICE_CATEGORIES = {
     conditionalSteps: {
       // --- Premium SSD 전용 (MS 가격 계산기 동일 항목) ---
       'Premium SSD Managed Disks': [
+        // 절약 옵션: 용량제(기본) or 1년예약 은 UI에서 별도 체크박스로 처리하랍
+        // 디스크 수 (Qty 콼럼과 동일하므로 옵션패널에서는 제외)
+        // 성능 계층 업그레이드
         {
           key: 'perfTier',
           label: '성능 계층 업그레이드',
           options: ['없음 (기본)', 'P4', 'P6', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80'],
-          tooltip: '디스크 SKU보다 높은 성능 계층으로 업그레이드. 스토리지 용량 유지하면서 성능만 향상',
+          tooltip: '디스크 SKU보다 높은 성능 계층으로 업그레이드. 스토리지 용량 유지하면서 성능만 향상.',
         },
+        // 스냅샷
+        {
+          key: 'snapshotGB',
+          label: '스냅샷 (GB, 월)',
+          type: 'number', min: 0, step: 1, default: 0,
+          tooltip: '증분 스냅샷 저장 GB. 단가(LRS 기준) × GB/월로 계산',
+        },
+        // Confidential OS Encryption (GiB × 시간 × 단가)
+        {
+          key: 'confEncryptionEnabled',
+          label: 'Confidential OS Encryption',
+          options: ['비활성 (기본)', '활성화'],
+          tooltip: 'GiB × 730h × 단가(Per GiB)로 계산. 디스크 크기에 자동 적용됨.',
+        },
+        // 디스크 버스팅 (P30 이상, on-demand)
         {
           key: 'burstingEnabled',
-          label: '온디맨드 버스팅',
-          options: ['비활성 (기본)', '활성화'],
-          tooltip: 'P30 이상에서 사용 가능. 활성화 월 정액(flat fee) + 버스트 트랜잭션 비용 발생',
+          label: '디스크 버스팅 (On-Demand)',
+          options: ['비활성 (기본)', '활성화 (P30 이상)'],
+          tooltip: 'P30 이상에서 사용 가능. 활성화 월 정액 + 버스트 트랜잭션 비용',
         },
         {
-          key: 'burstTxUnits',
-          label: '버스트 트랜잭션 (10,000 단위, 월)',
+          key: 'burstMaxIOPS',
+          label: '예상 최대 IOPS (버스트)',
+          type: 'number', min: 0, step: 100, default: 0,
+          tooltip: '버스트 중 예상하는 최대 IOPS. 0이면 계산에서 제외됨.',
+        },
+        {
+          key: 'burstMaxThroughputMBs',
+          label: '예상 최대 처리량 (MB/s, 버스트)',
+          type: 'number', min: 0, step: 10, default: 0,
+          tooltip: '버스트 중 예상하는 최대 처리량 MB/s.',
+        },
+        {
+          key: 'burstMinsPerDay',
+          label: '근무일당 버스트 시간 (분)',
+          type: 'number', min: 0, step: 1, default: 30,
+          tooltip: '하루 근무 중 버스트를 사용하는 분. 트랜잭션 양 계산에 사용.',
+        },
+        {
+          key: 'burstWorkDaysPerMonth',
+          label: '월간 근무일 수',
+          type: 'number', min: 0, step: 1, default: 20,
+          tooltip: '한 달 중 실제 근무일 수. 트랜잭션 양 계산에 사용.',
+        },
+        // 공유 디스크
+        {
+          key: 'sharedDiskMounts',
+          label: '공유 디스크 마운트 수 (VM 수)',
           type: 'number', min: 0, step: 1, default: 0,
-          tooltip: '온디맨드 버스팅 활성화 시에만 적용',
+          tooltip: '하나의 디스크를 마운트할 VM 수. 마운트당 추가 비용 발생. 0이면 공유 안 함.',
         },
       ],
       // --- Standard SSD 전용 ---
@@ -66,6 +108,12 @@ const SERVICE_CATEGORIES = {
           label: 'Storage 트랜잭션 (10,000 단위, 월)',
           type: 'number', min: 0, step: 1, default: 0,
         },
+        {
+          key: 'snapshotGB',
+          label: '스냅샷 (GB, 월)',
+          type: 'number', min: 0, step: 1, default: 0,
+          tooltip: '디스크 스냅샷 LRS 저장 GB',
+        },
       ],
       // --- Standard HDD 전용 ---
       'Standard HDD Managed Disks': [
@@ -73,6 +121,12 @@ const SERVICE_CATEGORIES = {
           key: 'transactionUnits',
           label: 'Storage 트랜잭션 (10,000 단위, 월)',
           type: 'number', min: 0, step: 1, default: 0,
+        },
+        {
+          key: 'snapshotGB',
+          label: '스냅샷 (GB, 월)',
+          type: 'number', min: 0, step: 1, default: 0,
+          tooltip: '디스크 스냅샷 LRS 저장 GB',
         },
       ],
     },
@@ -138,10 +192,20 @@ const VM_INSTANCE_CATALOG = {
 
 const DISK_CATALOG = {
   'Premium SSD Managed Disks': [
-    {name:'P1',size:4},{name:'P2',size:8},{name:'P3',size:16},{name:'P4',size:32},
-    {name:'P6',size:64},{name:'P10',size:128},{name:'P15',size:256},{name:'P20',size:512},
-    {name:'P30',size:1024},{name:'P40',size:2048},{name:'P50',size:4096},
-    {name:'P60',size:8192},{name:'P70',size:16384},{name:'P80',size:32767},
+    {name:'P1',size:4,iops:120,throughput:25},
+    {name:'P2',size:8,iops:120,throughput:25},
+    {name:'P3',size:16,iops:120,throughput:25},
+    {name:'P4',size:32,iops:120,throughput:25},
+    {name:'P6',size:64,iops:240,throughput:50},
+    {name:'P10',size:128,iops:500,throughput:100},
+    {name:'P15',size:256,iops:1100,throughput:125},
+    {name:'P20',size:512,iops:2300,throughput:150},
+    {name:'P30',size:1024,iops:5000,throughput:200},
+    {name:'P40',size:2048,iops:7500,throughput:250},
+    {name:'P50',size:4096,iops:7500,throughput:250},
+    {name:'P60',size:8192,iops:16000,throughput:500},
+    {name:'P70',size:16384,iops:18000,throughput:750},
+    {name:'P80',size:32767,iops:20000,throughput:900},
   ],
   'Standard SSD Managed Disks': [
     {name:'E1',size:4},{name:'E2',size:8},{name:'E3',size:16},{name:'E4',size:32},
@@ -156,15 +220,8 @@ const DISK_CATALOG = {
   ],
 };
 
-// Premium SSD 성능 업그레이드 계층 순서 (디스크 SKU 번호 기준)
-const PREMIUM_PERF_TIER_ORDER = ['P1','P2','P3','P4','P6','P10','P15','P20','P30','P40','P50','P60','P70','P80'];
-
 const REGION_LABEL = {
   koreacentral: 'Korea Central', koreasouth: 'Korea South',
   japaneast: 'Japan East', eastus: 'East US', westus2: 'West US 2',
   westeurope: 'West Europe', southeastasia: 'Southeast Asia',
 };
-
-// 엑셀 출력 그룹 선택 상태 (기본: 모두 체크)
-const EXPORT_GROUP_KEYS = ['payg', 'sp1', 'sp3', 'ri1', 'ri3'];
-const exportGroupEnabled = { payg: true, sp1: true, sp3: true, ri1: true, ri3: true };
