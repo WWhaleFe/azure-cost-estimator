@@ -31,7 +31,7 @@
   <div style="background:#f0f6ff;border:1px solid #b3d4ff;padding:8px 12px;border-radius:2px;font-size:11px;color:#0050a0;margin-bottom:8px;">
     <strong>Azure Retail Prices API 연동</strong> ·
     Endpoint: <code style="background:rgba(255,255,255,0.7);padding:1px 4px;border-radius:2px;font-size:10px;">prices.azure.com/api/retail/prices?api-version=2023-01-01-preview</code> ·
-    절약 플랜(savingsPlan) + 예약(Reservation) + 용량제(Consumption) 동시 조회 · CORS 프록시 자동 폴백 ·
+    절약 플랜 + 예약 + 용량제 동시 조회 · CORS 프록시 자동 폴백 ·
     <span id="connectionStatus" style="font-weight:600;">연결 확인 중...</span>
   </div>
 
@@ -56,7 +56,6 @@
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
     <table class="grid-table" id="mainTable" style="min-width:1800px;">
       <thead>
-        <!-- 체크박스를 엑셀 내보내기 열 그룹 헤더 셀 안에 내장 -->
         <tr>
           <th rowspan="2" style="width:24px;"></th>
           <th rowspan="2" style="width:34px;">#</th>
@@ -67,35 +66,30 @@
           <th rowspan="2" style="width:260px;">상세 사양</th>
           <th rowspan="2" style="width:44px;">Qty</th>
           <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
-          <!-- 용량제 (PAYG): 체크박스 내장 -->
+          <!-- 체크박스가 텍스트 앞(왼쪽)에 배치 -->
           <th colspan="3" class="group-payg th-with-checkbox">
             <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택">
-              용량제 (PAYG)
+              <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택"> 용량제 (PAYG)
             </label>
           </th>
           <th colspan="3" class="group-sp1 th-with-checkbox">
             <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-sp1" checked title="엑셀 출력 선택">
-              절약 플랜 1년
+              <input type="checkbox" id="chk-group-sp1" checked title="엑셀 출력 선택"> 절약 플랜 1년
             </label>
           </th>
           <th colspan="3" class="group-sp3 th-with-checkbox">
             <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-sp3" checked title="엑셀 출력 선택">
-              절약 플랜 3년
+              <input type="checkbox" id="chk-group-sp3" checked title="엑셀 출력 선택"> 절약 플랜 3년
             </label>
           </th>
           <th colspan="3" class="group-ri1 th-with-checkbox">
             <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-ri1" checked title="엑셀 출력 선택">
-              예약 1년
+              <input type="checkbox" id="chk-group-ri1" checked title="엑셀 출력 선택"> 예약 1년
             </label>
           </th>
           <th colspan="3" class="group-ri3 th-with-checkbox">
             <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-ri3" checked title="엑셀 출력 선택">
-              예약 3년
+              <input type="checkbox" id="chk-group-ri3" checked title="엑셀 출력 선택"> 예약 3년
             </label>
           </th>
           <th rowspan="2" style="width:74px;">Action</th>
@@ -144,18 +138,42 @@
     <ol class="list-decimal ml-5 space-y-0.5 text-[#605e5c]">
       <li>"분류"는 자유 입력 필드입니다.</li>
       <li>Service Category 선택 시 옵션 패널이 표 아래에 펼쳐집니다.</li>
-      <li><strong>가격 그룹 5종</strong>: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.</li>
-      <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours. 일반 항목(VM 등)은 Hours 변경 시 가격이 실시간으로 반영됩니다.</li>
-      <li><strong>Disk (Premium SSD)</strong>: 성능 계층 업그레이드, 스냅샷, Confidential OS Enc, 디스크 버스팅(예상 IOPS/처리량·근무일당분/월근무일), 공유 디스크 옵션을 지원합니다.</li>
-      <li><strong>엑셀 내보내기</strong>: 헤더의 그룹 체크박스를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
+      <li>가격 그룹 5종: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.</li>
+      <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours.</li>
+      <li><strong>엑셀 내보내기</strong>: 헤더의 체크박스(☑ 텍스트 앞)를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
       <li>Action: ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경.</li>
     </ol>
   </div>
 </div>
-<script src="js/config.js"></script>
-<script src="js/network-layer.js"></script>
-<script src="js/matchers.js"></script>
+
+<!-- 로드 순서: core → services → core(병합/엔진/UI) -->
+<!-- 1. 공통 상수 -->
+<script src="js/core/config.js"></script>
+<!-- 2. 네트워크 레이어 -->
+<script src="js/core/network-layer.js"></script>
+<!-- 3. 서비스별 정의 + resolve 함수 (독립, 순서 무관) -->
+<script src="js/services/vm.js"></script>
+<script src="js/services/disk.js"></script>
+<script src="js/services/vpn-gateway.js"></script>
+<script src="js/services/load-balancer.js"></script>
+<script src="js/services/app-gateway.js"></script>
+<script src="js/services/public-ip.js"></script>
+<script src="js/services/firewall.js"></script>
+<script src="js/services/bandwidth.js"></script>
+<script src="js/services/nat-gateway.js"></script>
+<script src="js/services/sql-database.js"></script>
+<script src="js/services/mysql.js"></script>
+<script src="js/services/app-service.js"></script>
+<script src="js/services/bastion.js"></script>
+<script src="js/services/azure-files.js"></script>
+<script src="js/services/blob-storage.js"></script>
+<!-- 4. SERVICE_CATEGORIES 병합 (services 모두 로드 후) -->
+<script src="js/core/service-categories.js"></script>
+<!-- 5. 가격 조회 엔진 -->
+<script src="js/core/resolver-engine.js"></script>
+<!-- 6. 진단 -->
 <script src="js/diagnostics.js"></script>
+<!-- 7. UI (마지막) -->
 <script src="js/ui-and-bootstrap.js"></script>
 </body>
 </html>
