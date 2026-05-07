@@ -36,13 +36,15 @@ const $body = document.getElementById('gridBody');
 const $foot = document.getElementById('gridFoot');
 const $apiStatus = document.getElementById('apiStatus');
 
-function fmtMoney(n, dp = 2) {
+// [v32] 소수점 2자리로 통일
+function fmtMoney(n) {
   if (n === null || n === undefined || isNaN(n)) return '-';
-  return Number(n).toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+// Unit Price도 소수점 2자리
 function fmtUnit(n) {
   if (n === null || n === undefined || isNaN(n)) return '-';
-  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function escapeHtml(s) {
   if (s === null || s === undefined) return '';
@@ -207,563 +209,236 @@ function updatePriceCells(row) {
 }
 
 function updateTotalsRow() {
-  let totals = { paygM:0, paygY:0, sp1M:0, sp1Y:0, sp3M:0, sp3Y:0, ri1M:0, ri1Y:0, ri3M:0, ri3Y:0 };
+  let totals = { paygM:0,paygY:0,sp1M:0,sp1Y:0,sp3M:0,sp3Y:0,ri1M:0,ri1Y:0,ri3M:0,ri3Y:0 };
   rows.forEach(row => {
-    const qty = Number(row.qty) || 0;
-    const usage = Number(row.usage) || 0;
-    const add = (item, mKey, yKey) => {
-      const d = calcGroup(item, qty, usage);
-      if (d) { totals[mKey] += d.monthly; totals[yKey] += d.year; }
-    };
-    add(row.paygItem, 'paygM', 'paygY');
-    add(row.sp1Item, 'sp1M', 'sp1Y');
-    add(row.sp3Item, 'sp3M', 'sp3Y');
-    add(row.ri1Item, 'ri1M', 'ri1Y');
-    add(row.ri3Item, 'ri3M', 'ri3Y');
+    const qty=Number(row.qty)||0, usage=Number(row.usage)||0;
+    const add=(item,mK,yK)=>{ const d=calcGroup(item,qty,usage); if(d){ totals[mK]+=d.monthly; totals[yK]+=d.year; } };
+    add(row.paygItem,'paygM','paygY'); add(row.sp1Item,'sp1M','sp1Y'); add(row.sp3Item,'sp3M','sp3Y');
+    add(row.ri1Item,'ri1M','ri1Y'); add(row.ri3Item,'ri3M','ri3Y');
   });
-
-  const totalRow = $foot.querySelector('tr.total-row');
+  const totalRow=$foot.querySelector('tr.total-row');
   if (!totalRow) return;
-  const tds = totalRow.querySelectorAll('td');
-  const map = [null,'paygM','paygY',null,'sp1M','sp1Y',null,'sp3M','sp3Y',null,'ri1M','ri1Y',null,'ri3M','ri3Y'];
-  for (let i = 0; i < map.length; i++) {
-    const td = tds[i + 1];
-    if (!td) continue;
-    if (map[i] === null) td.textContent = '-';
-    else td.textContent = fmtMoney(totals[map[i]]);
-  }
+  const tds=totalRow.querySelectorAll('td');
+  const map=[null,'paygM','paygY',null,'sp1M','sp1Y',null,'sp3M','sp3Y',null,'ri1M','ri1Y',null,'ri3M','ri3Y'];
+  for (let i=0;i<map.length;i++) { const td=tds[i+1]; if(!td) continue; if(map[i]===null) td.textContent='-'; else td.textContent=fmtMoney(totals[map[i]]); }
 }
 
 $body.addEventListener('input', (e) => {
-  const t = e.target;
-  const id = Number(t.dataset.id);
-  const r = rows.find(x => x.id === id);
+  const t=e.target, id=Number(t.dataset.id), r=rows.find(x=>x.id===id);
   if (!r) return;
-  if (t.dataset.act === 'num') {
-    const f = t.dataset.field;
-    const raw = String(t.value).trim();
-    const n = raw === '' ? 0 : Number(raw);
-    r[f] = isNaN(n) ? 0 : n;
-    updatePriceCells(r);
-    updateTotalsRow();
-  } else if (t.dataset.act === 'freetext') {
-    r[t.dataset.field] = t.value;
-  } else if (t.dataset.act === 'combo-input') {
-    onComboInput(r, t.dataset.field, t.value, t);
-  }
+  if (t.dataset.act==='num') { const f=t.dataset.field,raw=String(t.value).trim(),n=raw===''?0:Number(raw); r[f]=isNaN(n)?0:n; updatePriceCells(r); updateTotalsRow(); }
+  else if (t.dataset.act==='freetext') r[t.dataset.field]=t.value;
+  else if (t.dataset.act==='combo-input') onComboInput(r,t.dataset.field,t.value,t);
 });
-
 $body.addEventListener('focus', (e) => {
-  const t = e.target;
-  if (t.dataset.act === 'combo-input') {
-    const id = Number(t.dataset.id);
-    const r = rows.find(x => x.id === id);
-    if (r) onComboInput(r, t.dataset.field, t.value || '', t);
-  }
+  const t=e.target;
+  if (t.dataset.act==='combo-input') { const id=Number(t.dataset.id),r=rows.find(x=>x.id===id); if(r) onComboInput(r,t.dataset.field,t.value||'',t); }
 }, true);
-
 $body.addEventListener('click', (e) => {
-  const t = e.target;
-  if (t.dataset.act === 'dup') duplicateRow(Number(t.dataset.id));
-  else if (t.dataset.act === 'del') removeRow(Number(t.dataset.id));
-  else if (t.dataset.act === 'config' || t.dataset.act === 'open-config') {
-    openConfig(Number(t.dataset.id));
-  }
+  const t=e.target;
+  if (t.dataset.act==='dup') duplicateRow(Number(t.dataset.id));
+  else if (t.dataset.act==='del') removeRow(Number(t.dataset.id));
+  else if (t.dataset.act==='config'||t.dataset.act==='open-config') openConfig(Number(t.dataset.id));
 });
-
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.combo-wrap') && !e.target.closest('.combo-list')) {
-    document.querySelectorAll('.combo-list').forEach(el => el.classList.add('hidden'));
-  }
+  if (!e.target.closest('.combo-wrap')&&!e.target.closest('.combo-list')) document.querySelectorAll('.combo-list').forEach(el=>el.classList.add('hidden'));
 });
-
-window.addEventListener('scroll', () => {
-  document.querySelectorAll('.combo-list').forEach(el => el.classList.add('hidden'));
-}, true);
-window.addEventListener('resize', () => {
-  document.querySelectorAll('.combo-list').forEach(el => el.classList.add('hidden'));
-});
+window.addEventListener('scroll', () => { document.querySelectorAll('.combo-list').forEach(el=>el.classList.add('hidden')); }, true);
+window.addEventListener('resize', () => { document.querySelectorAll('.combo-list').forEach(el=>el.classList.add('hidden')); });
 
 document.getElementById('btnAddRow').addEventListener('click', addRow);
-
-// [v31] 통화 변경 시 해당 통화 캐시만 삭제 (다른 통화 캐시 유지)
 document.getElementById('currencySelect').addEventListener('change', async (e) => {
-  const prevCurrency = e.target._prevValue || 'KRW';
+  const prevCurrency=e.target._prevValue||'KRW';
   clearCacheForCurrency(prevCurrency);
-  e.target._prevValue = e.target.value;
-  for (const r of rows) {
-    r.paygItem = null; r.sp1Item = null; r.sp3Item = null;
-    r.ri1Item = null; r.ri3Item = null;
-  }
+  e.target._prevValue=e.target.value;
+  for (const r of rows) { r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null; }
   render();
-  for (const r of rows) {
-    if (r.skuName) await tryResolveItem(r);
-  }
+  for (const r of rows) { if(r.skuName) await tryResolveItem(r); }
 });
-// 초기값 기록
-document.getElementById('currencySelect')._prevValue = document.getElementById('currencySelect').value;
-
+document.getElementById('currencySelect')._prevValue=document.getElementById('currencySelect').value;
 document.getElementById('defaultHours').addEventListener('change', (e) => {
-  const v = Number(e.target.value) || 730;
-  rows.forEach(r => { r.usage = v; });
-  render();
+  const v=Number(e.target.value)||730;
+  rows.forEach(r=>{r.usage=v;}); render();
 });
 
-let dragSrcId = null;
-$body.addEventListener('mousedown', (e) => {
-  const handle = e.target.closest('[data-act="drag-handle"]');
-  if (handle) handle.closest('tr').draggable = true;
-});
-$body.addEventListener('dragstart', (e) => {
-  const tr = e.target.closest('tr');
-  if (!tr) return;
-  dragSrcId = Number(tr.dataset.id);
-  tr.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-});
-$body.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  const tr = e.target.closest('tr');
-  if (!tr) return;
-  $body.querySelectorAll('tr').forEach(t => t.classList.remove('drag-over'));
-  tr.classList.add('drag-over');
-});
-$body.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const tr = e.target.closest('tr');
-  if (!tr || dragSrcId === null) return;
-  const targetId = Number(tr.dataset.id);
-  if (targetId === dragSrcId) return;
-  const srcIdx = rows.findIndex(r => r.id === dragSrcId);
-  const tgtIdx = rows.findIndex(r => r.id === targetId);
-  if (srcIdx < 0 || tgtIdx < 0) return;
-  const [moved] = rows.splice(srcIdx, 1);
-  rows.splice(tgtIdx, 0, moved);
-  render();
-});
-$body.addEventListener('dragend', () => {
-  $body.querySelectorAll('tr').forEach(t => {
-    t.classList.remove('dragging'); t.classList.remove('drag-over'); t.draggable = false;
-  });
-  dragSrcId = null;
-});
+let dragSrcId=null;
+$body.addEventListener('mousedown',(e)=>{ const h=e.target.closest('[data-act="drag-handle"]'); if(h) h.closest('tr').draggable=true; });
+$body.addEventListener('dragstart',(e)=>{ const tr=e.target.closest('tr'); if(!tr) return; dragSrcId=Number(tr.dataset.id); tr.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+$body.addEventListener('dragover',(e)=>{ e.preventDefault(); const tr=e.target.closest('tr'); if(!tr) return; $body.querySelectorAll('tr').forEach(t=>t.classList.remove('drag-over')); tr.classList.add('drag-over'); });
+$body.addEventListener('drop',(e)=>{ e.preventDefault(); const tr=e.target.closest('tr'); if(!tr||dragSrcId===null) return; const tid=Number(tr.dataset.id); if(tid===dragSrcId) return; const si=rows.findIndex(r=>r.id===dragSrcId),ti=rows.findIndex(r=>r.id===tid); if(si<0||ti<0) return; const [moved]=rows.splice(si,1); rows.splice(ti,0,moved); render(); });
+$body.addEventListener('dragend',()=>{ $body.querySelectorAll('tr').forEach(t=>{t.classList.remove('dragging');t.classList.remove('drag-over');t.draggable=false;}); dragSrcId=null; });
 
-function onComboInput(row, field, value, inputEl) {
-  if (field === 'region') {
-    const code = lookupRegionCode(value);
-    if (code) row.region = code;
-  }
-  const candidates = getCandidates(row, field, value);
-  showCombo(row.id, field, candidates, inputEl);
+function onComboInput(row,field,value,inputEl) {
+  if (field==='region') { const code=lookupRegionCode(value); if(code) row.region=code; }
+  showCombo(row.id,field,getCandidates(row,field,value),inputEl);
 }
-
-function lookupRegionCode(label) {
-  for (const [code, lbl] of Object.entries(REGION_LABEL)) {
-    if (lbl.toLowerCase() === String(label).toLowerCase() || code === label) return code;
-  }
-  return null;
-}
-
-function getCandidates(row, field, typed) {
-  const q = (typed || '').toLowerCase();
-  const matches = (s) => {
-    if (!q) return true;
-    const t = String(s || '').toLowerCase();
-    return t.startsWith(q) || t.includes(q);
-  };
-  if (field === 'region') return Object.values(REGION_LABEL).filter(matches);
-  if (field === 'serviceCategory') return Object.keys(SERVICE_CATEGORIES).filter(matches);
+function lookupRegionCode(label) { for(const [code,lbl] of Object.entries(REGION_LABEL)) { if(lbl.toLowerCase()===String(label).toLowerCase()||code===label) return code; } return null; }
+function getCandidates(row,field,typed) {
+  const q=(typed||'').toLowerCase(), matches=(s)=>{ if(!q) return true; const t=String(s||'').toLowerCase(); return t.startsWith(q)||t.includes(q); };
+  if (field==='region') return Object.values(REGION_LABEL).filter(matches);
+  if (field==='serviceCategory') return Object.keys(SERVICE_CATEGORIES).filter(matches);
   return [];
 }
-
-function showCombo(rowId, field, options, inputEl) {
-  document.querySelectorAll('.combo-list').forEach(el => el.classList.add('hidden'));
-  const list = document.querySelector(`[data-list="${rowId}-${field}"]`);
+function showCombo(rowId,field,options,inputEl) {
+  document.querySelectorAll('.combo-list').forEach(el=>el.classList.add('hidden'));
+  const list=document.querySelector(`[data-list="${rowId}-${field}"]`);
   if (!list) return;
   list.classList.remove('hidden');
-
-  if (inputEl) {
-    const rect = inputEl.getBoundingClientRect();
-    list.style.left = rect.left + 'px';
-    list.style.top = (rect.bottom + 2) + 'px';
-    list.style.minWidth = Math.max(rect.width, 200) + 'px';
-  }
-
-  if (!options || options.length === 0) {
-    list.innerHTML = `<div class="combo-empty">일치하는 항목이 없습니다</div>`;
-    return;
-  }
-  list.innerHTML = options.map(v =>
-    `<div class="combo-item" data-pick="${escapeHtml(v)}">${escapeHtml(v)}</div>`
-  ).join('');
-  list.querySelectorAll('[data-pick]').forEach(el => {
-    el.addEventListener('mousedown', async (e) => {
+  if (inputEl) { const rect=inputEl.getBoundingClientRect(); list.style.left=rect.left+'px'; list.style.top=(rect.bottom+2)+'px'; list.style.minWidth=Math.max(rect.width,200)+'px'; }
+  if (!options||options.length===0) { list.innerHTML=`<div class="combo-empty">일치하는 항목이 없습니다</div>`; return; }
+  list.innerHTML=options.map(v=>`<div class="combo-item" data-pick="${escapeHtml(v)}">${escapeHtml(v)}</div>`).join('');
+  list.querySelectorAll('[data-pick]').forEach(el=>{
+    el.addEventListener('mousedown', async(e)=>{
       e.preventDefault();
-      const picked = el.dataset.pick;
-      const r = rows.find(x => x.id === rowId);
+      const picked=el.dataset.pick, r=rows.find(x=>x.id===rowId);
       if (!r) return;
-      if (field === 'region') {
-        r.region = lookupRegionCode(picked) || r.region;
-        list.classList.add('hidden');
-        if (r.skuName) await tryResolveItem(r);
-        render();
-      } else if (field === 'serviceCategory') {
-        r.serviceCategory = picked;
-        r.skuName = ''; r.detail = ''; r.options = {};
-        r.paygItem = null; r.sp1Item = null; r.sp3Item = null;
-        r.ri1Item = null; r.ri3Item = null;
-        list.classList.add('hidden');
-        render();
-        openConfig(r.id);
-      }
+      if (field==='region') { r.region=lookupRegionCode(picked)||r.region; list.classList.add('hidden'); if(r.skuName) await tryResolveItem(r); render(); }
+      else if (field==='serviceCategory') { r.serviceCategory=picked; r.skuName='';r.detail='';r.options={}; r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null; list.classList.add('hidden'); render(); openConfig(r.id); }
     });
   });
 }
 
-const $configPanel = document.getElementById('configPanel');
-const $configTitle = document.getElementById('configTitle');
-const $configContent = document.getElementById('configContent');
-
-let configDirty = false;
-let applyConfigBusy = false;
+const $configPanel=document.getElementById('configPanel');
+const $configTitle=document.getElementById('configTitle');
+const $configContent=document.getElementById('configContent');
+let configDirty=false, applyConfigBusy=false;
 
 async function applyConfig() {
-  if (applyConfigBusy) return;
-  if (!configDirty) return;
-  const r = rows.find(x => x.id === activeConfigRowId);
+  if (applyConfigBusy||!configDirty) return;
+  const r=rows.find(x=>x.id===activeConfigRowId);
   if (!r) return;
-  applyConfigBusy = true;
+  applyConfigBusy=true;
   try {
-    buildSkuAndDetail(r);
-    await tryResolveItem(r);
-    render();
-    configDirty = false;
-    const $dirtyBadge = document.getElementById('configDirtyBadge');
-    if ($dirtyBadge) $dirtyBadge.style.display = 'none';
-  } finally {
-    applyConfigBusy = false;
-  }
+    buildSkuAndDetail(r); await tryResolveItem(r); render();
+    configDirty=false;
+    const $b=document.getElementById('configDirtyBadge'); if($b) $b.style.display='none';
+  } finally { applyConfigBusy=false; }
 }
-
-document.getElementById('btnCloseConfig').addEventListener('click', async () => {
-  if (configDirty) await applyConfig();
-  closeConfig();
-});
+document.getElementById('btnCloseConfig').addEventListener('click', async()=>{ if(configDirty) await applyConfig(); closeConfig(); });
 document.getElementById('btnApplyConfig').addEventListener('click', applyConfig);
-
-document.addEventListener('mousedown', async (e) => {
-  if (!$configPanel.classList.contains('active')) return;
-  if (!configDirty) return;
-  if (e.target.closest('#configPanel')) return;
-  if (e.target.closest('[data-act="config"]') || e.target.closest('[data-act="open-config"]')) return;
-  if (e.target.closest('.combo-list')) return;
+document.addEventListener('mousedown', async(e)=>{
+  if (!$configPanel.classList.contains('active')||!configDirty) return;
+  if (e.target.closest('#configPanel')||e.target.closest('[data-act="config"]')||e.target.closest('[data-act="open-config"]')||e.target.closest('.combo-list')) return;
   await applyConfig();
 });
 
 function openConfig(rowId) {
-  const r = rows.find(x => x.id === rowId);
-  if (!r || !r.serviceCategory) return;
-  if (activeConfigRowId !== null && activeConfigRowId !== rowId && configDirty) {
-    applyConfig().finally(() => {
-      activeConfigRowId = rowId;
-      $configPanel.classList.add('active');
-      renderConfigPanel();
-    });
-    return;
-  }
-  activeConfigRowId = rowId;
-  $configPanel.classList.add('active');
-  renderConfigPanel();
+  const r=rows.find(x=>x.id===rowId);
+  if (!r||!r.serviceCategory) return;
+  if (activeConfigRowId!==null&&activeConfigRowId!==rowId&&configDirty) { applyConfig().finally(()=>{ activeConfigRowId=rowId; $configPanel.classList.add('active'); renderConfigPanel(); }); return; }
+  activeConfigRowId=rowId; $configPanel.classList.add('active'); renderConfigPanel();
 }
 function closeConfig() {
-  activeConfigRowId = null;
-  $configPanel.classList.remove('active');
-  configDirty = false;
-  const $dirtyBadge = document.getElementById('configDirtyBadge');
-  if ($dirtyBadge) $dirtyBadge.style.display = 'none';
+  activeConfigRowId=null; $configPanel.classList.remove('active'); configDirty=false;
+  const $b=document.getElementById('configDirtyBadge'); if($b) $b.style.display='none';
 }
 
-/**
- * 옵션 패널 렌더 (v31)
- *
- * [핵심 버그 수정]
- * 기존: series/storageType 변경 시 r.options.instance 를 초기화하고 render()만 호출
- *       → 패널의 인스턴스 드롭다운이 갱신되지 않음
- * 수정: KEYS_REBUILD_INSTANCE 키 변경 시 renderConfigPanel() 재호출
- *       → 인스턴스 드롭다운이 새로운 상위 옵션 기준으로 즉시 재구성됨
- */
 function renderConfigPanel() {
-  const r = rows.find(x => x.id === activeConfigRowId);
+  const r=rows.find(x=>x.id===activeConfigRowId);
   if (!r) { closeConfig(); return; }
-  const def = SERVICE_CATEGORIES[r.serviceCategory];
+  const def=SERVICE_CATEGORIES[r.serviceCategory];
   if (!def) { closeConfig(); return; }
+  $configTitle.textContent=`${r.serviceCategory} 옵션 (행 #${rows.findIndex(x=>x.id===r.id)+1})`;
 
-  $configTitle.textContent = `${r.serviceCategory} 옵션 (행 #${rows.findIndex(x => x.id === r.id) + 1})`;
-
-  const fields = [];
-  def.steps.forEach(step => {
-    if (step.type === 'number') {
-      const cur = (r.options[step.key] !== undefined && r.options[step.key] !== '')
-        ? r.options[step.key]
-        : (step.default !== undefined ? step.default : 0);
-      fields.push(`
-        <div class="config-field">
-          <label>${escapeHtml(step.label)}</label>
-          <input type="number"
-                 data-opt-key="${step.key}"
-                 data-opt-type="number"
-                 min="${step.min !== undefined ? step.min : 0}"
-                 step="${step.step !== undefined ? step.step : 1}"
-                 value="${escapeHtml(String(cur))}"
-                 style="text-align:right;" />
-        </div>
-      `);
+  const fields=[];
+  def.steps.forEach(step=>{
+    if (step.type==='number') {
+      const cur=(r.options[step.key]!==undefined&&r.options[step.key]!=='')?r.options[step.key]:(step.default!==undefined?step.default:0);
+      fields.push(`<div class="config-field"><label>${escapeHtml(step.label)}</label><input type="number" data-opt-key="${step.key}" data-opt-type="number" min="${step.min!==undefined?step.min:0}" step="${step.step!==undefined?step.step:1}" value="${escapeHtml(String(cur))}" style="text-align:right;" /></div>`);
     } else {
-      const sel = r.options[step.key] || '';
-      fields.push(`
-        <div class="config-field">
-          <label>${escapeHtml(step.label)}</label>
-          <select data-opt-key="${step.key}">
-            <option value="">선택...</option>
-            ${step.options.map(opt =>
-              `<option value="${escapeHtml(opt)}" ${sel === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>`
-            ).join('')}
-          </select>
-        </div>
-      `);
+      const sel=r.options[step.key]||'';
+      fields.push(`<div class="config-field"><label>${escapeHtml(step.label)}</label><select data-opt-key="${step.key}"><option value="">선택...</option>${step.options.map(opt=>`<option value="${escapeHtml(opt)}" ${sel===opt?'selected':''}>${escapeHtml(opt)}</option>`).join('')}</select></div>`);
     }
   });
 
-  // 인스턴스 / 디스크 크기 드롭다운
-  // [버그 수정] instanceParentKey 기반으로 현재 상위 옵션 값을 읽어 동적 구성
   if (def.instanceField) {
-    let instanceOptions = [];
-    if (r.serviceCategory === 'Virtual Machine') {
-      const series = r.options.series;
-      if (series && VM_INSTANCE_CATALOG[series]) {
-        instanceOptions = VM_INSTANCE_CATALOG[series].map(i =>
-          ({ value: i.name, label: `${i.name} (vCPU: ${i.vCPU}, RAM: ${i.ram}GB)` })
-        );
-      }
-    } else if (r.serviceCategory === 'Disk') {
-      const st = r.options.storageType;
-      if (st && DISK_CATALOG[st]) {
-        instanceOptions = DISK_CATALOG[st].map(d =>
-          ({ value: d.name, label: `${d.name} (${d.size}GB)` })
-        );
-      }
-    }
-    const sel = r.options.instance || r.skuName || '';
-    const hasOptions = instanceOptions.length > 0;
-    fields.push(`
-      <div class="config-field" style="grid-column: 1 / -1;">
-        <label>인스턴스 / 디스크 크기</label>
-        <select data-opt-key="instance" ${!hasOptions ? 'disabled' : ''}>
-          <option value="">${!hasOptions ? '상위 옵션을 먼저 선택하세요' : '선택...'}</option>
-          ${instanceOptions.map(o =>
-            `<option value="${escapeHtml(o.value)}" ${sel === o.value ? 'selected' : ''}>${escapeHtml(o.label)}</option>`
-          ).join('')}
-        </select>
-      </div>
-    `);
+    let instanceOptions=[];
+    if (r.serviceCategory==='Virtual Machine') { const series=r.options.series; if(series&&VM_INSTANCE_CATALOG[series]) instanceOptions=VM_INSTANCE_CATALOG[series].map(i=>({value:i.name,label:`${i.name} (vCPU: ${i.vCPU}, RAM: ${i.ram}GB)`})); }
+    else if (r.serviceCategory==='Disk') { const st=r.options.storageType; if(st&&DISK_CATALOG[st]) instanceOptions=DISK_CATALOG[st].map(d=>({value:d.name,label:`${d.name} (${d.size}GB)`})); }
+    const sel=r.options.instance||r.skuName||'';
+    fields.push(`<div class="config-field" style="grid-column: 1 / -1;"><label>인스턴스 / 디스크 크기</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`);
   }
 
-  $configContent.innerHTML = fields.join('');
+  $configContent.innerHTML=fields.join('');
 
-  // 인스턴스 드롭다운을 재구성해야 하는 상위 키 목록
-  // 이 키가 변경되면 renderConfigPanel()을 재호출하여 instance 드롭다운을 즉시 갱신
-  const KEYS_REBUILD_INSTANCE = def.instanceParentKey ? [def.instanceParentKey] : [];
-
-  const $dirtyBadge = document.getElementById('configDirtyBadge');
-  const markDirty = () => {
-    configDirty = true;
-    if ($dirtyBadge) $dirtyBadge.style.display = '';
-  };
-  const clearDirty = () => {
-    configDirty = false;
-    if ($dirtyBadge) $dirtyBadge.style.display = 'none';
-  };
+  const KEYS_REBUILD=[def.instanceParentKey].filter(Boolean);
+  const $dirtyBadge=document.getElementById('configDirtyBadge');
+  const markDirty=()=>{ configDirty=true; if($dirtyBadge) $dirtyBadge.style.display=''; };
+  const clearDirty=()=>{ configDirty=false; if($dirtyBadge) $dirtyBadge.style.display='none'; };
   clearDirty();
 
-  $configContent.querySelectorAll('select[data-opt-key]').forEach(sel => {
-    sel.addEventListener('change', (e) => {
-      const key = e.target.dataset.optKey;
-      r.options[key] = e.target.value;
-
-      // 인스턴스 부모 키가 변경되면 instance 초기화 + 패널 재렌더
-      if (KEYS_REBUILD_INSTANCE.includes(key)) {
-        r.options.instance = '';
-        buildSkuAndDetail(r);
-        render();
-        // [핵심 수정] 패널을 재렌더하여 instance 드롭다운을 새 옵션으로 즉시 교체
-        renderConfigPanel();
-        // renderConfigPanel이 clearDirty를 호출하므로 재호출 후 dirty 상태 다시 설정
-        markDirty();
-        return;
-      }
-
-      buildSkuAndDetail(r);
-      render();
-      markDirty();
+  $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
+    sel.addEventListener('change',(e)=>{
+      const key=e.target.dataset.optKey;
+      r.options[key]=e.target.value;
+      if (KEYS_REBUILD.includes(key)) { r.options.instance=''; buildSkuAndDetail(r); render(); renderConfigPanel(); markDirty(); return; }
+      buildSkuAndDetail(r); render(); markDirty();
     });
   });
-
-  $configContent.querySelectorAll('input[data-opt-type="number"]').forEach(inp => {
-    inp.addEventListener('input', (e) => {
-      const key = e.target.dataset.optKey;
-      const raw = e.target.value;
-      r.options[key] = (raw === '' ? 0 : Number(raw));
-      if (key === 'gatewayHours') r.usage = Number(raw) || 0;
-      buildSkuAndDetail(r);
-      render();
-      markDirty();
+  $configContent.querySelectorAll('input[data-opt-type="number"]').forEach(inp=>{
+    inp.addEventListener('input',(e)=>{
+      const key=e.target.dataset.optKey, raw=e.target.value;
+      r.options[key]=(raw===''?0:Number(raw));
+      if (key==='gatewayHours') r.usage=Number(raw)||0;
+      buildSkuAndDetail(r); render(); markDirty();
     });
   });
 }
 
-function setStatus(kind, msg) {
-  const cls = kind === 'ok' ? 'badge badge-ok' : kind === 'error' ? 'badge badge-error' : 'badge badge-loading';
-  $apiStatus.innerHTML = `<span class="${cls}">${escapeHtml(msg)}</span>`;
+function setStatus(kind,msg) {
+  const cls=kind==='ok'?'badge badge-ok':kind==='error'?'badge badge-error':'badge badge-loading';
+  $apiStatus.innerHTML=`<span class="${cls}">${escapeHtml(msg)}</span>`;
 }
 
 document.getElementById('btnExport').addEventListener('click', () => {
-  const cur = document.getElementById('currencySelect').value;
-  const data = [];
-
+  const cur=document.getElementById('currencySelect').value;
+  const data=[];
   data.push(['Azure 견적 시뮬레이션']);
   data.push([`통화: ${cur} | 생성: ${new Date().toLocaleString('ko-KR')}`]);
   data.push([]);
-  data.push([
-    '#', 'Region', '분류', 'Service Category', 'Service name (SKU)', '상세 사양', 'Qty', '사용량(Hours)',
-    '용량제 (PAYG)', '', '',
-    '절약 플랜 1년', '', '',
-    '절약 플랜 3년', '', '',
-    '예약 1년', '', '',
-    '예약 3년', '', '',
-  ]);
-  data.push([
-    '', '', '', '', '', '', '', '',
-    'Unit Price', '1 Monthly Cost', '1 Year cost',
-    'Unit Price', '1 Monthly Cost', '1 Year cost',
-    'Unit Price', '1 Monthly Cost', '1 Year cost',
-    'Unit Price', '1 Monthly Cost', '1 Year cost',
-    'Unit Price', '1 Monthly Cost', '1 Year cost',
-  ]);
+  data.push(['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)','용량제 (PAYG)','','','절약 플랜 1년','','','절약 플랜 3년','','','예약 1년','','','예약 3년','','']);
+  data.push(['','','','','','','','','Unit Price','1 Monthly Cost','1 Year cost','Unit Price','1 Monthly Cost','1 Year cost','Unit Price','1 Monthly Cost','1 Year cost','Unit Price','1 Monthly Cost','1 Year cost','Unit Price','1 Monthly Cost','1 Year cost']);
 
-  let totals = { paygM:0, paygY:0, sp1M:0, sp1Y:0, sp3M:0, sp3Y:0, ri1M:0, ri1Y:0, ri3M:0, ri3Y:0 };
-
-  rows.forEach((r, idx) => {
-    const qty = Number(r.qty) || 0;
-    const usage = Number(r.usage) || 0;
-    const calc = (it) => {
-      if (!it) return ['', '', ''];
-      const d = calcGroup(it, qty, usage);
-      if (!d) return ['', '', ''];
-      return [d.unit, d.monthly, d.year];
-    };
-    const [pU, pM, pY] = calc(r.paygItem);
-    const [s1U, s1M, s1Y] = calc(r.sp1Item);
-    const [s3U, s3M, s3Y] = calc(r.sp3Item);
-    const [r1U, r1M, r1Y] = calc(r.ri1Item);
-    const [r3U, r3M, r3Y] = calc(r.ri3Item);
-    if (typeof pM === 'number') { totals.paygM += pM; totals.paygY += pY; }
-    if (typeof s1M === 'number') { totals.sp1M += s1M; totals.sp1Y += s1Y; }
-    if (typeof s3M === 'number') { totals.sp3M += s3M; totals.sp3Y += s3Y; }
-    if (typeof r1M === 'number') { totals.ri1M += r1M; totals.ri1Y += r1Y; }
-    if (typeof r3M === 'number') { totals.ri3M += r3M; totals.ri3Y += r3Y; }
-    data.push([
-      idx + 1, REGION_LABEL[r.region] || r.region, r.category, r.serviceCategory,
-      r.skuName, r.detail, qty, usage,
-      pU, pM, pY, s1U, s1M, s1Y, s3U, s3M, s3Y, r1U, r1M, r1Y, r3U, r3M, r3Y,
-    ]);
+  let totals={paygM:0,paygY:0,sp1M:0,sp1Y:0,sp3M:0,sp3Y:0,ri1M:0,ri1Y:0,ri3M:0,ri3Y:0};
+  rows.forEach((r,idx)=>{
+    const qty=Number(r.qty)||0,usage=Number(r.usage)||0;
+    const calc=(it)=>{ if(!it) return ['','','']; const d=calcGroup(it,qty,usage); if(!d) return ['','','']; return [d.unit,d.monthly,d.year]; };
+    const [pU,pM,pY]=calc(r.paygItem),[s1U,s1M,s1Y]=calc(r.sp1Item),[s3U,s3M,s3Y]=calc(r.sp3Item),[r1U,r1M,r1Y]=calc(r.ri1Item),[r3U,r3M,r3Y]=calc(r.ri3Item);
+    if(typeof pM==='number'){totals.paygM+=pM;totals.paygY+=pY;}
+    if(typeof s1M==='number'){totals.sp1M+=s1M;totals.sp1Y+=s1Y;}
+    if(typeof s3M==='number'){totals.sp3M+=s3M;totals.sp3Y+=s3Y;}
+    if(typeof r1M==='number'){totals.ri1M+=r1M;totals.ri1Y+=r1Y;}
+    if(typeof r3M==='number'){totals.ri3M+=r3M;totals.ri3Y+=r3Y;}
+    data.push([idx+1,REGION_LABEL[r.region]||r.region,r.category,r.serviceCategory,r.skuName,r.detail,qty,usage,pU,pM,pY,s1U,s1M,s1Y,s3U,s3M,s3Y,r1U,r1M,r1Y,r3U,r3M,r3Y]);
   });
+  data.push(['Total','','','','','','','','',totals.paygM,totals.paygY,'',totals.sp1M,totals.sp1Y,'',totals.sp3M,totals.sp3Y,'',totals.ri1M,totals.ri1Y,'',totals.ri3M,totals.ri3Y]);
+  data.push([]); data.push(['[Remark]']); data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']); data.push(['2. 절약 플랜(Savings Plan), 예약(Reservation) 단가는 시간당 환산 단가입니다.']);
 
-  data.push(['Total', '', '', '', '', '', '', '', '', totals.paygM, totals.paygY, '', totals.sp1M, totals.sp1Y, '', totals.sp3M, totals.sp3Y, '', totals.ri1M, totals.ri1Y, '', totals.ri3M, totals.ri3Y]);
-  data.push([]);
-  data.push(['[Remark]']);
-  data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']);
-  data.push(['2. 절약 플랜(Savings Plan), 예약(Reservation) 단가는 시간당 환산 단가입니다.']);
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  const borderAll={top:{style:'thin',color:{rgb:'BFBFBF'}},bottom:{style:'thin',color:{rgb:'BFBFBF'}},left:{style:'thin',color:{rgb:'BFBFBF'}},right:{style:'thin',color:{rgb:'BFBFBF'}}};
+  const titleStyle={font:{bold:true,sz:16,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'305496'}},alignment:{horizontal:'center',vertical:'center'}};
+  const subtitleStyle={font:{italic:true,sz:10,color:{rgb:'595959'}},alignment:{horizontal:'left'}};
+  const gColors=['BASE','BASE','BASE','BASE','BASE','BASE','BASE','BASE','PAYG','PAYG','PAYG','SP1','SP1','SP1','SP3','SP3','SP3','RI1','RI1','RI1','RI3','RI3','RI3'];
+  const gStyles={'PAYG':{rgb:'2E75B6'},'SP1':{rgb:'70AD47'},'SP3':{rgb:'548235'},'RI1':{rgb:'C55A11'},'RI3':{rgb:'843C0C'},'BASE':{rgb:'305496'}};
+  const hStyle=(c)=>({font:{bold:true,sz:11,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:c}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:borderAll});
+  const dStyle={font:{sz:10},alignment:{vertical:'center',wrapText:true},border:borderAll};
+  const nStyle={font:{sz:10},alignment:{horizontal:'right',vertical:'center'},numFmt:'#,##0.00',border:borderAll};
+  const tStyle={font:{bold:true,sz:11},fill:{fgColor:{rgb:'FFF2CC'}},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'305496'}},bottom:{style:'medium',color:{rgb:'305496'}},left:borderAll.left,right:borderAll.right},numFmt:'#,##0.00'};
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
-  const borderAll = {
-    top: { style: 'thin', color: { rgb: 'BFBFBF' } },
-    bottom: { style: 'thin', color: { rgb: 'BFBFBF' } },
-    left: { style: 'thin', color: { rgb: 'BFBFBF' } },
-    right: { style: 'thin', color: { rgb: 'BFBFBF' } },
-  };
-  const titleStyle = { font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '305496' } }, alignment: { horizontal: 'center', vertical: 'center' } };
-  const subtitleStyle = { font: { italic: true, sz: 10, color: { rgb: '595959' } }, alignment: { horizontal: 'left' } };
-  const groupColors = ['BASE','BASE','BASE','BASE','BASE','BASE','BASE','BASE','PAYG','PAYG','PAYG','SP1','SP1','SP1','SP3','SP3','SP3','RI1','RI1','RI1','RI3','RI3','RI3'];
-  const groupHeaderStyles = { 'PAYG':{ fgColor:{ rgb:'2E75B6' } }, 'SP1':{ fgColor:{ rgb:'70AD47' } }, 'SP3':{ fgColor:{ rgb:'548235' } }, 'RI1':{ fgColor:{ rgb:'C55A11' } }, 'RI3':{ fgColor:{ rgb:'843C0C' } }, 'BASE':{ fgColor:{ rgb:'305496' } } };
-  const headerCellStyle = (color) => ({ font: { bold: true, sz: 11, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: color } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: borderAll });
-  const dataCellStyle = { font: { sz: 10 }, alignment: { vertical: 'center', wrapText: true }, border: borderAll };
-  const numberCellStyle = { font: { sz: 10 }, alignment: { horizontal: 'right', vertical: 'center' }, numFmt: '#,##0.00', border: borderAll };
-  const totalRowStyle = { font: { bold: true, sz: 11, color: { rgb: '000000' } }, fill: { fgColor: { rgb: 'FFF2CC' } }, alignment: { horizontal: 'right', vertical: 'center' }, border: { top: { style: 'medium', color: { rgb: '305496' } }, bottom: { style: 'medium', color: { rgb: '305496' } }, left: { style: 'thin', color: { rgb: 'BFBFBF' } }, right: { style: 'thin', color: { rgb: 'BFBFBF' } } }, numFmt: '#,##0.00' };
-
-  if (!ws['A1']) ws['A1'] = { v: 'Azure 견적 시뮬레이션' };
-  ws['A1'].s = titleStyle;
-  if (ws['A2']) ws['A2'].s = subtitleStyle;
-
-  for (let c = 0; c < 23; c++) {
-    const a3 = XLSX.utils.encode_cell({ r: 3, c });
-    const a4 = XLSX.utils.encode_cell({ r: 4, c });
-    if (!ws[a3]) ws[a3] = { v: '' }; ws[a3].s = headerCellStyle(groupHeaderStyles[groupColors[c]].fgColor.rgb);
-    if (!ws[a4]) ws[a4] = { v: '' }; ws[a4].s = headerCellStyle(groupHeaderStyles[groupColors[c]].fgColor.rgb);
-  }
-
-  for (let i = 0; i < rows.length; i++) {
-    const rowIdx = 5 + i;
-    for (let c = 0; c < 23; c++) {
-      const addr = XLSX.utils.encode_cell({ r: rowIdx, c });
-      if (!ws[addr]) ws[addr] = { v: '' };
-      if (c >= 6 && typeof ws[addr].v === 'number') ws[addr].s = numberCellStyle;
-      else ws[addr].s = { ...dataCellStyle, alignment: { ...dataCellStyle.alignment, horizontal: c === 0 ? 'center' : 'left' } };
-    }
-  }
-
-  const totalRowIdx = 5 + rows.length;
-  for (let c = 0; c < 23; c++) {
-    const addr = XLSX.utils.encode_cell({ r: totalRowIdx, c });
-    if (!ws[addr]) ws[addr] = { v: '' };
-    ws[addr].s = totalRowStyle;
-  }
-
-  const remarkStartRow = totalRowIdx + 2;
-  const remarkAddr = (offset) => XLSX.utils.encode_cell({ r: remarkStartRow + offset, c: 0 });
-  if (ws[remarkAddr(0)]) ws[remarkAddr(0)].s = { font: { bold: true, sz: 11 } };
-
-  ws['!cols'] = [
-    { wch: 4 }, { wch: 14 }, { wch: 24 }, { wch: 18 }, { wch: 18 }, { wch: 36 },
-    { wch: 6 }, { wch: 12 },
-    { wch: 13 }, { wch: 16 }, { wch: 16 },
-    { wch: 13 }, { wch: 16 }, { wch: 16 },
-    { wch: 13 }, { wch: 16 }, { wch: 16 },
-    { wch: 13 }, { wch: 16 }, { wch: 16 },
-    { wch: 13 }, { wch: 16 }, { wch: 16 },
-  ];
-  ws['!rows'] = [];
-  ws['!rows'][0] = { hpt: 28 };
-  ws['!rows'][3] = { hpt: 22 };
-  ws['!rows'][4] = { hpt: 22 };
-  ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 22 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 22 } },
-    ...[0, 1, 2, 3, 4, 5, 6, 7].map(c => ({ s: { r: 3, c }, e: { r: 4, c } })),
-    { s: { r: 3, c: 8 },  e: { r: 3, c: 10 } },
-    { s: { r: 3, c: 11 }, e: { r: 3, c: 13 } },
-    { s: { r: 3, c: 14 }, e: { r: 3, c: 16 } },
-    { s: { r: 3, c: 17 }, e: { r: 3, c: 19 } },
-    { s: { r: 3, c: 20 }, e: { r: 3, c: 22 } },
-    { s: { r: totalRowIdx, c: 0 }, e: { r: totalRowIdx, c: 7 } },
-  ];
-  ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: remarkStartRow + 3, c: 22 } });
-  ws['!freeze'] = { xSplit: 0, ySplit: 5, topLeftCell: 'A6', activePane: 'bottomLeft', state: 'frozen' };
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Azure 견적');
-  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  XLSX.writeFile(wb, `azure-quote-${ts}.xlsx`);
+  if (!ws['A1']) ws['A1']={v:'Azure 견적 시뮬레이션'}; ws['A1'].s=titleStyle;
+  if (ws['A2']) ws['A2'].s=subtitleStyle;
+  for (let c=0;c<23;c++) { const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c}); if(!ws[a3])ws[a3]={v:''}; ws[a3].s=hStyle(gStyles[gColors[c]].rgb); if(!ws[a4])ws[a4]={v:''}; ws[a4].s=hStyle(gStyles[gColors[c]].rgb); }
+  for (let i=0;i<rows.length;i++) { const ri=5+i; for(let c=0;c<23;c++){ const addr=XLSX.utils.encode_cell({r:ri,c}); if(!ws[addr])ws[addr]={v:''}; if(c>=6&&typeof ws[addr].v==='number') ws[addr].s=nStyle; else ws[addr].s={...dStyle,alignment:{...dStyle.alignment,horizontal:c===0?'center':'left'}}; } }
+  const tri=5+rows.length; for(let c=0;c<23;c++){const addr=XLSX.utils.encode_cell({r:tri,c});if(!ws[addr])ws[addr]={v:''};ws[addr].s=tStyle;}
+  const rsRow=tri+2; const rA=(o)=>XLSX.utils.encode_cell({r:rsRow+o,c:0}); if(ws[rA(0)])ws[rA(0)].s={font:{bold:true,sz:11}};
+  ws['!cols']=[{wch:4},{wch:14},{wch:24},{wch:18},{wch:18},{wch:36},{wch:6},{wch:12},{wch:13},{wch:16},{wch:16},{wch:13},{wch:16},{wch:16},{wch:13},{wch:16},{wch:16},{wch:13},{wch:16},{wch:16},{wch:13},{wch:16},{wch:16}];
+  ws['!rows']=[]; ws['!rows'][0]={hpt:28}; ws['!rows'][3]={hpt:22}; ws['!rows'][4]={hpt:22};
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:22}},{s:{r:1,c:0},e:{r:1,c:22}},...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),{s:{r:3,c:8},e:{r:3,c:10}},{s:{r:3,c:11},e:{r:3,c:13}},{s:{r:3,c:14},e:{r:3,c:16}},{s:{r:3,c:17},e:{r:3,c:19}},{s:{r:3,c:20},e:{r:3,c:22}},{s:{r:tri,c:0},e:{r:tri,c:7}}];
+  ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsRow+3,c:22}});
+  ws['!freeze']={xSplit:0,ySplit:5,topLeftCell:'A6',activePane:'bottomLeft',state:'frozen'};
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Azure 견적');
+  const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  XLSX.writeFile(wb,`azure-quote-${ts}.xlsx`);
 });
 
 addRow(); addRow(); addRow();

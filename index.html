@@ -60,7 +60,7 @@
   </div>
 
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x: auto;">
-    <table class="grid-table" id="mainTable" style="min-width: 1900px;">
+    <table class="grid-table" id="mainTable" style="min-width: 1800px;">
       <thead>
         <tr>
           <th rowspan="2" style="width:24px;"></th>
@@ -69,32 +69,32 @@
           <th rowspan="2" style="width:170px;">분류</th>
           <th rowspan="2" style="width:130px;">Service Category</th>
           <th rowspan="2" style="width:140px;">Service name (SKU)</th>
-          <th rowspan="2" style="width:280px;">상세 사양</th>
-          <th rowspan="2" style="width:50px;">Qty</th>
-          <th rowspan="2" style="width:100px;">사용량(Hours)</th>
+          <th rowspan="2" style="width:260px;">상세 사양</th>
+          <th rowspan="2" style="width:44px;">Qty</th>
+          <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
           <th colspan="3" class="group-payg">용량제 (PAYG)</th>
           <th colspan="3" class="group-sp1">절약 플랜 1년</th>
           <th colspan="3" class="group-sp3">절약 플랜 3년</th>
           <th colspan="3" class="group-ri1">예약 1년</th>
           <th colspan="3" class="group-ri3">예약 3년</th>
-          <th rowspan="2" style="width:80px;">Action</th>
+          <th rowspan="2" style="width:74px;">Action</th>
         </tr>
         <tr>
-          <th class="group-payg" style="width:90px;">Unit Price</th>
-          <th class="group-payg" style="width:110px;">1 Monthly Cost</th>
-          <th class="group-payg" style="width:110px;">1 Year cost</th>
-          <th class="group-sp1" style="width:90px;">Unit Price</th>
-          <th class="group-sp1" style="width:110px;">1 Monthly Cost</th>
-          <th class="group-sp1" style="width:110px;">1 Year cost</th>
-          <th class="group-sp3" style="width:90px;">Unit Price</th>
-          <th class="group-sp3" style="width:110px;">1 Monthly Cost</th>
-          <th class="group-sp3" style="width:110px;">1 Year cost</th>
-          <th class="group-ri1" style="width:90px;">Unit Price</th>
-          <th class="group-ri1" style="width:110px;">1 Monthly Cost</th>
-          <th class="group-ri1" style="width:110px;">1 Year cost</th>
-          <th class="group-ri3" style="width:90px;">Unit Price</th>
-          <th class="group-ri3" style="width:110px;">1 Monthly Cost</th>
-          <th class="group-ri3" style="width:110px;">1 Year cost</th>
+          <th class="group-payg" style="width:82px;">Unit<br>Price</th>
+          <th class="group-payg" style="width:96px;">1 Monthly<br>Cost</th>
+          <th class="group-payg" style="width:96px;">1 Year<br>cost</th>
+          <th class="group-sp1" style="width:82px;">Unit<br>Price</th>
+          <th class="group-sp1" style="width:96px;">1 Monthly<br>Cost</th>
+          <th class="group-sp1" style="width:96px;">1 Year<br>cost</th>
+          <th class="group-sp3" style="width:82px;">Unit<br>Price</th>
+          <th class="group-sp3" style="width:96px;">1 Monthly<br>Cost</th>
+          <th class="group-sp3" style="width:96px;">1 Year<br>cost</th>
+          <th class="group-ri1" style="width:82px;">Unit<br>Price</th>
+          <th class="group-ri1" style="width:96px;">1 Monthly<br>Cost</th>
+          <th class="group-ri1" style="width:96px;">1 Year<br>cost</th>
+          <th class="group-ri3" style="width:82px;">Unit<br>Price</th>
+          <th class="group-ri3" style="width:96px;">1 Monthly<br>Cost</th>
+          <th class="group-ri3" style="width:96px;">1 Year<br>cost</th>
         </tr>
       </thead>
       <tbody id="gridBody"></tbody>
@@ -133,24 +133,15 @@
           <li>"Azure Hybrid Benefit": 모든 가격 그룹에서 OS 라이선스 비용이 면제되어 인프라 단가만 적용됩니다.</li>
         </ul>
       </li>
-      <li><strong>Storage</strong>: 디스크 월 단가 + Storage 트랜잭션(10K 단위) 월 비용을 합산하여 표시합니다. Storage는 월 정액 청구이므로 사용량(Hours) 변경에 영향받지 않습니다. Premium SSD는 트랜잭션 무료입니다.</li>
-      <li><strong>VPN Gateway</strong>: 옵션 패널에서 SKU와 함께 게이트웨이 시간(월), S2S/P2S 추가 수량, VNET 데이터 전송 유형/GB를 직접 입력합니다. 표의 "사용량(Hours)"이 아닌 옵션 패널의 "게이트웨이 시간"이 시간 기준이 되며, 각 항목별 월 비용이 합산되어 표시됩니다. 추가 터널/연결은 SKU 기본 포함분(예: Basic 10/0, VpnGw1+ 30/250)을 초과한 수량만 입력하세요. <strong>VNET 데이터 전송 유형</strong>: "VNET 간"은 Inter-VNET Outbound 단가, "VPN"은 같은 zone 내 무료. RI/SP 미지원.</li>
-      <li><strong>옵션 적용</strong>: 옵션 패널에서 값을 변경한 후 <strong>"확인"</strong> 버튼을 누르면 가격이 조회됩니다. 옵션 패널 외부를 클릭해도 자동으로 적용됩니다. 변경사항이 있는데 미적용 상태이면 패널 상단에 "변경사항 있음" 알림이 표시됩니다.</li>
-      <li>숫자 옵션(트랜잭션 단위, 게이트웨이 시간, S2S/P2S 수량, GB 등)은 직접 입력하거나 input 필드의 ▲▼ 버튼으로 조정할 수 있습니다.</li>
+      <li><strong>Disk</strong>: 디스크 월 단가 + Storage 트랜잭션(10K 단위) 월 비용을 합산하여 표시합니다. Disk는 월 정액 청구이므로 사용량(Hours) 변경에 영향받지 않습니다. Premium SSD는 트랜잭션 무료입니다.</li>
+      <li><strong>VPN Gateway</strong>: 옵션 패널에서 SKU와 함께 게이트웨이 시간(월), S2S/P2S 추가 수량, VNET 데이터 전송 유형/GB를 직접 입력합니다. RI/SP 미지원.</li>
+      <li><strong>옵션 적용</strong>: 옵션 패널에서 값을 변경한 후 <strong>"확인"</strong> 버튼을 누르면 가격이 조회됩니다. 패널 외부를 클릭해도 자동으로 적용됩니다.</li>
       <li>Action 열에서 ⚙ 옵션 재설정, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 핸들로 행 순서 변경.</li>
     </ol>
   </div>
 
 </div>
 
-
-<!-- 모듈 로드 순서 (의존성 순):
-     1) config.js       : 상수, 카탈로그, CORS_PROXIES
-     2) network-layer.js: fetchOnce, fetchWithCorsFallback, apiFetch
-     3) matchers.js     : buildSkuAndDetail, resolveVm/Storage/VpnGateway, tryResolveItem
-     4) diagnostics.js  : 진단 배너, reachability probe, file:// 모달
-     5) ui-and-bootstrap.js: 행/표/엑셀/부트스트랩 (마지막에 bootDiagnostics 호출)
--->
 <script src="js/config.js"></script>
 <script src="js/network-layer.js"></script>
 <script src="js/matchers.js"></script>
