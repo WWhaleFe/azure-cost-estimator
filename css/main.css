@@ -27,28 +27,16 @@
     border: 1px solid #1f3864; font-weight: 600;
     white-space: normal; line-height: 1.3; vertical-align: middle;
   }
-
   /* 체크박스를 텍스트 앞(왼쪽)에 가로 배치 */
-  .grid-table th.th-with-checkbox {
-    padding: 4px 6px;
-  }
+  .grid-table th.th-with-checkbox { padding: 4px 6px; }
   .th-checkbox-label {
-    display: inline-flex;
-    flex-direction: row;   /* 체크박스 왼쪽 → 텍스트 오른쪽 */
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    font-size: 11px; font-weight: 600; color: #fff;
-    white-space: nowrap;
+    display: inline-flex; flex-direction: row;
+    align-items: center; gap: 4px;
+    cursor: pointer; font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap;
   }
   .th-checkbox-label input[type="checkbox"] {
-    width: 13px; height: 13px;
-    cursor: pointer;
-    accent-color: #fff;
-    margin: 0;
-    flex-shrink: 0;
+    width: 13px; height: 13px; cursor: pointer; accent-color: #fff; margin: 0; flex-shrink: 0;
   }
-
   .grid-table th.group-payg { background: #2e75b6; border-color: #1f4e79; }
   .grid-table th.group-sp1  { background: #70ad47; border-color: #4f7d2f; }
   .grid-table th.group-sp3  { background: #548235; border-color: #375623; }
@@ -66,17 +54,25 @@
   .detail-wrap {
     padding: 4px 6px; font-size: 11px;
     white-space: normal; word-break: break-all; overflow-wrap: break-word;
-    line-height: 1.4; min-height: 28px;
-    display: flex; align-items: center;
+    line-height: 1.4; min-height: 28px; display: flex; align-items: center;
   }
 
+  /* 일반 셀 input */
   .cell-input {
-    width: 100%; border: none; padding: 5px 6px; background: transparent;
+    width: 100%; border: none; padding: 4px 6px; background: transparent;
     outline: none; font-size: 11px; height: 28px; box-sizing: border-box;
   }
   .cell-input:focus { background: #eff6fc; box-shadow: inset 0 0 0 2px #0078d4; }
   .cell-input.text-left { text-align: left; }
   .cell-input.text-right { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* 일반 select 스타일 (타이핑 콤보 제거, select 형태로 대체) */
+  .cell-select {
+    width: 100%; border: none; padding: 4px 4px; background: transparent;
+    outline: none; font-size: 11px; height: 28px; box-sizing: border-box;
+    cursor: pointer; appearance: auto;
+  }
+  .cell-select:focus { background: #eff6fc; box-shadow: inset 0 0 0 2px #0078d4; }
 
   .cell-readonly {
     padding: 5px 6px; background: #fafbfc; color: #323130;
@@ -90,24 +86,6 @@
     color: #6c757d; user-select: none; width: 24px;
   }
   .cell-drag:active { cursor: grabbing; }
-
-  .combo-wrap { position: relative; }
-  .combo-input-with-arrow {
-    background-image: linear-gradient(45deg, transparent 50%, #6c757d 50%),
-                      linear-gradient(135deg, #6c757d 50%, transparent 50%);
-    background-position: calc(100% - 9px) 50%, calc(100% - 5px) 50%;
-    background-size: 4px 4px, 4px 4px; background-repeat: no-repeat;
-    padding-right: 18px !important;
-  }
-  .combo-list {
-    position: fixed; background: #fff; border: 2px solid #0078d4;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2); max-height: 320px; overflow-y: auto;
-    z-index: 9999; min-width: 200px; width: max-content; max-width: 480px;
-  }
-  .combo-list.hidden { display: none; }
-  .combo-item { padding: 6px 10px; cursor: pointer; font-size: 11px; border-bottom: 1px solid #f3f2f1; white-space: nowrap; }
-  .combo-item:hover { background: #deecf9; }
-  .combo-empty { padding: 8px 10px; color: #a19f9d; font-size: 11px; font-style: italic; }
 
   .btn { padding: 6px 14px; font-size: 13px; border-radius: 2px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
   .btn-primary { background: #0078d4; color: #fff; }

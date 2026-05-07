@@ -2,95 +2,52 @@
 // services/disk.js — Disk (Managed Disks)
 // 수정 대상: 디스크 SKU 목록, 계층별 옵션, 가격 매칭 로직
 //
-// 계층별 옵션 구조 (MS 가격 계산기 기준):
-//   표준 HDD  : 디스크 크기(SKU) → 트랜잭션 → 스냅샷 → Confidential OS Enc
-//   표준 SSD  : 중복성 → 디스크 크기(SKU) → 트랜잭션 → 스냅샷 → Confidential OS Enc
-//   프리미엄 SSD : 중복성 → 디스크 크기(SKU) → 절약옵션(PAYG/RI1Y) → 스냅샷 → Conf OS Enc → 버스팅
-//   프리미엄 SSD v2: 스토리지 GiB(1~65536) → IOPS → 처리량 MB/s  (스토리지 크기별 GiB×시간 과금)
-//   Ultra Disk   : 디스크 GiB(4~65536) → IOPS → 처리량 MB/s
+// 단일 'Disk' 카테고리 내에서 diskSubType으로 계층 구분:
+//   표준 HDD       : 디스크 크기(SKU) → 트랜잭션 → 스냅샷 → Confidential OS Enc
+//   표준 SSD       : 중복성 → 디스크 크기(SKU) → 트랜잭션 → 스냅샷 → Conf OS Enc
+//   프리미엄 SSD  : 중복성 → 디스크 크기(SKU) → 절약옵션 → 스냅샷 → Conf OS Enc → 버스팅
+//   프리미엄 SSD v2: GiB 직접입력 → IOPS → 처리량
+//   Ultra Disk    : 크기 목록선택 → IOPS → 처리량
 // ================================================================
 
-// ----- 표준 HDD : LRS 고정, SKU 목록, 트랜잭션+스냅샷+ConfEnc -----
-window._svcDefs['Disk - Standard HDD'] = {
-  apiServiceName: 'Storage',
-  _diskType: 'hdd',
-  steps: [
-    { key:'storageType', label:'Storage Type', options:['Standard HDD Managed Disks'], _hidden:true },  // 내부 식별용
-    { key:'transactionUnits', label:'Storage 트랜잭션 (10,000단위, 월)', type:'number', min:0, step:1, default:0, tooltip:'10K IO 연산 단위. 트랜잭션 단가 × 단위 수' },
-    { key:'snapshotGB', label:'스냅샷 크기 (GB, 월)', type:'number', min:0, step:1, default:0, tooltip:'증분 스냅샷 LRS 저장 GB × 단가/GB' },
-    { key:'confEncryptionEnabled', label:'Confidential OS Encryption', options:['비활성 (기본)','활성화'], tooltip:'GiB × 730h × Per GiB 단가' },
-  ],
-  instanceField: true,
-  instanceParentKey: 'storageType',
-  instanceLabel: '디스크 크기',
+// 계층 식별자 맵 (diskSubType 값 → 내부 diskType 코드)
+const DISK_SUBTYPE_MAP = {
+  '표준 HDD':        { diskType:'hdd',       storageType:'Standard HDD Managed Disks',    hasRedundancy:false, isProvisioned:false },
+  '표준 SSD':        { diskType:'ssd',       storageType:'Standard SSD Managed Disks',    hasRedundancy:true,  isProvisioned:false },
+  '프리미엄 SSD':   { diskType:'premium',   storageType:'Premium SSD Managed Disks',     hasRedundancy:true,  isProvisioned:false },
+  '프리미엄 SSD v2':{ diskType:'premiumv2', storageType:'Premium SSD v2 Managed Disks',  hasRedundancy:false, isProvisioned:true  },
+  'Ultra Disk':   { diskType:'ultra',     storageType:'Ultra Disk',                     hasRedundancy:false, isProvisioned:true  },
 };
 
-// ----- 표준 SSD : 중복성(LRS/ZRS), SKU, 트랜잭션+스냅샷+ConfEnc -----
-window._svcDefs['Disk - Standard SSD'] = {
-  apiServiceName: 'Storage',
-  _diskType: 'ssd',
-  steps: [
-    { key:'storageType', label:'Storage Type', options:['Standard SSD Managed Disks'], _hidden:true },
-    { key:'redundancy',  label:'중복성', options:['LRS','ZRS'] },
-    { key:'transactionUnits', label:'Storage 트랜잭션 (10,000단위, 월)', type:'number', min:0, step:1, default:0, tooltip:'10K IO 연산 단위' },
-    { key:'snapshotGB', label:'스냅샷 크기 (GB, 월)', type:'number', min:0, step:1, default:0, tooltip:'LRS 저장 GB × 단가/GB' },
-    { key:'confEncryptionEnabled', label:'Confidential OS Encryption', options:['비활성 (기본)','활성화'], tooltip:'GiB × 730h × Per GiB 단가' },
-  ],
-  instanceField: true,
-  instanceParentKey: 'storageType',
-  instanceLabel: '디스크 크기',
-};
+// Ultra Disk 크기 데이터 (MS 가격계산기 기준 고정 목록)
+const ULTRA_DISK_SIZES = [
+  { gib:4,     label:'4 GiB' },
+  { gib:8,     label:'8 GiB' },
+  { gib:16,    label:'16 GiB' },
+  { gib:32,    label:'32 GiB' },
+  { gib:64,    label:'64 GiB' },
+  { gib:128,   label:'128 GiB' },
+  { gib:256,   label:'256 GiB' },
+  { gib:512,   label:'512 GiB' },
+  { gib:1024,  label:'1 TiB (1,024 GiB)' },
+  { gib:2048,  label:'2 TiB (2,048 GiB)' },
+  { gib:4096,  label:'4 TiB (4,096 GiB)' },
+  { gib:8192,  label:'8 TiB (8,192 GiB)' },
+  { gib:16384, label:'16 TiB (16,384 GiB)' },
+  { gib:32768, label:'32 TiB (32,768 GiB)' },
+  { gib:65536, label:'64 TiB (65,536 GiB)' },
+];
 
-// ----- 프리미엄 SSD : 중복성, SKU, RI 1년, 스냅샷+ConfEnc+버스팅 -----
-window._svcDefs['Disk - Premium SSD'] = {
+// 단일 'Disk' 카테고리 등록 — 첫 번째 step에서 계층 선택
+window._svcDefs['Disk'] = {
   apiServiceName: 'Storage',
-  _diskType: 'premium',
+  // diskSubType이 모든 계층 식별의 키
   steps: [
-    { key:'storageType', label:'Storage Type', options:['Premium SSD Managed Disks'], _hidden:true },
-    { key:'redundancy', label:'중복성', options:['LRS','ZRS'] },
-    { key:'perfTier', label:'성능 계층 업그레이드', options:['없음 (기본)','P4','P6','P10','P15','P20','P30','P40','P50','P60','P70','P80'], tooltip:'용량 유지하면서 성능만 상위 계층으로 업그레이드' },
-    // 절약 옵션: PAYG 기본, RI 1년 선택 시 ri1Item 활성화
-    { key:'savingsOption', label:'절약 옵션', options:['용량제 (기본)','1년 예약'], tooltip:'용량제: PAYG | 1년 예약: RI 1Y 적용' },
-    { key:'snapshotGB', label:'스냅샷 크기 (GB, 월)', type:'number', min:0, step:1, default:0, tooltip:'LRS 저장 GB × 단가/GB' },
-    { key:'confEncryptionEnabled', label:'Confidential OS Encryption', options:['비활성 (기본)','활성화'], tooltip:'GiB × 730h × Per GiB 단가' },
-    { key:'burstingEnabled', label:'디스크 버스팅', options:['비활성 (기본)','활성화 (P30 이상)'], tooltip:'P30 이상에서 사용 가능 | P20 이하는 기반 사용' },
-    { key:'burstMaxIOPS',         label:'예상 최대 IOPS',       type:'number', min:0, step:100, default:0 },
-    { key:'burstMaxThroughputMBs',label:'예상 최대 처리량 (MB/s)', type:'number', min:0, step:10,  default:0 },
-    { key:'burstMinsPerDay',      label:'근무일당 버스트 시간 (분)', type:'number', min:0, step:1,   default:30 },
-    { key:'burstWorkDaysPerMonth',label:'월간 근무일 수',     type:'number', min:0, step:1,   default:20 },
+    { key:'diskSubType', label:'디스크 종류', options:['표준 HDD','표준 SSD','프리미엄 SSD','프리미엄 SSD v2','Ultra Disk'] },
   ],
-  instanceField: true,
-  instanceParentKey: 'storageType',
-  instanceLabel: '디스크 크기',
-};
-
-// ----- 프리미엄 SSD v2 : GiB 직접입력, IOPS, 처리량 -----
-window._svcDefs['Disk - Premium SSD v2'] = {
-  apiServiceName: 'Storage',
-  _diskType: 'premiumv2',
-  steps: [
-    { key:'storageType', label:'Storage Type', options:['Premium SSD v2 Managed Disks'], _hidden:true },
-    // 스토리지 비용: GiB × 시간 × 단가
-    { key:'diskSizeGiB', label:'디스크 크기 (GiB)', type:'number', min:1, step:1, default:1, tooltip:'1 ~ 65,536 GiB. 스토리지 비용: GiB × 730h × 단가/GiB/시간' },
-    // IOPS: 기본 3,000 UB early 포함, 초과분만 유료
-    { key:'provisionedIOPS', label:'프로비저닝된 IOPS', type:'number', min:3000, step:100, default:3000, tooltip:'3,000 IOPS까지 무료. 초과분 × 단가/IOPS/시간' },
-    // 처리량: 기본 125 MB/s 포함, 초과분만 유료
-    { key:'provisionedMBps', label:'프로비저닝된 처리량 (MB/s)', type:'number', min:125, step:1, default:125, tooltip:'125 MB/s까지 무료. 초과분 × 단가/MB/s/시간' },
-  ],
-  instanceField: false,
-};
-
-// ----- Ultra Disk : GiB 직접입력, IOPS, 처리량 -----
-window._svcDefs['Disk - Ultra Disk'] = {
-  apiServiceName: 'Storage',
-  _diskType: 'ultra',
-  steps: [
-    { key:'storageType', label:'Storage Type', options:['Ultra Disk'], _hidden:true },
-    { key:'diskSizeGiB', label:'디스크 크기 (GiB)', type:'number', min:4, step:1, default:4, tooltip:'4 ~ 65,536 GiB. 스토리지 비용: GiB × 730h × 단가/GiB/시간' },
-    { key:'provisionedIOPS', label:'프로비저닝된 IOPS', type:'number', min:100, step:100, default:100, tooltip:'IOPS 수 × 730h × 단가/IOPS/시간' },
-    { key:'provisionedMBps', label:'프로비저닝된 처리량 (MB/s)', type:'number', min:1, step:1, default:1, tooltip:'MB/s × 730h × 단가/MB/s/시간' },
-  ],
-  instanceField: false,
+  // 이하 필드는 _buildDetail_Disk / _resolve_Disk 에서
+  // diskSubType 값에 따라 동적으로 처리함
+  instanceField: false,   // 인스턴스 드롭다운은 _renderDiskConfigExtra로 대체
 };
 
 // ================================================================
@@ -129,17 +86,16 @@ const DISK_CATALOG = {
 };
 
 // ================================================================
-// _buildDetail — 상세 사양 텍스트 생성
+// _buildDetail_Disk — 상세 사양 텍스트 생성
 // ================================================================
-function _buildDiskDetail(r) {
+window['_buildDetail_Disk'] = function(r) {
   const o = r.options;
-  const cat = r.serviceCategory;
-  const defObj = window._svcDefs[cat];
-  const diskType = defObj ? defObj._diskType : '';
+  const sub = DISK_SUBTYPE_MAP[o.diskSubType];
+  if (!sub) { r.skuName=''; r.detail=''; return; }
 
-  if (diskType === 'premiumv2' || diskType === 'ultra') {
-    // GiB 직접입력 계층
-    r.skuName = diskType === 'premiumv2' ? 'Premium SSD v2' : 'Ultra Disk';
+  if (sub.isProvisioned) {
+    // Premium SSD v2 / Ultra Disk
+    r.skuName = o.diskSubType;
     const parts = [];
     if (o.diskSizeGiB) parts.push(`${o.diskSizeGiB}GiB`);
     if (o.provisionedIOPS) parts.push(`IOPS:${Number(o.provisionedIOPS).toLocaleString()}`);
@@ -149,16 +105,12 @@ function _buildDiskDetail(r) {
   }
 
   // SKU 기반 계층 (HDD/SSD/Premium)
-  r.skuName = o.instance || '';
-  const storageType = (diskType==='hdd') ? 'Standard HDD Managed Disks'
-                    : (diskType==='ssd') ? 'Standard SSD Managed Disks'
-                    : 'Premium SSD Managed Disks';
-  const disk = (DISK_CATALOG[storageType]||[]).find(d=>d.name===o.instance);
-  const parts = [];
-  parts.push(storageType.replace(' Managed Disks',''));
+  r.skuName = o.diskInstance || '';
+  const disk = (DISK_CATALOG[sub.storageType]||[]).find(d=>d.name===o.diskInstance);
+  const parts = [o.diskSubType];
   if (disk) parts.push(`${disk.size}GB`);
-  if (o.redundancy) parts.push(o.redundancy);
-  if (diskType === 'premium') {
+  if (sub.hasRedundancy && o.redundancy) parts.push(o.redundancy);
+  if (sub.diskType === 'premium') {
     if (o.perfTier && o.perfTier !== '없음 (기본)') parts.push(`업그:${o.perfTier}`);
     if (o.savingsOption && o.savingsOption !== '용량제 (기본)') parts.push('RI-1Y');
     if (Number(o.snapshotGB)>0) parts.push(`스냅샷 ${o.snapshotGB}GB`);
@@ -171,31 +123,50 @@ function _buildDiskDetail(r) {
     if (o.confEncryptionEnabled==='활성화') parts.push('Conf-Enc');
   }
   r.detail = parts.join(', ');
-}
-
-['Disk - Standard HDD','Disk - Standard SSD','Disk - Premium SSD','Disk - Premium SSD v2','Disk - Ultra Disk'].forEach(cat => {
-  window[`_buildDetail_${cat.replace(/[^a-zA-Z0-9]/g,'_')}`] = _buildDiskDetail;
-});
+};
 
 // ================================================================
-// _resolve — 가격 조회
+// _resolve_Disk — 가격 조회 진입점
 // ================================================================
+window['_resolve_Disk'] = async function(row, cur) {
+  const o = row.options||{};
+  const sub = DISK_SUBTYPE_MAP[o.diskSubType];
+  if (!sub) {
+    row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
+    setStatus('error','Disk 종류를 먼저 선택하세요.');
+    updatePriceCells(row);updateTotalsRow();return;
+  }
+  if (sub.isProvisioned) {
+    return _resolveProvisionedDisk(row, cur, sub.diskType);
+  }
+  if (sub.diskType === 'premium') {
+    // skuName 없으면 조기 종료
+    if (!row.skuName) {
+      row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
+      updatePriceCells(row);updateTotalsRow();return;
+    }
+    return _resolvePremiumSSD(row, cur);
+  }
+  if (!row.skuName) {
+    row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
+    updatePriceCells(row);updateTotalsRow();return;
+  }
+  return _resolveStandardDisk(row, cur, sub.diskType);
+};
 
-// --- 공통 헬퍼 ---
-function _getDiskStorageType(diskType) {
-  if (diskType==='hdd')       return 'Standard HDD Managed Disks';
-  if (diskType==='ssd')       return 'Standard SSD Managed Disks';
-  if (diskType==='premium')   return 'Premium SSD Managed Disks';
-  if (diskType==='premiumv2') return 'Premium SSD v2 Managed Disks';
-  if (diskType==='ultra')     return 'Ultra Disk';
-  return '';
+// ================================================================
+// 공통 헬퍼
+// ================================================================
+function _getStorageTypeBySubType(subType) {
+  return (DISK_SUBTYPE_MAP[subType]||{}).storageType||'';
 }
 
 // --- 표준 HDD / 표준 SSD 공통 resolve ---
 async function _resolveStandardDisk(row, cur, diskType) {
   const o = row.options||{};
-  const storageType = _getDiskStorageType(diskType);
-  const redundancy  = (diskType==='hdd') ? 'LRS' : (o.redundancy||'LRS');  // HDD는 LRS 고정
+  const sub = DISK_SUBTYPE_MAP[o.diskSubType];
+  const storageType = sub.storageType;
+  const redundancy  = (diskType==='hdd') ? 'LRS' : (o.redundancy||'LRS');
   const skuFull     = `${row.skuName} ${redundancy}`;
   const txUnits     = Number(o.transactionUnits||0);
   const snapshotGB  = Number(o.snapshotGB||0);
@@ -204,31 +175,24 @@ async function _resolveStandardDisk(row, cur, diskType) {
   const diskSizeGiB = diskEntry ? diskEntry.size : 0;
 
   try {
-    const needsExtras = snapshotGB>0 || confEncOn;
-    const needsTx     = txUnits>0;
-    const baseFilter  = { serviceName:'Storage', armRegionName:row.region, productName:storageType };
-
-    const [diskItems, allItems, resItems] = await Promise.all([
-      apiFetch({...baseFilter, skuName:skuFull, priceType:'Consumption'}, cur, 100, 2),
-      (needsTx||needsExtras) ? apiFetch({...baseFilter, priceType:'Consumption'}, cur, 400, 3) : Promise.resolve([]),
-      Promise.resolve([]),  // 표준 계층은 RI 없음
+    const bf = { serviceName:'Storage', armRegionName:row.region, productName:storageType };
+    const [diskItems, allItems] = await Promise.all([
+      apiFetch({...bf, skuName:skuFull, priceType:'Consumption'}, cur, 100, 2),
+      (txUnits>0||snapshotGB>0||confEncOn) ? apiFetch({...bf, priceType:'Consumption'}, cur, 400, 3) : Promise.resolve([]),
     ]);
 
-    // 디스크 단가
     const isPlain = it=>{ const m=(it.meterName||'').toLowerCase(); return !m.includes('burst')&&!m.includes('enablement')&&!m.includes('snapshot')&&!m.includes('one-time')&&!m.includes('encrypt')&&!m.includes('shared')&&!m.includes('confidential'); };
     const exp = `${skuFull} Disk`.toLowerCase();
-    const diskCands = diskItems.filter(it=>{
+    const disk = diskItems.filter(it=>{
       if((it.type||'').toLowerCase()!=='consumption') return false;
       if(!(it.unitOfMeasure||'').toLowerCase().includes('month')) return false;
       if(!isPlain(it)) return false;
       const m=(it.meterName||'').toLowerCase();
       return m===exp||m.startsWith(skuFull.toLowerCase());
-    }).sort((a,b)=>{ const ae=(a.meterName||'').toLowerCase()===exp?0:1,be=(b.meterName||'').toLowerCase()===exp?0:1; if(ae!==be) return ae-be; return Number(a.unitPrice||0)-Number(b.unitPrice||0); });
-    const disk = diskCands[0]||null;
+    }).sort((a,b)=>{ const ae=(a.meterName||'').toLowerCase()===exp?0:1,be=(b.meterName||'').toLowerCase()===exp?0:1; if(ae!==be) return ae-be; return Number(a.unitPrice||0)-Number(b.unitPrice||0); })[0]||null;
 
-    // 트랜잭션
     let txItem=null;
-    if(needsTx){
+    if(txUnits>0){
       const aT=allItems.filter(it=>{ const u=(it.unitOfMeasure||'').toLowerCase(); return u.includes('10k')||u.includes('10,000')||u.includes('10000'); });
       let tC=aT.filter(it=>{ const m=(it.meterName||'').toLowerCase(),s=(it.skuName||'').toLowerCase(),rl=redundancy.toLowerCase(); return (m.includes('operation')||m.includes('transaction'))&&(m.includes(rl)||s.includes(rl)); });
       if(!tC.length) tC=aT.filter(it=>{ const m=(it.meterName||'').toLowerCase(),s=(it.skuName||'').toLowerCase(); return m.includes(redundancy.toLowerCase())||s.includes(redundancy.toLowerCase()); });
@@ -237,14 +201,12 @@ async function _resolveStandardDisk(row, cur, diskType) {
       txItem=tC[0]||null;
     }
 
-    // 스냅샷
     let snapPPG=0;
     if(snapshotGB>0){
       const sC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('snapshot')&&(m.includes('lrs')||m.includes('locally')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
       if(sC[0]) snapPPG=Number(sC[0].unitPrice);
     }
 
-    // Confidential OS Encryption
     let confEncM=0;
     if(confEncOn&&diskSizeGiB>0){
       const eC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('confidential')&&m.includes('encrypt'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
@@ -258,9 +220,7 @@ async function _resolveStandardDisk(row, cur, diskType) {
     if(confEncOn) monthly+=confEncM;
 
     const usH=Number(row.usage)||730;
-    const hourlyEq=usH>0?monthly/usH:0;
-    const payg=disk?{...disk,unitPrice:hourlyEq,retailPrice:hourlyEq,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}:null;
-
+    const payg=disk?{...disk,unitPrice:monthly/usH,retailPrice:monthly/usH,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}:null;
     row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
     if(payg) setStatus('ok',`${row.skuName} ${redundancy} 완료 · ${monthly.toFixed(2)}/월`);
     else setStatus('error',`${row.skuName}: 매칭 실패 - F12 확인`);
@@ -283,80 +243,55 @@ async function _resolvePremiumSSD(row, cur) {
   const confEncOn   = o.confEncryptionEnabled==='활성화';
   const burstOn     = o.burstingEnabled==='활성화 (P30 이상)';
   const wantRI      = o.savingsOption==='1년 예약';
-
-  // 버스트 트랜잭션 양 계산
-  const bIOPS  = burstOn ? Number(o.burstMaxIOPS||0) : 0;
-  const bMins  = burstOn ? Number(o.burstMinsPerDay||30) : 0;
-  const bDays  = burstOn ? Number(o.burstWorkDaysPerMonth||20) : 0;
+  // 버스트 트랜잭션: IOPS 기반으로 자동 계산
+  const bIOPS    = burstOn ? Number(o.burstMaxIOPS||0) : 0;
+  const bMins    = burstOn ? Number(o.burstMinsPerDay||30) : 0;
+  const bDays    = burstOn ? Number(o.burstWorkDaysPerMonth||20) : 0;
   const bTxUnits = bIOPS>0 ? Math.ceil(bIOPS*60*bMins*bDays/10000) : 0;
-
   const diskEntry   = (DISK_CATALOG[storageType]||[]).find(d=>d.name===row.skuName);
   const diskSizeGiB = diskEntry ? diskEntry.size : 0;
 
   try {
     const needsExtras = burstOn||snapshotGB>0||confEncOn;
-    const baseFilter  = { serviceName:'Storage', armRegionName:row.region, productName:storageType };
-
+    const bf = { serviceName:'Storage', armRegionName:row.region, productName:storageType };
     const [diskItems, perfItems, allItems, resItems] = await Promise.all([
-      apiFetch({...baseFilter, skuName:skuFull, priceType:'Consumption'}, cur, 100, 2),
-      perfTier ? apiFetch({...baseFilter, skuName:effectiveSku, priceType:'Consumption'}, cur, 100, 2) : Promise.resolve([]),
-      needsExtras ? apiFetch({...baseFilter, priceType:'Consumption'}, cur, 400, 3) : Promise.resolve([]),
-      apiFetch({...baseFilter, priceType:'Reservation'}, cur, 200, 2).catch(()=>[]),
+      apiFetch({...bf, skuName:skuFull, priceType:'Consumption'}, cur, 100, 2),
+      perfTier ? apiFetch({...bf, skuName:effectiveSku, priceType:'Consumption'}, cur, 100, 2) : Promise.resolve([]),
+      needsExtras ? apiFetch({...bf, priceType:'Consumption'}, cur, 400, 3) : Promise.resolve([]),
+      apiFetch({...bf, priceType:'Reservation'}, cur, 200, 2).catch(()=>[]),
     ]);
 
-    // 디스크 단가 매칭
     const isPlain=it=>{ const m=(it.meterName||'').toLowerCase(); return !m.includes('mount')&&!m.includes('burst')&&!m.includes('enablement')&&!m.includes('snapshot')&&!m.includes('one-time')&&!m.includes('encrypt')&&!m.includes('shared')&&!m.includes('confidential'); };
     const findDisk=(items,sku)=>{ const exp=`${sku} Disk`.toLowerCase(); const c=items.filter(it=>{ if((it.type||'').toLowerCase()!=='consumption') return false; if(!(it.unitOfMeasure||'').toLowerCase().includes('month')) return false; if(!isPlain(it)) return false; const m=(it.meterName||'').toLowerCase(); return m===exp||m.startsWith(sku.toLowerCase()); }); c.sort((a,b)=>{ const ae=(a.meterName||'').toLowerCase()===exp?0:1,be=(b.meterName||'').toLowerCase()===exp?0:1; if(ae!==be) return ae-be; return Number(a.unitPrice||0)-Number(b.unitPrice||0); }); return c[0]||null; };
     const disk = perfTier ? (findDisk(perfItems,effectiveSku)||findDisk(diskItems,skuFull)) : findDisk(diskItems,skuFull);
 
-    // 스냅샷
     let snapPPG=0;
-    if(snapshotGB>0){
-      const sC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('snapshot')&&(m.includes('lrs')||m.includes('locally')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-      if(sC[0]) snapPPG=Number(sC[0].unitPrice);
-    }
+    if(snapshotGB>0){ const sC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('snapshot')&&(m.includes('lrs')||m.includes('locally')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0)); if(sC[0]) snapPPG=Number(sC[0].unitPrice); }
 
-    // Confidential OS Encryption
     let confEncM=0;
-    if(confEncOn&&diskSizeGiB>0&&allItems.length>0){
-      const eC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('confidential')&&m.includes('encrypt'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-      if(eC[0]) confEncM=diskSizeGiB*730*Number(eC[0].unitPrice);
-    }
+    if(confEncOn&&diskSizeGiB>0&&allItems.length>0){ const eC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('confidential')&&m.includes('encrypt'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0)); if(eC[0]) confEncM=diskSizeGiB*730*Number(eC[0].unitPrice); }
 
-    // 버스팅
     let bEnaM=0, bTxPPU=0;
     if(burstOn&&allItems.length>0){
       const eC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(); return m.includes('burst')&&m.includes('enablement'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
       if(eC[0]) bEnaM=Number(eC[0].unitPrice);
-      if(bTxUnits>0){
-        const bC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('burst')&&(u.includes('10k')||u.includes('10,000')||u.includes('10000')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-        if(bC[0]) bTxPPU=Number(bC[0].unitPrice);
-      }
+      if(bTxUnits>0){ const bC=allItems.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('burst')&&(u.includes('10k')||u.includes('10,000')||u.includes('10000')); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0)); if(bC[0]) bTxPPU=Number(bC[0].unitPrice); }
     }
 
-    // 월 비용 합산
     const extras = (snapshotGB>0?snapPPG*snapshotGB:0) + confEncM + (burstOn?bEnaM+(bTxPPU*bTxUnits):0);
-    let monthly = (disk?Number(disk.unitPrice):0) + extras;
+    const monthly = (disk?Number(disk.unitPrice):0) + extras;
     const usH=Number(row.usage)||730;
-    const hourlyEq=usH>0?monthly/usH:0;
-    const payg=disk?{...disk,unitPrice:hourlyEq,retailPrice:hourlyEq,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}:null;
+    const payg=disk?{...disk,unitPrice:monthly/usH,retailPrice:monthly/usH,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}:null;
 
-    // RI 1년
     let ri1Item=null;
     if(wantRI){
       const ri1C=resItems.filter(it=>{ if((it.type||'').toLowerCase()!=='reservation') return false; if(!/1\s*year/i.test(String(it.reservationTerm||''))) return false; const s=(it.skuName||'').toLowerCase(),ms=perfTier?effectiveSku.toLowerCase():skuFull.toLowerCase(); return s.includes(ms.split(' ')[0].toLowerCase())&&s.includes(redundancy.toLowerCase()); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-      if(ri1C[0]){
-        const tot=Number(ri1C[0].unitPrice), ri1M=tot/12;
-        const ri1MT=ri1M+extras;
-        const ri1H=usH>0?ri1MT/usH:0;
-        ri1Item={...ri1C[0],unitPrice:ri1H,retailPrice:ri1H,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:ri1MT,_originalUnitPrice:tot,_termYears:1};
-      }
+      if(ri1C[0]){ const tot=Number(ri1C[0].unitPrice),ri1M=tot/12,ri1MT=ri1M+extras,ri1H=usH>0?ri1MT/usH:0; ri1Item={...ri1C[0],unitPrice:ri1H,retailPrice:ri1H,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:ri1MT,_originalUnitPrice:tot,_termYears:1}; }
     }
 
-    row.paygItem=payg; row.sp1Item=null; row.sp3Item=null;
-    row.ri1Item=wantRI?ri1Item:null; row.ri3Item=null;
-
-    if(payg) setStatus('ok',`${row.skuName} ${redundancy} 완료${perfTier?` [업그→${perfTier}]`:''}${wantRI?' [RI-1Y]':''} · ${monthly.toFixed(2)}/월`);
+    row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;
+    row.ri1Item=wantRI?ri1Item:null;row.ri3Item=null;
+    if(payg) setStatus('ok',`${row.skuName} ${redundancy}완료${perfTier?` [업그→${perfTier}]`:''}${wantRI?' [RI-1Y]':''} · ${monthly.toFixed(2)}/월`);
     else setStatus('error',`${row.skuName}: 매칭 실패 - F12 확인`);
   } catch(err){
     row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
@@ -365,55 +300,36 @@ async function _resolvePremiumSSD(row, cur) {
   updatePriceCells(row); updateTotalsRow();
 }
 
-// --- 프리미엄 SSD v2 / Ultra Disk resolve (공통 구조: GiB×시간 + IOPS + 처리량) ---
+// --- 프리미엄 SSD v2 / Ultra Disk resolve ---
 async function _resolveProvisionedDisk(row, cur, diskType) {
   const o = row.options||{};
-  const storageType  = _getDiskStorageType(diskType);
-  const diskSizeGiB  = Number(o.diskSizeGiB || (diskType==='ultra'?4:1));
-  const provIOPS     = Number(o.provisionedIOPS  || (diskType==='ultra'?100:3000));
-  const provMBps     = Number(o.provisionedMBps  || (diskType==='ultra'?1:125));
-  // 무료 기본정 (v2: IOPS 3000 / BW 125, Ultra: 없음)
-  const freeIOPS     = diskType==='premiumv2' ? 3000  : 0;
-  const freeMBps     = diskType==='premiumv2' ? 125   : 0;
-  const chargeIOPS   = Math.max(0, provIOPS  - freeIOPS);
-  const chargeMBps   = Math.max(0, provMBps  - freeMBps);
+  const storageType = diskType==='premiumv2' ? 'Premium SSD v2 Managed Disks' : 'Ultra Disk';
+  const diskSizeGiB = Number(o.diskSizeGiB || (diskType==='ultra'?4:1));
+  const provIOPS    = Number(o.provisionedIOPS || (diskType==='ultra'?100:3000));
+  const provMBps    = Number(o.provisionedMBps || (diskType==='ultra'?1:125));
+  const freeIOPS    = diskType==='premiumv2' ? 3000 : 0;
+  const freeMBps    = diskType==='premiumv2' ? 125  : 0;
+  const chargeIOPS  = Math.max(0, provIOPS - freeIOPS);
+  const chargeMBps  = Math.max(0, provMBps - freeMBps);
 
   try {
-    const items = await apiFetch({serviceName:'Storage', armRegionName:row.region, productName:storageType, priceType:'Consumption'}, cur, 300, 3);
-    const cons = items.filter(it=>(it.type||'').toLowerCase()==='consumption');
-
-    // 스토리지 비용: GiB/시간당 단가 (LRS)
-    const stoC=cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return u.includes('gib')&&u.includes('hour')&&!m.includes('iops')&&!m.includes('throughput')&&!m.includes('burst'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+    const items = await apiFetch({serviceName:'Storage',armRegionName:row.region,productName:storageType,priceType:'Consumption'}, cur, 300, 3);
+    const cons  = items.filter(it=>(it.type||'').toLowerCase()==='consumption');
+    const stoC  = cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return u.includes('gib')&&u.includes('hour')&&!m.includes('iops')&&!m.includes('throughput')&&!m.includes('burst'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+    const ioC   = cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('iops')&&u.includes('hour'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
+    const bwC   = cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return (m.includes('throughput')||m.includes('bandwidth')||m.includes('mb/s'))&&u.includes('hour'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
     const stoPPG=stoC[0]?Number(stoC[0].unitPrice):0;
-
-    // IOPS 단가
-    const ioC=cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return m.includes('iops')&&u.includes('hour'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-    const ioPPU=ioC[0]?Number(ioC[0].unitPrice):0;
-
-    // 처리량 단가
-    const bwC=cons.filter(it=>{ const m=(it.meterName||'').toLowerCase(),u=(it.unitOfMeasure||'').toLowerCase(); return (m.includes('throughput')||m.includes('bandwidth')||m.includes('mb/s'))&&u.includes('hour'); }).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-    const bwPPU=bwC[0]?Number(bwC[0].unitPrice):0;
-
-    // 월 비용 = 스토리지 + IOPS 추가분 + 처리량 추가분
-    const stoMonthly = diskSizeGiB * 730 * stoPPG;
-    const ioMonthly  = chargeIOPS  * 730 * ioPPU;
-    const bwMonthly  = chargeMBps  * 730 * bwPPU;
-    const monthly    = stoMonthly + ioMonthly + bwMonthly;
+    const ioPPU =ioC[0]?Number(ioC[0].unitPrice):0;
+    const bwPPU =bwC[0]?Number(bwC[0].unitPrice):0;
+    const stoM  = diskSizeGiB*730*stoPPG;
+    const ioM   = chargeIOPS*730*ioPPU;
+    const bwM   = chargeMBps*730*bwPPU;
+    const monthly = stoM+ioM+bwM;
     const usH = Number(row.usage)||730;
-    const hourlyEq=usH>0?monthly/usH:0;
-
     const baseItem = stoC[0]||cons[0]||null;
-    const payg = baseItem?{...baseItem,unitPrice:hourlyEq,retailPrice:hourlyEq,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly,_stoMonthly:stoMonthly,_ioMonthly:ioMonthly,_bwMonthly:bwMonthly}:null;
-
-    console.group(`[${storageType}] ${diskSizeGiB}GiB IOPS=${provIOPS} BW=${provMBps}MB/s`);
-    console.log(`스토리지: ${diskSizeGiB}GiB × 730h × ${stoPPG} = ${stoMonthly.toFixed(4)}/월`);
-    console.log(`IOPS 추가: ${chargeIOPS} × 730h × ${ioPPU} = ${ioMonthly.toFixed(4)}/월`);
-    console.log(`BW 추가: ${chargeMBps} × 730h × ${bwPPU} = ${bwMonthly.toFixed(4)}/월`);
-    console.log(`합계: ${monthly.toFixed(4)}/월`);
-    console.groupEnd();
-
+    const payg = baseItem?{...baseItem,unitPrice:monthly/usH,retailPrice:monthly/usH,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}:null;
     row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
-    if(payg) setStatus('ok',`${storageType} ${diskSizeGiB}GiB 완료 · ${monthly.toFixed(2)}/월`);
+    if(payg) setStatus('ok',`${o.diskSubType} ${diskSizeGiB}GiB 완료 · ${monthly.toFixed(2)}/월`);
     else setStatus('error',`${storageType}: 매칭 실패 - F12 확인`);
   } catch(err){
     row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
@@ -421,14 +337,3 @@ async function _resolveProvisionedDisk(row, cur, diskType) {
   }
   updatePriceCells(row); updateTotalsRow();
 }
-
-// --- resolve 라우터 등록 ---
-window['_resolve_Disk___Standard_HDD']      = (row,cur)=>_resolveStandardDisk(row,cur,'hdd');
-window['_resolve_Disk___Standard_SSD']      = (row,cur)=>_resolveStandardDisk(row,cur,'ssd');
-window['_resolve_Disk___Premium_SSD']       = (row,cur)=>_resolvePremiumSSD(row,cur);
-window['_resolve_Disk___Premium_SSD_v2']    = (row,cur)=>_resolveProvisionedDisk(row,cur,'premiumv2');
-window['_resolve_Disk___Ultra_Disk']        = (row,cur)=>_resolveProvisionedDisk(row,cur,'ultra');
-
-// ui-and-bootstrap.js의 renderConfigPanel이 instanceField + DISK_CATALOG를 참조하므로
-// DISK_CATALOG을 window에도 노옶
-// (이미 같은 파일 에서 const로 선언되어 있으므로 접근 가능)

@@ -1,6 +1,5 @@
 // ================================================================
 // core/resolver-engine.js — 공통 가격 조회 엔진
-// 수정 대상: 카테고리별 분기 추가/제거, genericResolve 필터 로직
 // ================================================================
 
 function normalizeReservationPrice(item, years) {
@@ -17,23 +16,11 @@ function makeSpItem(base, sp) {
     meterName:base.meterName, unitOfMeasure:base.unitOfMeasure, term:sp.term };
 }
 
-// Disk 계층 카테고리 판별
-const DISK_CATEGORIES = [
-  'Disk - Standard HDD',
-  'Disk - Standard SSD',
-  'Disk - Premium SSD',
-  'Disk - Premium SSD v2',
-  'Disk - Ultra Disk',
-];
-
 function buildSkuAndDetail(r) {
   const def = SERVICE_CATEGORIES[r.serviceCategory];
   if (!def) return;
   const fnName = `_buildDetail_${r.serviceCategory.replace(/[^a-zA-Z0-9]/g,'_')}`;
-  if (typeof window[fnName] === 'function') {
-    window[fnName](r);
-    return;
-  }
+  if (typeof window[fnName] === 'function') { window[fnName](r); return; }
   const o = r.options;
   const vals = def.steps.filter(s=>!s._hidden).map(s=>o[s.key]).filter(Boolean);
   r.skuName = vals[0] || '';
@@ -41,26 +28,28 @@ function buildSkuAndDetail(r) {
 }
 
 async function tryResolveItem(row) {
-  // Disk v2 / Ultra: skuName 없어도 조회 가능 (GiB 직접입력 방식)
-  const isDiskProvisioned = (row.serviceCategory === 'Disk - Premium SSD v2' || row.serviceCategory === 'Disk - Ultra Disk');
+  // Disk: diskSubType에 따라 프로비저닝 계층 (v2/Ultra)는 skuName 없어도 조회 가능
+  const isDiskProv = row.serviceCategory === 'Disk' &&
+    (row.options.diskSubType === '프리미엄 SSD v2' || row.options.diskSubType === 'Ultra Disk');
 
   if (!row.serviceCategory) {
-    row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-    return;
+    row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return;
   }
-  if (!isDiskProvisioned && !row.skuName) {
-    row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-    return;
+  if (!isDiskProv && !row.skuName) {
+    // Disk SKU기반 계층: diskInstance 확인
+    if (row.serviceCategory === 'Disk') {
+      const hasInstance = row.options.diskInstance;
+      if (!hasInstance) { row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return; }
+    } else {
+      row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return;
+    }
   }
   const def = SERVICE_CATEGORIES[row.serviceCategory];
   if (!def) return;
   const cur = document.getElementById('currencySelect').value;
-  setStatus('loading', `${row.skuName||row.serviceCategory} 가격 조회 중...`);
-
+  setStatus('loading', `${row.skuName||row.options.diskSubType||row.serviceCategory} 가격 조회 중...`);
   const fnName = `_resolve_${row.serviceCategory.replace(/[^a-zA-Z0-9]/g,'_')}`;
-  if (typeof window[fnName] === 'function') {
-    return await window[fnName](row, cur);
-  }
+  if (typeof window[fnName] === 'function') return await window[fnName](row, cur);
   return await _genericResolve(row, cur);
 }
 
@@ -79,7 +68,6 @@ async function _genericResolve(row, cur) {
     else if (cat==='App Service')         bf.skuName=row.skuName||row.options.size||'';
     else if (cat==='Azure Bastion')       bf.productName=`Azure Bastion ${row.options.tier||'Basic'}`;
     else if (cat==='NAT Gateway')         bf.productName='NAT Gateway';
-
     const supR = ['Azure SQL Database'].includes(cat);
     const [cItems, rItems] = await Promise.all([
       apiFetch({...bf, priceType:'Consumption'}, cur, 200, 3),
@@ -106,7 +94,7 @@ async function _genericResolve(row, cur) {
     if(!sp1||!sp3){ for(const item of cItems){ if(item===payg||(item.type||'').toLowerCase()!=='consumption'||!mC(item)||!notSpot(item)) continue; ckSp(item); if(sp1&&sp3) break; } }
     const ri1C=rItems.filter(it=>(it.type||'').toLowerCase()==='reservation'&&/1\s*year/i.test(String(it.reservationTerm||''))&&(it.skuName||it.armSkuName||'')===row.skuName).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
     const ri3C=rItems.filter(it=>(it.type||'').toLowerCase()==='reservation'&&/3\s*year/i.test(String(it.reservationTerm||''))&&(it.skuName||it.armSkuName||'')===row.skuName).sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0));
-    row.paygItem=payg; row.sp1Item=sp1; row.sp3Item=sp3;
+    row.paygItem=payg;row.sp1Item=sp1;row.sp3Item=sp3;
     row.ri1Item=ri1C[0]?normalizeReservationPrice(ri1C[0],1):null;
     row.ri3Item=ri3C[0]?normalizeReservationPrice(ri3C[0],3):null;
     if(payg){ const tags=['PAYG'];if(sp1)tags.push('SP1Y');if(sp3)tags.push('SP3Y');if(row.ri1Item)tags.push('RI1Y');if(row.ri3Item)tags.push('RI3Y'); setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(payg.unitPrice).toFixed(2)}/h`); }
