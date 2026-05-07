@@ -301,6 +301,7 @@ function renderConfigPanel(){
 
 // ================================================================
 // Disk 전용 패널
+// [v40] perfTier 제거, P30 이상 RI 알림 추가
 // ================================================================
 function _renderDiskConfigPanel(r){
   const o=r.options;
@@ -316,14 +317,12 @@ function _renderDiskConfigPanel(r){
   if(!sub){$configContent.innerHTML=html.join('');_bindDiskConfigEvents(r);return;}
 
   if(sub.isProvisioned){
-    // Premium SSD v2 / Ultra Disk
     if(sub.diskType==='ultra'){
       const sizeOpts=(typeof ULTRA_DISK_SIZES!=='undefined'?ULTRA_DISK_SIZES:[])
         .map(s=>`<option value="${s.gib}" ${Number(o.diskSizeGiB)===s.gib?'selected':''}>${escapeHtml(s.label)}</option>`).join('');
       html.push(`<div class="config-field"><label>디스크 크기</label><select data-opt-key="diskSizeGiB">${sizeOpts}</select></div>`);
     }else{
-      // Premium SSD v2: GiB 직접입력
-      html.push(`<div class="config-field"><label>디스크 크기 (GiB)<span style="font-size:10px;color:#0078d4;cursor:help;" title="1 ~ 65,536 GiB"> [?]</span></label><input type="number" data-opt-key="diskSizeGiB" data-opt-type="number" min="1" max="65536" step="1" value="${o.diskSizeGiB||1}" style="text-align:right;"/></div>`);
+      html.push(`<div class="config-field"><label>디스크 크기 (GiB)</label><input type="number" data-opt-key="diskSizeGiB" data-opt-type="number" min="1" max="65536" step="1" value="${o.diskSizeGiB||1}" style="text-align:right;"/></div>`);
     }
     const minI=sub.diskType==='ultra'?100:3000;
     const fL=sub.diskType==='premiumv2'?' (3,000 무료 포함)':'';
@@ -340,17 +339,14 @@ function _renderDiskConfigPanel(r){
     const catalog=(typeof DISK_CATALOG!=='undefined'?DISK_CATALOG[sub.storageType]:null)||[];
     const instOpts=catalog.map(d=>{
       const extra=d.iops?`, ${d.iops.toLocaleString()} IOPS`:'';
-      return `<option value="${d.name}" ${o.diskInstance===d.name?'selected':''}>${d.name} (${d.size}GB${extra})</option>`;
+      // P30 이상은 RI 지원 표시
+      const riTag=(sub.diskType==='premium'&&typeof PREMIUM_SSD_RI_SUPPORTED!=='undefined'&&PREMIUM_SSD_RI_SUPPORTED.has(d.name))?' [RI가능]':'';
+      return `<option value="${d.name}" ${o.diskInstance===d.name?'selected':''}>${d.name} (${d.size}GB${extra})${riTag}</option>`;
     }).join('');
     html.push(`<div class="config-field" style="grid-column:1/-1;"><label>디스크 크기 (SKU)</label><select data-opt-key="diskInstance"><option value="">선택...</option>${instOpts}</select></div>`);
 
-    if(sub.diskType==='premium'){
-      // 성능 계층 업그레이드
-      const perfOpts=['없음 (기본)','P4','P6','P10','P15','P20','P30','P40','P50','P60','P70','P80']
-        .map(v=>`<option value="${v}" ${o.perfTier===v?'selected':''}>${v}</option>`).join('');
-      html.push(`<div class="config-field"><label>성능 계층 업그레이드<span style="font-size:10px;color:#0078d4;cursor:help;" title="용량 유지하면서 성능만 상위 계층으로 업그레이드"> [?]</span></label><select data-opt-key="perfTier"><option value="">선택...</option>${perfOpts}</select></div>`);
-      // 절약 옵션 제거 — PAYG + RI 1년 항상 동시 표시 (표의 용량제/예약1년 열에 자동 반영)
-    }
+    // [v40] perfTier 제거 — Azure 가격 계산기에 없는 옵션
+    // 스냅샷, Conf OS Enc, 버스팅 (Premium SSD만)
     if(sub.diskType!=='premium'){
       html.push(`<div class="config-field"><label>Storage 트랜잭션 (10,000단위, 월)</label><input type="number" data-opt-key="transactionUnits" data-opt-type="number" min="0" step="1" value="${o.transactionUnits||0}" style="text-align:right;"/></div>`);
     }
@@ -358,6 +354,14 @@ function _renderDiskConfigPanel(r){
     const confOpts=['비활성 (기본)','활성화'].map(v=>`<option value="${v}" ${o.confEncryptionEnabled===v?'selected':''}>${v}</option>`).join('');
     html.push(`<div class="config-field"><label>Confidential OS Encryption<span style="font-size:10px;color:#0078d4;cursor:help;" title="GiB × 730h × Per GiB 단가"> [?]</span></label><select data-opt-key="confEncryptionEnabled"><option value="">선택...</option>${confOpts}</select></div>`);
     if(sub.diskType==='premium'){
+      // P30 이상: RI 안내
+      const selectedSku=o.diskInstance||'';
+      const riSupported=typeof PREMIUM_SSD_RI_SUPPORTED!=='undefined'&&PREMIUM_SSD_RI_SUPPORTED.has(selectedSku);
+      if(riSupported){
+        html.push(`<div class="config-field" style="grid-column:1/-1;"><div style="background:#f0f6ff;border:1px solid #b3d4ff;border-radius:2px;padding:6px 10px;font-size:11px;color:#0050a0;">&#10003; <strong>1년 예약 지원</strong> — 확인 클릭 시 <strong>예약 1년</strong> 열에 자동 표시됩니다.</div></div>`);
+      } else if(selectedSku){
+        html.push(`<div class="config-field" style="grid-column:1/-1;"><div style="background:#f8f8f8;border:1px solid #ddd;border-radius:2px;padding:6px 10px;font-size:11px;color:#666;">&#9432; ${selectedSku}는 1년 예약을 지원하지 않습니다. P30 이상 SKU에서 예약이 가능합니다.</div></div>`);
+      }
       const burstOpts=['비활성 (기본)','활성화 (P30 이상)'].map(v=>`<option value="${v}" ${o.burstingEnabled===v?'selected':''}>${v}</option>`).join('');
       html.push(`<div class="config-field"><label>디스크 버스팅<span style="font-size:10px;color:#0078d4;cursor:help;" title="P30 이상에서 사용 가능. 활성화 월정액 + 버스트 트랜잭션"> [?]</span></label><select data-opt-key="burstingEnabled"><option value="">선택...</option>${burstOpts}</select></div>`);
       if(o.burstingEnabled==='활성화 (P30 이상)'){
@@ -374,7 +378,7 @@ function _renderDiskConfigPanel(r){
 
 function _bindDiskConfigEvents(r){
   const $db=document.getElementById('configDirtyBadge');
-  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};  
+  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
   const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
   $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
@@ -385,7 +389,8 @@ function _bindDiskConfigEvents(r){
       if(key==='diskInstance')r.skuName=val;
       if(key==='burstingEnabled'&&val!=='활성화 (P30 이상)'){delete r.options.burstMaxIOPS;delete r.options.burstMaxThroughputMBs;delete r.options.burstMinsPerDay;delete r.options.burstWorkDaysPerMonth;}
       buildSkuAndDetail(r);render();
-      if(key==='diskSubType'||key==='burstingEnabled')renderConfigPanel();
+      // diskSubType, diskInstance(예약 안내 갱신), burstingEnabled 변경 시 패널 재렌더
+      if(key==='diskSubType'||key==='diskInstance'||key==='burstingEnabled')renderConfigPanel();
       markDirty();
     });
   });
@@ -401,7 +406,7 @@ function _bindDiskConfigEvents(r){
 function _makeStepRenderer(r){
   return function(step){
     if(!step||!step.key)return'';
-    const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:""
+    const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:"";
     const curVal=r&&r.options?r.options[step.key]:undefined;
     if(step.type==='number'){
       const curNum=(curVal!==undefined&&curVal!=='')?curVal:(step.default!==undefined?step.default:0);
@@ -415,7 +420,7 @@ function _makeStepRenderer(r){
 
 function _bindConfigEvents(r,def){
   const $db=document.getElementById('configDirtyBadge');
-  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};  
+  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
   const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
   const KEYS_REBUILD=[(def.instanceParentKey||null)].filter(Boolean);
@@ -455,7 +460,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const enabledGroups=getEnabledGroups();
   if(enabledGroups.length===0){alert('엑셀로 출력할 가격 그룹을 하나 이상 선택하세요.');return;}
   const data=[];
-  data.push(['Azure 견적 시뮬레이션']);
+  data.push(['Azure 곬적 시뮬레이션']);
   data.push([`통화: ${cur} | 출력: ${enabledGroups.map(g=>g.label).join(', ')} | 생성: ${new Date().toLocaleString('ko-KR')}`]);
   data.push([]);
   const bH=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
@@ -476,7 +481,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   data.push([]);data.push(['[Remark]']);
   data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']);
   data.push(['2. 절약 플랜/예약 단가는 시간당 환산 단가입니다.']);
-  data.push(['3. 프리미엄 SSD: 용량제 열은 PAYG, 예약 1년 열은 RI 1Y 단가입니다 (선택 불필요, 자동 표시).']);
+  data.push(['3. 프리미엄 SSD P30 이상: 용량제열=PAYG, 예약 1년열=RI 1Y 단가 (자동 표시). P1~P20은 RI 미지원.']);
   const ws=XLSX.utils.aoa_to_sheet(data);
   const bA={top:{style:'thin',color:{rgb:'BFBFBF'}},bottom:{style:'thin',color:{rgb:'BFBFBF'}},left:{style:'thin',color:{rgb:'BFBFBF'}},right:{style:'thin',color:{rgb:'BFBFBF'}}};
   const tSt={font:{bold:true,sz:16,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'305496'}},alignment:{horizontal:'center',vertical:'center'}};
