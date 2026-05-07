@@ -38,7 +38,6 @@ function priceCells(data,hasItem){
   return`<td class="cell-readonly cell-ok">${fmtUnit(data.unit)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.monthly)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.year)}</td>`;
 }
 
-// Service Category 목록 순서
 const SERVICE_CATEGORY_ORDER = [
   'Virtual Machine','Disk','Azure Files','Blob Storage',
   'VPN Gateway','Load Balancer','Application Gateway','Public IP',
@@ -46,7 +45,6 @@ const SERVICE_CATEGORY_ORDER = [
   'Azure SQL Database','Azure Database for MySQL','App Service','Azure Bastion',
 ];
 
-// 활성 행 강조 표시
 function _updateActiveRowHighlight(){
   $body.querySelectorAll('tr').forEach(tr=>{
     const id=Number(tr.dataset.id);
@@ -62,7 +60,6 @@ function render(){
     const tr=document.createElement('tr');
     tr.dataset.id=row.id;
     tr.draggable=false;
-    // 활성 행 강조
     if(row.id===activeConfigRowId) tr.classList.add('tr-active');
 
     const qty=Number(row.qty)||0,usage=Number(row.usage)||0;
@@ -77,24 +74,20 @@ function render(){
     if(ri1){totals.ri1M+=ri1.monthly;totals.ri1Y+=ri1.year;}
     if(ri3){totals.ri3M+=ri3.monthly;totals.ri3Y+=ri3.year;}
 
-    // SKU 표시
     const isDiskProv = row.serviceCategory==='Disk' &&
       (row.options.diskSubType==='프리미엄 SSD v2'||row.options.diskSubType==='Ultra Disk');
     const skuDisplay = isDiskProv
       ? (row.options.diskSizeGiB?`${row.options.diskSizeGiB}GiB`:'')
       : escapeHtml(row.skuName);
 
-    // Service Category <select>
     const cats = SERVICE_CATEGORY_ORDER.filter(c=>typeof SERVICE_CATEGORIES!=='undefined'&&SERVICE_CATEGORIES[c]);
     const catOpts = cats.map(c=>`<option value="${escapeHtml(c)}" ${row.serviceCategory===c?'selected':''}>${escapeHtml(c)}</option>`).join('');
     const catCell = `<td><select class="cell-input cell-select" data-act="cat-select" data-id="${row.id}"><option value="">선택...</option>${catOpts}</select></td>`;
 
-    // Region <select>
     const regionOpts = Object.entries(REGION_LABEL)
       .map(([code,lbl])=>`<option value="${code}" ${row.region===code?'selected':''}>${escapeHtml(lbl)}</option>`).join('');
     const regionCell = `<td><select class="cell-input cell-select" data-act="region-select" data-id="${row.id}">${regionOpts}</select></td>`;
 
-    // SKU 셀: 로우 전체를 클릭해도 열림
     const skuCellDisabled = !row.serviceCategory ? 'disabled style="background:#f3f2f1;color:#a19f9d;cursor:not-allowed;"' : '';
     const skuPlaceholder = row.serviceCategory ? '클릭하여 옵션 선택...' : '';
     const skuCell = `<td data-act="open-config-td" data-id="${row.id}" style="cursor:${row.serviceCategory?'pointer':'default'};">
@@ -173,32 +166,18 @@ function _resetRow(r){
   r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null;
 }
 
-// 행 전체 클릭 → 옵션 패널 열기
-// 다른 행 클릭 시 현재 행 apply 후 전환
 $body.addEventListener('click', async (e)=>{
   const t = e.target;
-
-  // 행 액션 버튼 (dup/del/config)
   if(t.dataset.act==='dup'){duplicateRow(Number(t.dataset.id));return;}
   if(t.dataset.act==='del'){removeRow(Number(t.dataset.id));return;}
-
-  // 드래그 핸들러
   if(t.dataset.act==='drag-handle')return;
-
-  // select 드롭다운 (region/cat) 클릭은 여기서 처리 안 함
   if(t.tagName==='SELECT'||t.tagName==='OPTION')return;
-
-  // 보통 input 클릭은 패널 열지 않음 (qty, usage, category 등 직접 편집)
   if(t.dataset.act==='num'||t.dataset.act==='freetext')return;
-
-  // tr 직접 혹은 td를 통해 행 식별
   const tr=t.closest('tr');
   if(!tr||!tr.dataset.id)return;
   const rowId=Number(tr.dataset.id);
   const r=rows.find(x=>x.id===rowId);
   if(!r||!r.serviceCategory)return;
-
-  // 이미 열려있는 옵션 패널이 다른 행이면 apply 후 전환
   if(activeConfigRowId!==null && activeConfigRowId!==rowId && configDirty){
     await applyConfig();
   }
@@ -247,8 +226,7 @@ document.getElementById('defaultHours').addEventListener('change',(e)=>{
   updateTotalsRow();render();
 });
 
-// 드래그 & 드롭
- let dragSrcId=null;
+let dragSrcId=null;
 $body.addEventListener('mousedown',(e)=>{const h=e.target.closest('[data-act="drag-handle"]');if(h)h.closest('tr').draggable=true;});
 $body.addEventListener('dragstart',(e)=>{const tr=e.target.closest('tr');if(!tr)return;dragSrcId=Number(tr.dataset.id);tr.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
 $body.addEventListener('dragover',(e)=>{e.preventDefault();const tr=e.target.closest('tr');if(!tr)return;$body.querySelectorAll('tr').forEach(t=>t.classList.remove('drag-over'));tr.classList.add('drag-over');});
@@ -280,7 +258,6 @@ document.getElementById('btnApplyConfig').addEventListener('click',applyConfig);
 
 function openConfig(rowId){
   const r=rows.find(x=>x.id===rowId);if(!r||!r.serviceCategory)return;
-  // 이미 다른 행 편집 중이면 apply 후 전환 (이미 click 핸들러에서 applyConfig 호출했으므로 여기선 시작만)
   activeConfigRowId=rowId;
   $configPanel.classList.add('active');
   renderConfigPanel();
@@ -301,13 +278,10 @@ function renderConfigPanel(){
   const r=rows.find(x=>x.id===activeConfigRowId);if(!r){closeConfig();return;}
   const def=SERVICE_CATEGORIES[r.serviceCategory];if(!def){closeConfig();return;}
   $configTitle.textContent=`${r.serviceCategory} 옵션 (행 #${rows.findIndex(x=>x.id===r.id)+1})`;
-
   if(r.serviceCategory==='Disk'){
     _renderDiskConfigPanel(r);
     return;
   }
-
-  // 일반 카테고리
   const allSteps=(def.steps||[]).filter(s=>!s._hidden);
   const renderStep=_makeStepRenderer(r);
   let instanceHtml='';
@@ -342,11 +316,13 @@ function _renderDiskConfigPanel(r){
   if(!sub){$configContent.innerHTML=html.join('');_bindDiskConfigEvents(r);return;}
 
   if(sub.isProvisioned){
+    // Premium SSD v2 / Ultra Disk
     if(sub.diskType==='ultra'){
       const sizeOpts=(typeof ULTRA_DISK_SIZES!=='undefined'?ULTRA_DISK_SIZES:[])
         .map(s=>`<option value="${s.gib}" ${Number(o.diskSizeGiB)===s.gib?'selected':''}>${escapeHtml(s.label)}</option>`).join('');
       html.push(`<div class="config-field"><label>디스크 크기</label><select data-opt-key="diskSizeGiB">${sizeOpts}</select></div>`);
     }else{
+      // Premium SSD v2: GiB 직접입력
       html.push(`<div class="config-field"><label>디스크 크기 (GiB)<span style="font-size:10px;color:#0078d4;cursor:help;" title="1 ~ 65,536 GiB"> [?]</span></label><input type="number" data-opt-key="diskSizeGiB" data-opt-type="number" min="1" max="65536" step="1" value="${o.diskSizeGiB||1}" style="text-align:right;"/></div>`);
     }
     const minI=sub.diskType==='ultra'?100:3000;
@@ -356,6 +332,7 @@ function _renderDiskConfigPanel(r){
     const bL=sub.diskType==='premiumv2'?' (125 MB/s 무료 포함)':'';
     html.push(`<div class="config-field"><label>처리량 MB/s${bL}</label><input type="number" data-opt-key="provisionedMBps" data-opt-type="number" min="${minB}" step="1" value="${o.provisionedMBps||minB}" style="text-align:right;"/></div>`);
   }else{
+    // 표준 HDD / 표준 SSD / 프리미엄 SSD
     if(sub.hasRedundancy){
       const redOpts=['LRS','ZRS'].map(v=>`<option value="${v}" ${o.redundancy===v?'selected':''}>${v}</option>`).join('');
       html.push(`<div class="config-field"><label>중복성</label><select data-opt-key="redundancy"><option value="">선택...</option>${redOpts}</select></div>`);
@@ -368,22 +345,21 @@ function _renderDiskConfigPanel(r){
     html.push(`<div class="config-field" style="grid-column:1/-1;"><label>디스크 크기 (SKU)</label><select data-opt-key="diskInstance"><option value="">선택...</option>${instOpts}</select></div>`);
 
     if(sub.diskType==='premium'){
+      // 성능 계층 업그레이드
       const perfOpts=['없음 (기본)','P4','P6','P10','P15','P20','P30','P40','P50','P60','P70','P80']
         .map(v=>`<option value="${v}" ${o.perfTier===v?'selected':''}>${v}</option>`).join('');
-      html.push(`<div class="config-field"><label>성능 계층 업그레이드</label><select data-opt-key="perfTier"><option value="">선택...</option>${perfOpts}</select></div>`);
-      const savOpts=['용량제 (기본)','1년 예약']
-        .map(v=>`<option value="${v}" ${o.savingsOption===v?'selected':''}>${v}</option>`).join('');
-      html.push(`<div class="config-field"><label>절약 옵션</label><select data-opt-key="savingsOption"><option value="">선택...</option>${savOpts}</select></div>`);
+      html.push(`<div class="config-field"><label>성능 계층 업그레이드<span style="font-size:10px;color:#0078d4;cursor:help;" title="용량 유지하면서 성능만 상위 계층으로 업그레이드"> [?]</span></label><select data-opt-key="perfTier"><option value="">선택...</option>${perfOpts}</select></div>`);
+      // 절약 옵션 제거 — PAYG + RI 1년 항상 동시 표시 (표의 용량제/예약1년 열에 자동 반영)
     }
     if(sub.diskType!=='premium'){
       html.push(`<div class="config-field"><label>Storage 트랜잭션 (10,000단위, 월)</label><input type="number" data-opt-key="transactionUnits" data-opt-type="number" min="0" step="1" value="${o.transactionUnits||0}" style="text-align:right;"/></div>`);
     }
-    html.push(`<div class="config-field"><label>스냅샷 (GB, 월)</label><input type="number" data-opt-key="snapshotGB" data-opt-type="number" min="0" step="1" value="${o.snapshotGB||0}" style="text-align:right;"/></div>`);
+    html.push(`<div class="config-field"><label>스냅샷 (GB, 월)<span style="font-size:10px;color:#0078d4;cursor:help;" title="LRS 저장 GB × 단가/GB"> [?]</span></label><input type="number" data-opt-key="snapshotGB" data-opt-type="number" min="0" step="1" value="${o.snapshotGB||0}" style="text-align:right;"/></div>`);
     const confOpts=['비활성 (기본)','활성화'].map(v=>`<option value="${v}" ${o.confEncryptionEnabled===v?'selected':''}>${v}</option>`).join('');
-    html.push(`<div class="config-field"><label>Confidential OS Encryption</label><select data-opt-key="confEncryptionEnabled"><option value="">선택...</option>${confOpts}</select></div>`);
+    html.push(`<div class="config-field"><label>Confidential OS Encryption<span style="font-size:10px;color:#0078d4;cursor:help;" title="GiB × 730h × Per GiB 단가"> [?]</span></label><select data-opt-key="confEncryptionEnabled"><option value="">선택...</option>${confOpts}</select></div>`);
     if(sub.diskType==='premium'){
       const burstOpts=['비활성 (기본)','활성화 (P30 이상)'].map(v=>`<option value="${v}" ${o.burstingEnabled===v?'selected':''}>${v}</option>`).join('');
-      html.push(`<div class="config-field"><label>디스크 버스팅</label><select data-opt-key="burstingEnabled"><option value="">선택...</option>${burstOpts}</select></div>`);
+      html.push(`<div class="config-field"><label>디스크 버스팅<span style="font-size:10px;color:#0078d4;cursor:help;" title="P30 이상에서 사용 가능. 활성화 월정액 + 버스트 트랜잭션"> [?]</span></label><select data-opt-key="burstingEnabled"><option value="">선택...</option>${burstOpts}</select></div>`);
       if(o.burstingEnabled==='활성화 (P30 이상)'){
         html.push(`<div class="config-field"><label>예상 최대 IOPS</label><input type="number" data-opt-key="burstMaxIOPS" data-opt-type="number" min="0" step="100" value="${o.burstMaxIOPS||0}" style="text-align:right;"/></div>`);
         html.push(`<div class="config-field"><label>예상 최대 처리량 (MB/s)</label><input type="number" data-opt-key="burstMaxThroughputMBs" data-opt-type="number" min="0" step="10" value="${o.burstMaxThroughputMBs||0}" style="text-align:right;"/></div>`);
@@ -398,7 +374,7 @@ function _renderDiskConfigPanel(r){
 
 function _bindDiskConfigEvents(r){
   const $db=document.getElementById('configDirtyBadge');
-  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
+  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};  
   const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
   $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
@@ -422,11 +398,10 @@ function _bindDiskConfigEvents(r){
   });
 }
 
-// 일반 옵션 패널 헬퍼
 function _makeStepRenderer(r){
   return function(step){
     if(!step||!step.key)return'';
-    const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:''
+    const tooltip=step.tooltip?`title="${escapeHtml(step.tooltip)}"`:""
     const curVal=r&&r.options?r.options[step.key]:undefined;
     if(step.type==='number'){
       const curNum=(curVal!==undefined&&curVal!=='')?curVal:(step.default!==undefined?step.default:0);
@@ -440,7 +415,7 @@ function _makeStepRenderer(r){
 
 function _bindConfigEvents(r,def){
   const $db=document.getElementById('configDirtyBadge');
-  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
+  const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};  
   const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
   const KEYS_REBUILD=[(def.instanceParentKey||null)].filter(Boolean);
@@ -501,6 +476,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   data.push([]);data.push(['[Remark]']);
   data.push(['1. Azure Retail Prices API의 공시 가격이며, EA 등 별도 할인은 반영되지 않습니다.']);
   data.push(['2. 절약 플랜/예약 단가는 시간당 환산 단가입니다.']);
+  data.push(['3. 프리미엄 SSD: 용량제 열은 PAYG, 예약 1년 열은 RI 1Y 단가입니다 (선택 불필요, 자동 표시).']);
   const ws=XLSX.utils.aoa_to_sheet(data);
   const bA={top:{style:'thin',color:{rgb:'BFBFBF'}},bottom:{style:'thin',color:{rgb:'BFBFBF'}},left:{style:'thin',color:{rgb:'BFBFBF'}},right:{style:'thin',color:{rgb:'BFBFBF'}}};
   const tSt={font:{bold:true,sz:16,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'305496'}},alignment:{horizontal:'center',vertical:'center'}};
@@ -509,7 +485,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const dSt={font:{sz:10},alignment:{vertical:'center',wrapText:true},border:bA};
   const nSt={font:{sz:10},alignment:{horizontal:'right',vertical:'center'},numFmt:'#,##0.00',border:bA};
   const totSt={font:{bold:true,sz:11},fill:{fgColor:{rgb:'FFF2CC'}},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'305496'}},bottom:{style:'medium',color:{rgb:'305496'}},left:bA.left,right:bA.right},numFmt:'#,##0.00'};
-  if(!ws['A1'])ws['A1']={v:'Azure 견적 시뮬레이션'};ws['A1'].s=tSt;
+  if(!ws['A1'])ws['A1']={v:'Azure 곬적 시뮬레이션'};ws['A1'].s=tSt;
   if(ws['A2'])ws['A2'].s=sSt;
   const tC=8+enabledGroups.length*3;
   for(let c=0;c<tC;c++){const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c});let color='305496';if(c>=8){const gi=Math.floor((c-8)/3);if(gi<enabledGroups.length)color=enabledGroups[gi].color;}if(!ws[a3])ws[a3]={v:''};ws[a3].s=hSt(color);if(!ws[a4])ws[a4]={v:''};ws[a4].s=hSt(color);}
@@ -520,7 +496,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:tC-1}},{s:{r:1,c:0},e:{r:1,c:tC-1}},...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),...enabledGroups.map((_,gi)=>({s:{r:3,c:8+gi*3},e:{r:3,c:8+gi*3+2}})),{s:{r:tri,c:0},e:{r:tri,c:7}}];
   const rsR=tri+2;ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsR+3,c:tC-1}});
   ws['!freeze']={xSplit:0,ySplit:5,topLeftCell:'A6',activePane:'bottomLeft',state:'frozen'};
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 견적');
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 곬적');
   XLSX.writeFile(wb,`azure-quote-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.xlsx`);
 });
 
