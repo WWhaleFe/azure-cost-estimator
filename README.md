@@ -111,11 +111,11 @@ Storage 항목은 월 정액 청구이므로 사용량(Hours) 변경에 영향�
 
 HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로컬에서 실행"을 따라 로컬 웹서버로 띄우거나, GitHub Pages 등 호스팅된 주소로 접속하세요.
 
-### Q. 회사 컴퓨터에서 "✗ 외부 네트워크 차단" 메시지가 뜹니다
+### Q. 회사 컴퓨터에서 "✗ 외부 네트워크 차단" 메시지가 뗳니다
 
 회사 보안 정책 / 방화벽이 외부 도메인 접근을 차단하는 환경입니다. 화면 정중앙 모달에 표시되는 도메인 목록을 IT/보안팀에 전달하여 화이트리스트 추가를 요청하세요. 추가가 어려운 경우, 개인 환경에서 실행 후 엑셀로 내보내 사내 공유하는 방법을 권장합니다.
 
-### Q. "✗ 브라우저 차단" 메시지가 뜹니다
+### Q. "✗ 브라우저 차단" 메시지가 뗳니다
 
 광고 차단 확장(uBlock, AdGuard 등) 또는 보안 확장이 fetch를 가로막을 때 발생합니다. 다음을 시도해 보세요.
 
@@ -137,18 +137,43 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 
 ```
 .
-├── index.html              메인 페이지 (HTML 마크업만)
+├── index.html                       메인 페이지 (HTML 마크업만)
 ├── css/
-│   └── main.css            전체 스타일
+│   └── main.css                     전체 스타일
 └── js/
-    ├── config.js           상수, 카탈로그, CORS 프록시 목록
-    ├── network-layer.js    fetch 폴백, API 호출
-    ├── matchers.js         서비스별 가격 매칭 로직
-    ├── diagnostics.js      연결 진단, 환경별 안내 모달
-    └── ui-and-bootstrap.js 행/표/옵션 패널/엑셀/부트스트랩
+    ├── core/
+    │   ├── config.js                API 엔드포인트, CORS 프록시 목록, 리전 목록 등 공통 상수
+    │   ├── network-layer.js         CORS 폴백 fetch, OData 필터 빌더, 응답 캐시
+    │   ├── service-categories.js    services/*.js 가 등록한 카테고리를 SERVICE_CATEGORIES 로 병합
+    │   └── resolver-engine.js       서비스 공통 가격 조회 엔진 (_genericResolve, normalizeReservationPrice 등)
+    ├── services/                    서비스별 정의 + 전용 가격 매칭 로직
+    │   ├── vm.js                    Virtual Machine
+    │   ├── disk.js                  Managed Disks (HDD/SSD/Premium/Premium v2/Ultra)
+    │   ├── azure-files.js           Azure Files
+    │   ├── blob-storage.js          Blob Storage
+    │   ├── vpn-gateway.js           VPN Gateway
+    │   ├── load-balancer.js         Load Balancer
+    │   ├── app-gateway.js           Application Gateway
+    │   ├── public-ip.js             Public IP
+    │   ├── firewall.js              Azure Firewall
+    │   ├── bandwidth.js             Bandwidth (데이터 전송)
+    │   ├── nat-gateway.js           NAT Gateway
+    │   ├── sql-database.js          Azure SQL Database
+    │   ├── mysql.js                 Azure Database for MySQL
+    │   ├── app-service.js           App Service
+    │   └── bastion.js               Azure Bastion
+    ├── diagnostics.js               연결 진단, 환경별 안내 모달 (file://, 방화벽, 광고 차단 등)
+    └── ui-and-bootstrap.js          행/표/옵션 패널/드래그/엑셀/부트스트랩
 ```
 
-각 파일은 의존성 순서대로 `index.html`에서 일반 `<script>` 태그로 로드됩니다. 빌드 도구는 사용하지 않습니다.
+`index.html` 은 위 파일들을 의존성 순서대로 일반 `<script>` 태그로 로드합니다. 빌드 도구는 사용하지 않습니다.
+
+### 새로운 서비스를 추가하려면
+
+1. `js/services/` 아래에 새 파일을 만들고 `window._svcDefs['새 서비스명']` 으로 카테고리 정의를 등록합니다.
+2. `_buildDetail_새_서비스명` (상세 사양 빌더), 필요 시 `_resolve_새_서비스명` (전용 가격 매칭) 함수도 `window` 에 등록합니다.
+3. `index.html` 의 services 로드 블록에 `<script src="js/services/새-서비스.js"></script>` 한 줄을 추가합니다.
+4. `js/ui-and-bootstrap.js` 의 `SERVICE_CATEGORY_ORDER` 배열에 표시 순서를 지정하면 카테고리 드롭다운에 노출됩니다.
 
 ---
 
