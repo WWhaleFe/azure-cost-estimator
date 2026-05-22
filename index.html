@@ -1,43 +1,37 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Azure 견적 시뮬레이션</title>
+<meta charset="UTF-8">
+<title>Azure 견적 시뮬레이션 · 용량제/절약 플랜 1Y·3Y/예약 1Y·3Y 가격 동시 비교</title>
+<link rel="stylesheet" href="css/main.css">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-<link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-<div style="max-width:2400px;min-width:1200px;margin:0 auto;padding:20px;">
+<div class="app-shell" style="max-width:2400px;min-width:1200px;margin:0 auto;padding:24px 16px 80px;">
 
-  <header class="mb-3">
-    <div class="title-bar mb-2">Azure 견적 시뮬레이션</div>
-    <div class="flex items-center justify-between">
-      <p class="text-xs text-[#605e5c]">용량제 / 절약 플랜 1Y·3Y / 예약 1Y·3Y 가격 동시 비교</p>
-      <div class="flex gap-2 items-center">
-        <select id="currencySelect" class="btn btn-secondary">
-          <option value="KRW" selected>KRW</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-        </select>
-        <a href="https://azure.microsoft.com/ko-kr/pricing/calculator/" target="_blank" rel="noopener noreferrer" class="btn btn-calculator">가격 계산기 열기</a>
-        <button id="btnExport" class="btn btn-excel">엑셀 내보내기</button>
-      </div>
+  <div class="app-header">
+    <div>
+      <h1 class="app-title">Azure 견적 시뮬레이션</h1>
+      <div class="app-subtitle">용량제 / 절약 플랜 1Y·3Y / 예약 1Y·3Y 가격 동시 비교</div>
     </div>
-  </header>
-
-  <div style="background:#f0f6ff;border:1px solid #b3d4ff;padding:8px 12px;border-radius:2px;font-size:11px;color:#0050a0;margin-bottom:8px;">
-    <strong>Azure Retail Prices API 연동</strong> ·
-    Endpoint: <code style="background:rgba(255,255,255,0.7);padding:1px 4px;border-radius:2px;font-size:10px;">prices.azure.com/api/retail/prices?api-version=2023-01-01-preview</code> ·
-    절약 플랜 + 예약 + 용량제 동시 조회 · CORS 프록시 자동 폴백 ·
-    <span id="connectionStatus" style="font-weight:600;">연결 확인 중...</span>
+    <div class="app-tools">
+      <select id="currencySelect" title="표시 통화">
+        <option value="KRW" selected>KRW</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="JPY">JPY</option>
+      </select>
+      <button id="openCalcBtn" type="button" class="btn btn-primary" title="Azure 공식 가격 계산기">가격 계산기 열기</button>
+      <button id="exportBtn" type="button" class="btn btn-success" title="Excel 파일로 저장">엑셀 내보내기</button>
+    </div>
   </div>
 
-  <div class="bg-white border border-[#e1dfdd] rounded-sm p-2 mb-2 flex flex-wrap gap-3 items-center text-xs">
-    <span class="font-semibold text-[#605e5c]">기본 Region:</span>
-    <select id="defaultRegion" class="border border-[#d2d0ce] rounded-sm px-2 py-1">
+  <div id="apiStatus" class="api-status"></div>
+
+  <div class="region-bar">
+    <label>기본 Region:</label>
+    <select id="defaultRegion">
       <option value="koreacentral" selected>Korea Central</option>
       <option value="koreasouth">Korea South</option>
       <option value="japaneast">Japan East</option>
@@ -46,112 +40,94 @@
       <option value="westeurope">West Europe</option>
       <option value="southeastasia">Southeast Asia</option>
     </select>
-    <span class="text-[#a19f9d]">|</span>
-    <span class="text-[#605e5c]">기본 사용량(Hours):</span>
-    <input id="defaultHours" type="number" value="730" class="border border-[#d2d0ce] rounded-sm px-2 py-1 w-20" />
-    <div class="flex-1"></div>
-    <div id="apiStatus"></div>
+    <label style="margin-left:18px;">기본 사용량(Hours):</label>
+    <input type="number" id="defaultHours" value="730" min="1" max="8760" step="1" style="width:80px;">
+    <button id="addRowBtn" type="button" class="btn btn-add" style="margin-left:auto;">+ 새 행 추가</button>
   </div>
 
-  <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
-    <table class="grid-table" id="mainTable" style="min-width:1800px;">
-      <thead>
-        <tr>
-          <th rowspan="2" style="width:24px;"></th>
-          <th rowspan="2" style="width:34px;">#</th>
-          <th rowspan="2" style="width:110px;">Region</th>
-          <th rowspan="2" style="width:170px;">분류</th>
-          <th rowspan="2" style="width:130px;">Service Category</th>
-          <th rowspan="2" style="width:140px;">Service name (SKU)</th>
-          <th rowspan="2" style="width:260px;">상세 사양</th>
-          <th rowspan="2" style="width:44px;">Qty</th>
-          <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
-          <!-- 체크박스가 텍스트 앞(왼쪽)에 배치 -->
-          <th colspan="3" class="group-payg th-with-checkbox">
-            <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택"> 용량제 (PAYG)
-            </label>
-          </th>
-          <th colspan="3" class="group-sp1 th-with-checkbox">
-            <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-sp1" checked title="엑셀 출력 선택"> 절약 플랜 1년
-            </label>
-          </th>
-          <th colspan="3" class="group-sp3 th-with-checkbox">
-            <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-sp3" checked title="엑셀 출력 선택"> 절약 플랜 3년
-            </label>
-          </th>
-          <th colspan="3" class="group-ri1 th-with-checkbox">
-            <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-ri1" checked title="엑셀 출력 선택"> 예약 1년
-            </label>
-          </th>
-          <th colspan="3" class="group-ri3 th-with-checkbox">
-            <label class="th-checkbox-label">
-              <input type="checkbox" id="chk-group-ri3" checked title="엑셀 출력 선택"> 예약 3년
-            </label>
-          </th>
-          <th rowspan="2" style="width:74px;">Action</th>
-        </tr>
-        <tr>
-          <th class="group-payg" style="width:82px;">Unit<br>Price</th>
-          <th class="group-payg" style="width:96px;">1 Monthly<br>Cost</th>
-          <th class="group-payg" style="width:96px;">1 Year<br>cost</th>
-          <th class="group-sp1" style="width:82px;">Unit<br>Price</th>
-          <th class="group-sp1" style="width:96px;">1 Monthly<br>Cost</th>
-          <th class="group-sp1" style="width:96px;">1 Year<br>cost</th>
-          <th class="group-sp3" style="width:82px;">Unit<br>Price</th>
-          <th class="group-sp3" style="width:96px;">1 Monthly<br>Cost</th>
-          <th class="group-sp3" style="width:96px;">1 Year<br>cost</th>
-          <th class="group-ri1" style="width:82px;">Unit<br>Price</th>
-          <th class="group-ri1" style="width:96px;">1 Monthly<br>Cost</th>
-          <th class="group-ri1" style="width:96px;">1 Year<br>cost</th>
-          <th class="group-ri3" style="width:82px;">Unit<br>Price</th>
-          <th class="group-ri3" style="width:96px;">1 Monthly<br>Cost</th>
-          <th class="group-ri3" style="width:96px;">1 Year<br>cost</th>
-        </tr>
-      </thead>
-      <tbody id="gridBody"></tbody>
-      <tfoot id="gridFoot"></tfoot>
-    </table>
-  </div>
+  <table class="grid-table">
+    <colgroup>
+      <col style="width:38px;">
+      <col style="width:130px;">
+      <col style="width:200px;">
+      <col style="width:200px;">
+      <col style="width:160px;">
+      <col style="width:auto;">
+      <col style="width:60px;">
+      <col style="width:75px;">
+      <col class="col-grp-payg" style="width:96px;">
+      <col class="col-grp-payg" style="width:110px;">
+      <col class="col-grp-payg" style="width:110px;">
+      <col class="col-grp-sp1" style="width:96px;">
+      <col class="col-grp-sp1" style="width:110px;">
+      <col class="col-grp-sp1" style="width:110px;">
+      <col class="col-grp-sp3" style="width:96px;">
+      <col class="col-grp-sp3" style="width:110px;">
+      <col class="col-grp-sp3" style="width:110px;">
+      <col class="col-grp-ri1" style="width:96px;">
+      <col class="col-grp-ri1" style="width:110px;">
+      <col class="col-grp-ri1" style="width:110px;">
+      <col class="col-grp-ri3" style="width:96px;">
+      <col class="col-grp-ri3" style="width:110px;">
+      <col class="col-grp-ri3" style="width:110px;">
+      <col style="width:64px;">
+    </colgroup>
+    <thead>
+      <tr class="header-group">
+        <th rowspan="2">#</th>
+        <th rowspan="2">Region</th>
+        <th rowspan="2">분류</th>
+        <th rowspan="2">Service Category</th>
+        <th rowspan="2">Service name (SKU)</th>
+        <th rowspan="2">상세 사양</th>
+        <th rowspan="2">Qty</th>
+        <th rowspan="2">사용량<br>(Hours)</th>
+        <th class="th-grp-payg" colspan="3"><label class="chk-label"><input type="checkbox" class="grp-toggle" data-group="payg" checked> 용량제 PAYG</label></th>
+        <th class="th-grp-sp1" colspan="3"><label class="chk-label"><input type="checkbox" class="grp-toggle" data-group="sp1" checked> 절약 플랜 1년</label></th>
+        <th class="th-grp-sp3" colspan="3"><label class="chk-label"><input type="checkbox" class="grp-toggle" data-group="sp3" checked> 절약 플랜 3년</label></th>
+        <th class="th-grp-ri1" colspan="3"><label class="chk-label"><input type="checkbox" class="grp-toggle" data-group="ri1" checked> 예약 1년</label></th>
+        <th class="th-grp-ri3" colspan="3"><label class="chk-label"><input type="checkbox" class="grp-toggle" data-group="ri3" checked> 예약 3년</label></th>
+        <th rowspan="2">Action</th>
+      </tr>
+      <tr class="header-sub">
+        <th class="th-grp-payg">Unit<br>Price</th><th class="th-grp-payg">1 Monthly<br>Cost</th><th class="th-grp-payg">1 Year<br>cost</th>
+        <th class="th-grp-sp1">Unit<br>Price</th><th class="th-grp-sp1">1 Monthly<br>Cost</th><th class="th-grp-sp1">1 Year<br>cost</th>
+        <th class="th-grp-sp3">Unit<br>Price</th><th class="th-grp-sp3">1 Monthly<br>Cost</th><th class="th-grp-sp3">1 Year<br>cost</th>
+        <th class="th-grp-ri1">Unit<br>Price</th><th class="th-grp-ri1">1 Monthly<br>Cost</th><th class="th-grp-ri1">1 Year<br>cost</th>
+        <th class="th-grp-ri3">Unit<br>Price</th><th class="th-grp-ri3">1 Monthly<br>Cost</th><th class="th-grp-ri3">1 Year<br>cost</th>
+      </tr>
+    </thead>
+    <tbody id="gridBody"></tbody>
+    <tfoot id="gridFoot"></tfoot>
+  </table>
 
-  <div class="mt-2">
-    <button id="btnAddRow" class="btn-add-row">+ 행 추가</button>
-  </div>
-
-  <div id="configPanel" class="config-panel mt-3">
-    <div class="flex items-center justify-between mb-2">
-      <h3 class="font-semibold text-sm" id="configTitle">옵션 설정</h3>
-      <div class="flex items-center gap-2">
-        <span id="configDirtyBadge" class="text-[11px] text-[#a16207]" style="display:none;">변경사항 있음 — 확인을 눌러 가격을 조회하세요</span>
-        <button id="btnApplyConfig" class="btn btn-primary" style="padding:4px 12px;font-size:12px;">확인</button>
-        <button id="btnCloseConfig" class="row-action-btn">닫기</button>
-      </div>
-    </div>
-    <div id="configContent" class="config-grid"></div>
-  </div>
-
-  <div class="mt-4 bg-white border border-[#e1dfdd] p-3 rounded-sm text-xs text-[#323130] leading-relaxed">
-    <p class="font-semibold mb-2">[Remark]</p>
-    <ol class="list-decimal ml-5 space-y-0.5 text-[#605e5c]">
+  <div class="remark">
+    <strong>[Remark]</strong>
+    <ol>
       <li>"분류"는 자유 입력 필드입니다.</li>
       <li>Service Category 선택 시 옵션 패널이 표 아래에 펼쳐집니다.</li>
       <li>가격 그룹 5종: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.</li>
       <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours.</li>
-      <li><strong>엑셀 내보내기</strong>: 헤더의 체크박스(☑ 텍스트 앞)를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
-      <li>Action: ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경.</li>
+      <li>엑셀 내보내기: 헤더의 체크박스(☑ 텍스트 앞)를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
+      <li>Action: ⊕ 옵션, ⦿ 행 복사, ✕ 행 삭제. ∷ 드래그로 행 순서 변경.</li>
     </ol>
   </div>
+
+  <div id="configPanel" class="config-panel" style="display:none;">
+    <div class="config-header">
+      <div id="configTitle" class="config-title">옵션 설정</div>
+      <button id="configCloseBtn" type="button" class="btn btn-close">× 닫기</button>
+    </div>
+    <div id="configContent" class="config-content"></div>
+  </div>
+
 </div>
 
-<!-- 로드 순서: core → services → core(병합/엔진/UI) -->
-<!-- 1. 공통 상수 -->
+<!-- 1. 공통 설정 -->
 <script src="js/core/config.js"></script>
 <!-- 2. 네트워크 레이어 -->
 <script src="js/core/network-layer.js"></script>
-<!-- 3. 서비스별 정의 + resolve 함수 (독립, 순서 무관) -->
+<!-- 3. 서비스 카테고리별 정의 -->
 <script src="js/services/vm.js"></script>
 <script src="js/services/disk.js"></script>
 <script src="js/services/vpn-gateway.js"></script>
@@ -167,13 +143,15 @@
 <script src="js/services/bastion.js"></script>
 <script src="js/services/azure-files.js"></script>
 <script src="js/services/blob-storage.js"></script>
-<!-- 4. SERVICE_CATEGORIES 병합 (services 모두 로드 후) -->
+<!-- 4. 서비스 카테고리 완성 -->
 <script src="js/core/service-categories.js"></script>
-<!-- 5. 가격 조회 엔진 -->
+<!-- 5. 리졸버 엔진 -->
 <script src="js/core/resolver-engine.js"></script>
-<!-- 6. 진단 -->
+<!-- 6. 진단 유틸 -->
 <script src="js/diagnostics.js"></script>
 <!-- 7. UI (마지막) -->
 <script src="js/ui-and-bootstrap.js"></script>
+<!-- 8. UI 확장: 사용자 정의 CORS 프록시 설정 -->
+<script src="js/custom-proxy-ui.js"></script>
 </body>
 </html>
