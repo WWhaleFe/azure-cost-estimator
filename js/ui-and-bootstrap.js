@@ -460,7 +460,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const enabledGroups=getEnabledGroups();
   if(enabledGroups.length===0){alert('엑셀로 출력할 가격 그룹을 하나 이상 선택하세요.');return;}
   const data=[];
-  data.push(['Azure 곬적 시뮬레이션']);
+  data.push(['Azure 견적 시뮬레이션']);
   data.push([`통화: ${cur} | 출력: ${enabledGroups.map(g=>g.label).join(', ')} | 생성: ${new Date().toLocaleString('ko-KR')}`]);
   data.push([]);
   const bH=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
@@ -490,7 +490,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const dSt={font:{sz:10},alignment:{vertical:'center',wrapText:true},border:bA};
   const nSt={font:{sz:10},alignment:{horizontal:'right',vertical:'center'},numFmt:'#,##0.00',border:bA};
   const totSt={font:{bold:true,sz:11},fill:{fgColor:{rgb:'FFF2CC'}},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'305496'}},bottom:{style:'medium',color:{rgb:'305496'}},left:bA.left,right:bA.right},numFmt:'#,##0.00'};
-  if(!ws['A1'])ws['A1']={v:'Azure 곬적 시뮬레이션'};ws['A1'].s=tSt;
+  if(!ws['A1'])ws['A1']={v:'Azure 견적 시뮬레이션'};ws['A1'].s=tSt;
   if(ws['A2'])ws['A2'].s=sSt;
   const tC=8+enabledGroups.length*3;
   for(let c=0;c<tC;c++){const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c});let color='305496';if(c>=8){const gi=Math.floor((c-8)/3);if(gi<enabledGroups.length)color=enabledGroups[gi].color;}if(!ws[a3])ws[a3]={v:''};ws[a3].s=hSt(color);if(!ws[a4])ws[a4]={v:''};ws[a4].s=hSt(color);}
@@ -501,7 +501,7 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:tC-1}},{s:{r:1,c:0},e:{r:1,c:tC-1}},...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),...enabledGroups.map((_,gi)=>({s:{r:3,c:8+gi*3},e:{r:3,c:8+gi*3+2}})),{s:{r:tri,c:0},e:{r:tri,c:7}}];
   const rsR=tri+2;ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsR+3,c:tC-1}});
   ws['!freeze']={xSplit:0,ySplit:5,topLeftCell:'A6',activePane:'bottomLeft',state:'frozen'};
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 곬적');
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 견적');
   XLSX.writeFile(wb,`azure-quote-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.xlsx`);
 });
 
