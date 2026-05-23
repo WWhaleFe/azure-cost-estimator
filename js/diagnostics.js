@@ -3,27 +3,8 @@
 // ------------------------------------------------------------------
 // 페이지 로드 직후 Azure Retail Prices API 도달 가능성을 진단하고
 // 결과를 화면 상단 배너 / 정중앙 모달로 노출.
-//
-// 진단 단계:
-//   1) file:// 스킴이면 → 즉시 모달 표시 후 종료 (네트워크 호출 안 함)
-//   2) <img> 기반 reachability probe → prices.azure.com 자체에 도달 가능?
-//   3) 실제 fetchWithCorsFallback로 데이터 받기 → 어떤 프록시가 작동?
-//
-// 진단 결과 분기:
-//   - probe OK + fetch OK → 정상 (배너에 ✓ 표시)
-//   - probe OK + fetch FAIL → CORS/확장 차단 (도메인 도달은 됨)
-//   - probe FAIL + fetch FAIL → 네트워크/방화벽 차단 (도메인 도달 자체 안 됨)
-//
-// F12 콘솔 안 열어도 사용자가 화면에서 진단 결과를 볼 수 있도록
-// 모든 메시지를 DOM에도 표시.
 // ==================================================================
 
-// 진단 결과 타입
-//   'OK'              : 정상
-//   'FILE_PROTOCOL'   : file:// 로 열림
-//   'NETWORK_BLOCK'   : 도메인 도달 자체 안 됨 (방화벽/회사망 차단 의심)
-//   'CORS_BLOCK'      : 도달은 되나 fetch 차단 (확장/CORS 정책 의심)
-//   'PROXY_DOWN'      : 모든 외부 프록시가 동시에 다운 (드뭄)
 const DIAG_STATUS = {
   OK: 'OK',
   FILE_PROTOCOL: 'FILE_PROTOCOL',
@@ -32,32 +13,16 @@ const DIAG_STATUS = {
   PROXY_DOWN: 'PROXY_DOWN',
 };
 
-// [v30] window.fetch 가로채기 감지
-// 회사 보안 솔루션이 모든 브라우저에 fetch wrapper를 설치하여
-// 외부 요청을 가로채는 환경. 일반적인 native fetch는
-// "function fetch() { [native code] }" 형태를 가짐.
-// 가로채기가 있으면 함수 본문이 주입된 JavaScript 코드.
-//
-// 주의: 일부 브라우저 확장(passwords, ad blockers)도 fetch를 wrap하므로
-// 가로채기 감지 ≠ 회사 보안 솔루션. 진단 정보로만 사용.
 function detectFetchInterception() {
   try {
     const fnStr = window.fetch.toString();
-    // native code 패턴이면 가로채기 없음
     if (/\[native code\]/.test(fnStr)) return false;
-    // 그 외에는 가로채기 의심
     return true;
   } catch (e) {
-    return false; // 접근 불가 시 모름으로 처리
+    return false;
   }
 }
 
-// <img> 태그로 도메인 reachability를 확인
-// CORS와 무관하게 단순히 "DNS 해소 + TCP 연결 + HTTP 응답"이 가능한지만 봄
-// HTTP 4xx/5xx도 onerror 발동시키지만, "도달은 한 것"이므로 onerror 시점의
-// 시간으로 판별: timeout 안에 onerror가 빨리 떨어지면 = 도달함
-//   - 즉시 onerror (보통 100ms 이내): 도달 확인 (서버가 404를 빠르게 응답)
-//   - timeout으로 onerror: 도달 실패 (DNS/방화벽/네트워크 단절)
 async function probeReachability(domain, timeoutMs = 5000) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -73,41 +38,34 @@ async function probeReachability(domain, timeoutMs = 5000) {
       resolve({ reachable, elapsed, reason });
     };
 
-    // 도달 시 (4xx 응답이라도 onerror 발동 → 빠른 응답으로 도달 확인)
     img.onerror = () => finish(true, 'fast-error (server responded)');
     img.onload = () => finish(true, 'load');
 
-    // 도달 안 됨: timeout 내 응답 없음
     setTimeout(() => finish(false, `timeout ${timeoutMs}ms`), timeoutMs);
 
-    // 캐시 회피용 query string
     img.src = `https://${domain}/favicon.ico?_probe=${Date.now()}`;
   });
 }
 
-// 진단 결과를 통합 객체로 반환
 async function runDiagnostics() {
   const result = {
     status: null,
     fileProtocol: location.protocol === 'file:',
-    probe: null,           // { reachable, elapsed, reason }
+    probe: null,
     fetchOk: false,
     activeProxy: null,
-    proxyErrors: [],       // [{ name, message }]
-    blockedDomains: [],    // 차단 후보 도메인 목록 (회사망 안내용)
-    fetchIntercepted: detectFetchInterception(), // [v30] window.fetch 가로채기 감지
+    proxyErrors: [],
+    blockedDomains: [],
+    fetchIntercepted: detectFetchInterception(),
   };
 
-  // 1) file:// 감지 - 가장 먼저 체크 (네트워크 호출 안 함)
   if (result.fileProtocol) {
     result.status = DIAG_STATUS.FILE_PROTOCOL;
     return result;
   }
 
-  // 2) reachability probe - prices.azure.com 도달 여부
   result.probe = await probeReachability('prices.azure.com', 5000);
 
-  // 3) 실제 fetch 시도 - 어떤 프록시가 작동하는가
   try {
     const data = await fetchWithCorsFallback(
       `${API_BASE}?api-version=${API_VERSION}&$top=1`
@@ -117,8 +75,6 @@ async function runDiagnostics() {
       result.activeProxy = CORS_PROXIES[activeProxyIndex].name;
     }
   } catch (err) {
-    // fetchWithCorsFallback이 던지는 에러 메시지 파싱
-    // 형식: "모든 프록시 실패 (N개 시도): name1: msg1 | name2: msg2 ..."
     const parts = err.message.split('): ');
     if (parts.length >= 2) {
       const items = parts[1].split(' | ');
@@ -131,19 +87,12 @@ async function runDiagnostics() {
     }
   }
 
-  // 4) 결과 분류
   if (result.fetchOk) {
     result.status = DIAG_STATUS.OK;
   } else if (!result.probe.reachable) {
-    // probe 자체 실패 = prices.azure.com 도메인 도달 불가
-    // → 회사망/방화벽이 외부 도메인을 일괄 차단하는 상황
     result.status = DIAG_STATUS.NETWORK_BLOCK;
     result.blockedDomains = [...CORS_PROXY_DOMAINS];
   } else {
-    // probe는 됐는데 fetch는 모두 실패 = CORS/확장 차단
-    // (네트워크 자체는 살아있지만 브라우저가 fetch만 막고 있음)
-    // 단, 모든 프록시 에러가 'Failed to fetch'이고 probe도 됐다면
-    // 확장 또는 보안 브라우저가 막고 있을 가능성이 높음
     const allFailedToFetch = result.proxyErrors.every(
       e => /failed to fetch/i.test(e.message)
     );
@@ -153,9 +102,6 @@ async function runDiagnostics() {
   return result;
 }
 
-// ==================================================================
-// UI: 상단 배너 갱신 (#connectionStatus)
-// ==================================================================
 function updateConnectionBanner(diag) {
   const $status = document.getElementById('connectionStatus');
   if (!$status) return;
@@ -166,7 +112,6 @@ function updateConnectionBanner(diag) {
     return;
   }
 
-  // 실패 케이스 - 배너에 짧은 메시지, 자세한 내용은 모달로
   const labels = {
     [DIAG_STATUS.FILE_PROTOCOL]: '✗ file:// 감지 - 로컬 웹서버 필요',
     [DIAG_STATUS.NETWORK_BLOCK]: '✗ 외부 네트워크 차단 - 회사망 확인 필요',
@@ -181,11 +126,7 @@ function updateConnectionBanner(diag) {
   $status.onclick = () => showDiagnosticModal(diag);
 }
 
-// ==================================================================
-// UI: 정중앙 진단 모달
-// ==================================================================
 function showDiagnosticModal(diag) {
-  // 기존 모달 제거
   const existing = document.getElementById('diagModal');
   if (existing) existing.remove();
 
@@ -208,7 +149,6 @@ function showDiagnosticModal(diag) {
   card.innerHTML = renderDiagContent(diag);
   overlay.appendChild(card);
 
-  // 닫기 동작 (모달 외부 클릭, 닫기 버튼)
   const close = () => overlay.remove();
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
@@ -218,7 +158,6 @@ function showDiagnosticModal(diag) {
   const $closeBtn = card.querySelector('[data-action="close"]');
   if ($closeBtn) $closeBtn.onclick = close;
 
-  // 명령어 복사 버튼들
   card.querySelectorAll('[data-copy]').forEach(btn => {
     btn.onclick = async () => {
       const text = btn.getAttribute('data-copy');
@@ -228,7 +167,6 @@ function showDiagnosticModal(diag) {
         btn.textContent = '복사됨';
         setTimeout(() => { btn.textContent = orig; }, 1500);
       } catch (e) {
-        // clipboard API가 막힌 환경에서는 textarea 폴백
         const ta = document.createElement('textarea');
         ta.value = text;
         ta.style.position = 'fixed';
@@ -244,7 +182,6 @@ function showDiagnosticModal(diag) {
   });
 }
 
-// 모달 본문 HTML 생성 - 진단 상태별로 분기
 function renderDiagContent(diag) {
   const head = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -277,17 +214,12 @@ function renderDiagContent(diag) {
   return head + body + renderDiagDetails(diag);
 }
 
-// file:// 가이드 - 가장 흔한 케이스
 function renderFileProtocolGuide() {
-  // 현재 파일 경로에서 디렉토리만 추출 (Windows/Unix 호환)
-  // file:///C:/path/to/index.html → C:/path/to
-  // file:///home/user/v29/index.html → /home/user/v29
   let dir = '';
   try {
     const path = decodeURIComponent(location.pathname);
     const lastSlash = path.lastIndexOf('/');
     dir = lastSlash > 0 ? path.slice(0, lastSlash) : '';
-    // Windows: 앞의 / 제거 → /C:/path → C:/path
     if (/^\/[A-Za-z]:/.test(dir)) dir = dir.slice(1);
   } catch (e) {
     dir = '';
@@ -346,7 +278,6 @@ function renderFileProtocolGuide() {
   `;
 }
 
-// 네트워크 차단 (회사망/방화벽) 가이드
 function renderNetworkBlockGuide(diag) {
   const probeMs = diag.probe ? diag.probe.elapsed : 0;
   const domainList = diag.blockedDomains.map(d => `<li><code>${d}</code></li>`).join('');
@@ -378,9 +309,7 @@ function renderNetworkBlockGuide(diag) {
   `;
 }
 
-// CORS/확장 차단 가이드
 function renderCorsBlockGuide(diag) {
-  // [v30] fetch 가로채기 감지 시 추가 안내
   const interceptedNotice = diag.fetchIntercepted ? `
     <div style="background:#fff4e5; border-left:4px solid #f59e0b; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#7c2d12;">
       <strong>회사 보안 솔루션 감지됨:</strong>
@@ -427,7 +356,6 @@ function renderCorsBlockGuide(diag) {
   `;
 }
 
-// 프록시 일괄 다운 (드물지만 가능)
 function renderProxyDownGuide(diag) {
   const errList = diag.proxyErrors.map(e =>
     `<li><strong>${e.name}</strong>: <code style="font-size:11px;">${escapeHtmlSafe(e.message)}</code></li>`
@@ -450,7 +378,6 @@ function renderProxyDownGuide(diag) {
   `;
 }
 
-// 진단 상세 정보 (모든 케이스 공통, 접을 수 있게)
 function renderDiagDetails(diag) {
   const probeText = diag.probe
     ? `${diag.probe.reachable ? 'OK' : 'FAIL'} (${diag.probe.elapsed}ms, ${escapeHtmlSafe(diag.probe.reason)})`
@@ -476,7 +403,6 @@ ${escapeHtmlSafe(proxyErrText)}</pre>
   `;
 }
 
-// HTML escape (diagnostics.js 내부 전용 - matchers.js의 escapeHtml과 충돌 방지)
 function escapeHtmlSafe(s) {
   if (s == null) return '';
   return String(s)
@@ -487,13 +413,7 @@ function escapeHtmlSafe(s) {
     .replace(/'/g, '&#39;');
 }
 
-// ==================================================================
-// 부트스트랩 - 페이지 로드 직후 실행
-// main.js / ui-and-bootstrap.js에서 setStatus('ok', '준비 완료') 후
-// 이 함수를 명시적으로 호출
-// ==================================================================
 async function bootDiagnostics() {
-  // file:// 즉시 감지 → 모달 강제 표시 (네트워크 호출 안 함)
   if (location.protocol === 'file:') {
     const diag = {
       status: DIAG_STATUS.FILE_PROTOCOL,
@@ -511,11 +431,9 @@ async function bootDiagnostics() {
     return diag;
   }
 
-  // 정상 환경: 진단 실행 후 결과에 따라 분기
   const diag = await runDiagnostics();
   updateConnectionBanner(diag);
 
-  // OK가 아닌 모든 케이스는 자동으로 모달 노출
   if (diag.status !== DIAG_STATUS.OK) {
     showDiagnosticModal(diag);
     console.error(`[진단] ${diag.status}`, diag);
