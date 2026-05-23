@@ -66,6 +66,7 @@
           <th rowspan="2" style="width:260px;">상세 사양</th>
           <th rowspan="2" style="width:44px;">Qty</th>
           <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
+          <!-- 체크박스가 텍스트 앞(왼쪽)에 배치 -->
           <th colspan="3" class="group-payg th-with-checkbox">
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택"> 용량제 (PAYG)
@@ -145,8 +146,12 @@
   </div>
 </div>
 
+<!-- 로드 순서: core → services → core(병합/엔진/UI) -->
+<!-- 1. 공통 상수 -->
 <script src="js/core/config.js"></script>
+<!-- 2. 네트워크 레이어 -->
 <script src="js/core/network-layer.js"></script>
+<!-- 3. 서비스별 정의 + resolve 함수 (독립, 순서 무관) -->
 <script src="js/services/vm.js"></script>
 <script src="js/services/disk.js"></script>
 <script src="js/services/vpn-gateway.js"></script>
@@ -162,9 +167,13 @@
 <script src="js/services/bastion.js"></script>
 <script src="js/services/azure-files.js"></script>
 <script src="js/services/blob-storage.js"></script>
+<!-- 4. SERVICE_CATEGORIES 병합 (services 모두 로드 후) -->
 <script src="js/core/service-categories.js"></script>
+<!-- 5. 가격 조회 엔진 -->
 <script src="js/core/resolver-engine.js"></script>
+<!-- 6. 진단 -->
 <script src="js/diagnostics.js"></script>
+<!-- 7. UI (마지막) -->
 <script src="js/ui-and-bootstrap.js"></script>
 </body>
 </html>
