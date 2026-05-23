@@ -1,16 +1,7 @@
 // ==================================================================
 // network-layer.js (v31)
-// ------------------------------------------------------------------
-// v31 변경사항:
-// 1. 통화별 캐시 키 분리
-//    → apiCache 키를 `${url}::${currencyCode}` 로 변경
-//    → 통화 전환 시 전체 캐시 삭제 불필요 (currencyCode별 독립 캐시)
-// 2. apiFetch에 cacheKey 파라미터 제거, URL 자체에 currencyCode 포함되므로
-//    기존 targetUrl 그대로 캐시 키 사용 가능
-//    (currencyCode 파라미터가 URL 쿼리에 이미 포함됨)
 // ==================================================================
 
-// 응답 무결성 판정
 function validateApiResponse(data) {
   if (!data || typeof data !== 'object') {
     return { ok: false, reason: 'not an object' };
@@ -61,7 +52,6 @@ async function fetchOnce(targetUrl, proxy, timeoutMs = 25000) {
   return Promise.race([fetchPromise, timeoutPromise]);
 }
 
-// 큰 응답이 예상되는 호출에 대해서는 size 제한 작은 프록시를 후순위로 정렬
 function getProxyOrder(expectedSizeKB) {
   if (!expectedSizeKB || expectedSizeKB <= 0) {
     return CORS_PROXIES.map((_, i) => (activeProxyIndex + i) % CORS_PROXIES.length);
@@ -100,10 +90,6 @@ async function fetchWithCorsFallback(targetUrl, expectedSizeKB = 0) {
   throw new Error(`모든 프록시 실패 (${CORS_PROXIES.length}개 시도): ${errors.join(' | ')}`);
 }
 
-// apiFetch (v31)
-//  - 캐시 키: URL 자체 (currencyCode가 쿼리 파라미터에 포함되므로 통화별 자동 분리)
-//  - opts.pageSize: $top 파라미터로 페이지당 항목 수 제어
-//  - opts.expectedSizeKB: 응답 사이즈 추정값
 function buildApiUrl(filters, currencyCode, pageSize) {
   const fp = [];
   for (const [k, v] of Object.entries(filters)) {
@@ -121,7 +107,6 @@ function buildApiUrl(filters, currencyCode, pageSize) {
   const filterStr = fp.join(' and ');
   const params = new URLSearchParams();
   params.set('api-version', API_VERSION);
-  // currencyCode가 URL에 포함되므로 캐시는 통화별로 자동 분리됨
   if (currencyCode) params.set('currencyCode', currencyCode);
   if (filterStr) params.set('$filter', filterStr);
   if (pageSize > 0) params.set('$top', String(pageSize));
@@ -134,7 +119,6 @@ async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages
 
   const targetUrl = buildApiUrl(filters, currencyCode, pageSize);
 
-  // 캐시 조회 (키 = URL, 통화별로 자동 분리)
   if (apiCache.has(targetUrl)) {
     const cached = apiCache.get(targetUrl);
     if (Array.isArray(cached) && cached.length > 0) {
@@ -156,7 +140,6 @@ async function apiFetch(filters, currencyCode = 'KRW', maxItems = 1000, maxPages
   return items;
 }
 
-// 통화 변경 시 해당 통화 캐시만 삭제 (다른 통화 캐시는 유지)
 function clearCacheForCurrency(currencyCode) {
   const keyword = `currencyCode=${currencyCode}`;
   const keysToDelete = [];
