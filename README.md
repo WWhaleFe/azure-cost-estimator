@@ -2,9 +2,6 @@
 
 Azure Retail Prices API를 호출하여 **용량제(PAYG)·절약 플랜(1Y/3Y)·예약(1Y/3Y)** 가격을 한 견적표에서 동시 비교하는 단일 페이지 웹 도구입니다. 단가는 모두 Azure 공시 가격에서 실시간 조회되며, 코드에 하드코딩된 수치는 없습니다.
 
-해당 페이지
-https://wwhalefe.github.io/azure-cost-estimator/
-
 ---
 
 ## 빠른 시작
