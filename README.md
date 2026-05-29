@@ -137,18 +137,25 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 
 ```
 .
-├── index.html              메인 페이지 (HTML 마크업만)
+├── index.html                     메인 페이지 (HTML 마크업만)
 ├── css/
-│   └── main.css            전체 스타일
+│   └── main.css                   전체 스타일
 └── js/
-    ├── config.js           상수, 카탈로그, CORS 프록시 목록
-    ├── network-layer.js    fetch 폴백, API 호출
-    ├── matchers.js         서비스별 가격 매칭 로직
-    ├── diagnostics.js      연결 진단, 환경별 안내 모달
-    └── ui-and-bootstrap.js 행/표/옵션 패널/엑셀/부트스트랩
+    ├── core/
+    │   ├── config.js              상수, 카탈로그, CORS 프록시 목록
+    │   ├── network-layer.js       fetch 폴백, API 호출, 캐시
+    │   ├── service-categories.js  SERVICE_CATEGORIES 병합
+    │   └── resolver-engine.js     가격 조회 엔진
+    ├── services/                  서비스별 정의 + 가격 매칭 (15개)
+    │   ├── vm.js  disk.js  vpn-gateway.js  load-balancer.js
+    │   ├── app-gateway.js  public-ip.js  firewall.js  bandwidth.js
+    │   ├── nat-gateway.js  sql-database.js  mysql.js  app-service.js
+    │   └── bastion.js  azure-files.js  blob-storage.js
+    ├── diagnostics.js             연결 진단, 환경별 안내 모달
+    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/부트스트랩
 ```
 
-각 파일은 의존성 순서대로 `index.html`에서 일반 `<script>` 태그로 로드됩니다. 빌드 도구는 사용하지 않습니다.
+로드 순서: `js/core/config.js` → `js/core/network-layer.js` → `js/services/*.js`(15개, 순서 무관) → `js/core/service-categories.js`(병합) → `js/core/resolver-engine.js` → `js/diagnostics.js` → `js/ui-and-bootstrap.js`. 모두 `index.html`에서 일반 `<script>` 태그로 로드되며, 빌드 도구는 사용하지 않습니다.
 
 ---
 
