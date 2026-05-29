@@ -41,13 +41,8 @@ var VM_SW_PRODUCT = window.VM_SW_PRODUCT = {
   'BizTalk Server (Standard)': 'BizTalk Server Standard',
 };
 
-// SW 라이선스 시간당 단가 조회 (vCPU 구간 매칭). 못 찾으면 0 반환(가산 안 함).
-window['_vmSwLicenseHourly'] = async function(region, productName, vcpu, cur) {
-  if (!productName || !(vcpu > 0)) return { hourly:0, band:null };
-  let items = [];
-  try {
-    items = await apiFetch({ serviceName:'Virtual Machines Licenses', armRegionName:region, productName, priceType:'Consumption' }, cur, 200, 3);
-  } catch (e) { console.warn('SW 라이선스 조회 실패:', e); return { hourly:0, band:null }; }
+// 라이선스 응답에서 vCPU 구간 단가 1건 선택 (구간 파싱 공통)
+window['_vmSwLicensePick'] = function(items, vcpu) {
   const bands = [];
   for (const it of items) {
     if ((it.type||'').toLowerCase() !== 'consumption') continue;
@@ -61,12 +56,31 @@ window['_vmSwLicenseHourly'] = async function(region, productName, vcpu, cur) {
     else continue;
     const price = Number(it.unitPrice);
     if (!isFinite(price) || price <= 0) continue;
-    bands.push({ lo, hi, price, skuName:it.skuName, meterName:it.meterName });
+    bands.push({ lo, hi, price, skuName:it.skuName, meterName:it.meterName, productName:it.productName });
   }
-  if (bands.length === 0) return { hourly:0, band:null };
+  if (bands.length === 0) return null;
   bands.sort((a,b)=>a.hi-b.hi);
   // vCPU를 포함하는 구간 우선, 없으면 vCPU 이상 중 가장 작은 구간(올림 라이선스)
-  const chosen = bands.find(b=>vcpu>=b.lo && vcpu<=b.hi) || bands.find(b=>b.hi>=vcpu) || null;
+  return bands.find(b=>vcpu>=b.lo && vcpu<=b.hi) || bands.find(b=>b.hi>=vcpu) || null;
+};
+
+// SW 라이선스 시간당 단가 조회 (vCPU 구간 매칭). 라이선스 미터는 리전 비종속이라 armRegionName 미사용. 못 찾으면 0 반환(가산 안 함).
+window['_vmSwLicenseHourly'] = async function(productName, vcpu, cur) {
+  if (!productName || !(vcpu > 0)) return { hourly:0, band:null };
+  // 1차: 정확한 productName으로 조회 (리전 비종속 -> armRegionName 미포함)
+  let items = [];
+  try { items = await apiFetch({ serviceName:'Virtual Machines Licenses', productName, priceType:'Consumption' }, cur, 500, 3); }
+  catch (e) { console.warn('SW 라이선스 1차 조회 실패:', e); }
+  let chosen = window['_vmSwLicensePick'](items, vcpu);
+  // 2차 폴백: productName eq가 빗나간 경우 전체 라이선스 목록에서 키워드(모두 포함)로 매칭
+  if (!chosen) {
+    let all = [];
+    try { all = await apiFetch({ serviceName:'Virtual Machines Licenses', priceType:'Consumption' }, cur, 1000, 5); }
+    catch (e) { console.warn('SW 라이선스 2차 조회 실패:', e); }
+    const kws = String(productName).toLowerCase().split(' ').filter(Boolean);
+    const filtered = all.filter(it=>{ const p=(it.productName||'').toLowerCase(); return kws.every(k=>p.includes(k)); });
+    chosen = window['_vmSwLicensePick'](filtered, vcpu);
+  }
   if (!chosen) return { hourly:0, band:null };
   return { hourly: chosen.price, band: chosen };
 };
@@ -132,10 +146,11 @@ window['_resolve_Virtual_Machine'] = async function(row, cur) {
     const swProduct=VM_SW_PRODUCT[swType]||null;
     const instMeta=(VM_INSTANCE_CATALOG[row.options.series]||[]).find(i=>i.name===row.skuName);
     const vcpu=instMeta?Number(instMeta.vCPU):0;
-    let swHourly=0, swMatched=false;
+    let swHourly=0, swMatched=false, swBandLabel='';
     if(swProduct){
-      const sw=await window['_vmSwLicenseHourly'](row.region, swProduct, vcpu, cur);
+      const sw=await window['_vmSwLicenseHourly'](swProduct, vcpu, cur);
       swHourly=Number(sw.hourly)||0; swMatched=swHourly>0;
+      if(sw.band) swBandLabel=String(sw.band.skuName||sw.band.meterName||'');
     }
     const addSw=(it)=>{ if(!it||swHourly<=0) return it; const b=Number(it.unitPrice)+swHourly; return {...it,unitPrice:b,retailPrice:b,_swProduct:swProduct,_swHourly:swHourly,_computeHourly:Number(it.unitPrice)}; };
 
@@ -143,7 +158,7 @@ window['_resolve_Virtual_Machine'] = async function(row, cur) {
     if(row.paygItem){
       const tags=['PAYG'];if(row.sp1Item)tags.push('SP1Y');if(row.sp3Item)tags.push('SP3Y');if(row.ri1Item)tags.push('RI1Y');if(row.ri3Item)tags.push('RI3Y');
       let swMsg='';
-      if(swProduct) swMsg = swMatched ? ` +SW(${swType}):${swHourly.toFixed(4)}/h` : ` +SW(${swType}):미매칭`;
+      if(swProduct) swMsg = swMatched ? ` +SW(${swType}${swBandLabel?' / '+swBandLabel:''}):${swHourly.toFixed(4)}/h` : ` +SW(${swType}):미매칭`;
       setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}`);
     }
     else setStatus('error',`${row.skuName}: 매칭 없음 (${cItems.length}건)`);
