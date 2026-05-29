@@ -162,7 +162,7 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 ## 기술 정보
 
 - **API**: `https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview`
-- **CORS**: 직접 호출을 우선 시도하고, 실패 시 corsproxy.io → allorigins → codetabs → yacdn → cors.sh 순으로 폴백
+- **CORS**: 직접 호출(direct)을 우선 시도하고, 실패 시 corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 순으로 폴백
 - **외부 라이브러리**: SheetJS (xlsx), xlsx-js-style (모두 CDN 로드)
 - **프레임워크 의존성 없음** (Vanilla JavaScript)
 
