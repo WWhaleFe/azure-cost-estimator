@@ -121,7 +121,7 @@
   .badge { display: inline-block; padding: 2px 6px; border-radius: 2px; font-size: 11px; font-weight: 600; }
   .badge-loading { background: #fff4ce; color: #797673; }
   .badge-ok { background: #dff6dd; color: #107c10; }
-  .badge-error { background: #fde7e9; color: #d13438; }
+  .badge-error { background: #fde7e9; color: #a4262c; font-size: 13px; padding: 4px 12px; border: 1px solid #d13438; }
 
   .title-bar { background: #305496; color: #fff; padding: 12px 16px; font-size: 16px; font-weight: 700; border-radius: 2px; }
 
@@ -138,3 +138,22 @@
   .config-field input {
     width: 100%; padding: 5px 6px; border: 1px solid #d2d0ce; border-radius: 2px; font-size: 12px;
   }
+
+  /* 상단 중앙 토스트 알림 (경고/완료가 눈에 잘 띄도록) */
+  .toast-wrap {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+    align-items: center; pointer-events: none; max-width: 92vw;
+  }
+  .toast {
+    min-width: 260px; max-width: 92vw; padding: 12px 18px;
+    border-radius: 6px; font-size: 15px; font-weight: 600; line-height: 1.45;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18); pointer-events: auto;
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity .2s ease, transform .2s ease;
+    word-break: break-word;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast-error { background: #fde7e9; color: #a4262c; border: 1px solid #d13438; }
+  .toast-ok { background: #dff6dd; color: #0b6a0b; border: 1px solid #107c10; }
+  .toast-info { background: #eff6fc; color: #0050a0; border: 1px solid #0078d4; }
