@@ -193,6 +193,7 @@ async function _resolveStandardDisk(row, cur, diskType) {
     const payg=disk?Object.assign({},disk,{unitPrice:monthly/usH,retailPrice:monthly/usH,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly}):null;
     row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
     if(payg) setStatus('ok', row.skuName+' '+redundancy+' 완료 · '+monthly.toFixed(2)+'/월');
+    else if(redundancy==='ZRS') setStatus('error', row.skuName+' ZRS: 이 리전에서 ZRS 미제공일 수 있음 - 중복성을 LRS로 바꿔 보세요');
     else     setStatus('error', row.skuName+': 매칭 실패 - F12 확인');
   } catch(err){
     row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
@@ -289,6 +290,7 @@ async function _resolvePremiumSSD(row, cur) {
 
     const riStatus = supportsRI ? (ri1Item ? 'RI1Y 있음' : 'RI1Y 매칭실패') : 'RI 미지원(P30이상만)';
     if(payg) setStatus('ok', row.skuName+' '+redundancy+' 완료 [PAYG'+( ri1Item?', RI1Y':'')+'] · '+monthly.toFixed(2)+'/월');
+    else if(redundancy==='ZRS') setStatus('error', row.skuName+' ZRS: 이 리전에서 ZRS 미제공일 수 있음 - 중복성을 LRS로 바꿔 보세요');
     else      setStatus('error', row.skuName+': 매칭 실패 - F12 확인');
     console.log('[Premium SSD]', row.skuName, redundancy, '| PAYG:', payg?monthly.toFixed(2)+'/월':'없음', '|', riStatus);
   } catch(err){
