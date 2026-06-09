@@ -111,7 +111,7 @@ function render(){
       ${priceCells(ri3,!!row.ri3Item)}
       <td class="text-center whitespace-nowrap" style="background:#f8fbff;">
         <button class="row-action-btn" data-act="config" data-id="${row.id}" title="옵션 설정">⚙</button>
-        <button class="row-action-btn" data-act="dup" data-id="${row.id}" title="행 복사">⎘</button>
+        <button class="row-action-btn" data-act="dup" data-id="${row.id}" title="행 복사">⏎</button>
         <button class="row-action-btn danger" data-act="del" data-id="${row.id}" title="행 삭제">✕</button>
       </td>`;
     $body.appendChild(tr);
@@ -421,7 +421,7 @@ function _makeStepRenderer(r){
 function _bindConfigEvents(r,def){
   const $db=document.getElementById('configDirtyBadge');
   const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
-  const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
+  const clearDirty=()=>{configDirty=false;if($db)$bb.style.display='none';};
   clearDirty();
   const KEYS_REBUILD=[(def.instanceParentKey||null)].filter(Boolean);
   $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
@@ -441,7 +441,19 @@ function _bindConfigEvents(r,def){
   });
 }
 
-function setStatus(kind,msg){const cls=kind==='ok'?'badge badge-ok':kind==='error'?'badge badge-error':'badge badge-loading';$apiStatus.innerHTML=`<span class="${cls}">${escapeHtml(msg)}</span>`;}
+function setStatus(kind,msg){const cls=kind==='ok'?'badge badge-ok':kind==='error'?'badge badge-error':'badge badge-loading';$apiStatus.innerHTML=`<span class="${cls}">${escapeHtml(msg)}</span>`;if(kind==='error')showToast(msg,'error');}
+
+// 화면 상단 중앙에 잠깐 뗴다 사라지는 알림 (특히 경고가 눈에 잘 띄도록)
+function showToast(msg,kind){
+  kind=kind||'info';
+  var wrap=document.getElementById('toastWrap');
+  if(!wrap){wrap=document.createElement('div');wrap.id='toastWrap';wrap.className='toast-wrap';document.body.appendChild(wrap);}
+  var t=document.createElement('div');t.className='toast toast-'+kind;t.textContent=msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add('show');});
+  var dur=kind==='error'?6000:3500;
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},250);},dur);
+}
 
 // ================================================================
 // 엑셀 내보내기
@@ -455,7 +467,7 @@ const EXPORT_GROUPS=[
 ];
 function getEnabledGroups(){return EXPORT_GROUPS.filter(g=>{const c=document.getElementById(`chk-group-${g.key}`);return !c||c.checked;});}
 
-document.getElementById('btnExport').addEventListener('click',()=>{
+document.getElementById('btnExport').addEventListener('click',async ()=>{
   const cur=document.getElementById('currencySelect').value;
   const enabledGroups=getEnabledGroups();
   if(enabledGroups.length===0){alert('엑셀로 출력할 가격 그룹을 하나 이상 선택하세요.');return;}
@@ -502,7 +514,11 @@ document.getElementById('btnExport').addEventListener('click',()=>{
   const rsR=tri+2;ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rsR+3,c:tC-1}});
   ws['!freeze']={xSplit:0,ySplit:5,topLeftCell:'A6',activePane:'bottomLeft',state:'frozen'};
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Azure 견적');
-  XLSX.writeFile(wb,`azure-quote-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.xlsx`);
+  const base='azure-quote-'+new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const xlsxOut=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  const xlsxBlob=new Blob([xlsxOut],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const csvBlob=new Blob(['\ufeff'+_csvExportCurrentRows()],{type:'text/csv;charset=utf-8;'});
+  await _exportSaveFiles(base,xlsxBlob,csvBlob);
 });
 
 addRow();addRow();addRow();
@@ -712,6 +728,65 @@ async function _csvHandleUpload(file) {
   if (skippedRegion > 0) msg += ', 미지원 Region ' + skippedRegion + '행 제외';
   setStatus('ok', msg);
   alert(msg + '\n(1차 지원 서비스: ' + CSV_SUPPORTED_CATEGORIES.join(', ') + ')');
+}
+
+// ================================================================
+// 내보내기 보조 (v48): 현재 행을 CSV(불러오기 양식)로 직렬화 + 파일 저장
+// ================================================================
+function _csvExportCurrentRows() {
+  var lines = [];
+  lines.push(_csvRowToLine(CSV_HEADER));
+  rows.forEach(function (r) {
+    if (!r.serviceCategory) return;
+    var cat = r.serviceCategory;
+    var skuKey = CSV_SKU_OPTION_KEY[cat];
+    var opts = r.options || {};
+    var skuVal = skuKey ? (opts[skuKey] || '') : (r.skuName || '');
+    var optPairs = Object.keys(opts)
+      .filter(function (k) { return opts[k] !== '' && opts[k] !== null && opts[k] !== undefined; })
+      .map(function (k) { return k + '=' + opts[k]; })
+      .join('; ');
+    lines.push(_csvRowToLine([r.region || '', r.category || '', cat, skuVal, r.qty, r.usage, optPairs]));
+  });
+  lines.push('');
+  _csvBuildOptionGuide().forEach(function (l) { lines.push(l); });
+  return lines.join('\n');
+}
+
+function _downloadBlob(blob, filename) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function _writeBlobToDir(dir, name, blob) {
+  var fh = await dir.getFileHandle(name, { create: true });
+  var w = await fh.createWritable();
+  await w.write(blob);
+  await w.close();
+}
+
+// 엑셀 + CSV를 같은 이름(base)으로 저장. 폴더 선택 지원 브라우저는 경로 지정 가능, 그 외에는 다운로드 폴백.
+async function _exportSaveFiles(base, xlsxBlob, csvBlob) {
+  if (window.showDirectoryPicker) {
+    try {
+      var dir = await window.showDirectoryPicker();
+      await _writeBlobToDir(dir, base + '.xlsx', xlsxBlob);
+      await _writeBlobToDir(dir, base + '.csv', csvBlob);
+      setStatus('ok', '내보내기 완료 · ' + base + '.xlsx / .csv');
+      showToast('선택한 폴더에 저장했습니다: ' + base + '.xlsx, ' + base + '.csv', 'ok');
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') { setStatus('ok', '내보내기 취소됨'); return; }
+      // 권한 거부 등 → 다운로드 폴백
+    }
+  }
+  _downloadBlob(xlsxBlob, base + '.xlsx');
+  _downloadBlob(csvBlob, base + '.csv');
+  setStatus('ok', '내보내기 완료(다운로드) · ' + base + '.xlsx / .csv');
+  showToast('엑셀과 CSV를 함께 내려받았습니다: ' + base, 'ok');
 }
 
 document.getElementById('btnCsvTemplate').addEventListener('click', _csvDownloadTemplate);
