@@ -88,6 +88,16 @@ http://localhost:8000/
 
 상단 우측 "엑셀 내보내기" 버튼으로 견적표 전체를 xlsx 파일로 저장할 수 있습니다.
 
+### 6. CSV 양식으로 일괄 입력
+
+행이 많을 때 일일이 입력하는 대신, 정해진 양식의 CSV를 업로드하여 견적 행을 한 번에 만들 수 있습니다. (1차 지원 서비스: Virtual Machine, Disk, VPN Gateway)
+
+1. 상단 우측 **"CSV 양식 다운로드"** 버튼(엑셀 내보내기 왼쪽)을 눌러 빈 양식을 받습니다. 양식 컰럼은 `Region, 분류, ServiceCategory, SKU, Qty, Hours, Options` 이며, 파일 하단 `#` 줄에 서비스별 허용 옵션 값이 안내되어 있습니다.
+2. 양식을 채웁니다. `Options` 칸은 `키=값`을 세미콜론(;)으로 구분합니다(예: `os=Windows; tier=Standard; series=D-series v5`). `SKU` 칸에는 인스턴스/디스크/게이트웨이 이름을 넣습니다(프로비저닝형 디스크는 비움).
+3. **"CSV 불러오기"** 버튼으로 채운 파일을 업로드합니다. 행이 생성되고 각 행의 가격이 자동 조회됩니다. 기존 행이 있으면 교체할지 뒤에 추가할지 묻습니다.
+
+`#` 로 시작하는 줄과 빈 줄은 무시되며, 지원하지 않는 서비스나 Region 행은 건너뛰고 완료 후 제외 건수를 알려줍니다.
+
 ---
 
 ## 가격 표시 규칙
@@ -111,11 +121,11 @@ Storage 항목은 월 정액 청구이므로 사용량(Hours) 변경에 영향�
 
 HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로컬에서 실행"을 따라 로컬 웹서버로 띄우거나, GitHub Pages 등 호스팅된 주소로 접속하세요.
 
-### Q. 회사 컴퓨터에서 "✗ 외부 네트워크 차단" 메시지가 뜹니다
+### Q. 회사 컴퓨터에서 "✗ 외부 네트워크 차단" 메시지가 뜰니다
 
 회사 보안 정책 / 방화벽이 외부 도메인 접근을 차단하는 환경입니다. 화면 정중앙 모달에 표시되는 도메인 목록을 IT/보안팀에 전달하여 화이트리스트 추가를 요청하세요. 추가가 어려운 경우, 개인 환경에서 실행 후 엑셀로 내보내 사내 공유하는 방법을 권장합니다.
 
-### Q. "✗ 브라우저 차단" 메시지가 뜹니다
+### Q. "✗ 브라우저 차단" 메시지가 뜰니다
 
 광고 차단 확장(uBlock, AdGuard 등) 또는 보안 확장이 fetch를 가로막을 때 발생합니다. 다음을 시도해 보세요.
 
@@ -125,7 +135,7 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 
 ### Q. 가격이 실제 청구액과 다릅니다
 
-이 도구는 Azure Retail Prices API의 **공시 가격**을 표시합니다. EA 계약, CSP, 스타트업 크레딧 등 별도 할인은 반영되지 않습니다.
+이 도구는 Azure Retail Prices API의 **공시 가격**을 표시합니다. EA 계약, CSP, 스타트업 크레디트 등 별도 할인은 반영되지 않습니다.
 
 ### Q. 특정 SKU의 가격이 "-" 로 표시됩니다
 
@@ -152,7 +162,7 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
     │   ├── nat-gateway.js  sql-database.js  mysql.js  app-service.js
     │   └── bastion.js  azure-files.js  blob-storage.js
     ├── diagnostics.js             연결 진단, 환경별 안내 모달
-    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/부트스트랩
+    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/CSV/부트스트랩
 ```
 
 로드 순서: `js/core/config.js` → `js/core/network-layer.js` → `js/services/*.js`(15개, 순서 무관) → `js/core/service-categories.js`(병합) → `js/core/resolver-engine.js` → `js/diagnostics.js` → `js/ui-and-bootstrap.js`. 모두 `index.html`에서 일반 `<script>` 태그로 로드되며, 빌드 도구는 사용하지 않습니다.
