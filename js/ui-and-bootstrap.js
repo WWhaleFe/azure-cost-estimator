@@ -111,7 +111,7 @@ function render(){
       ${priceCells(ri3,!!row.ri3Item)}
       <td class="text-center whitespace-nowrap" style="background:#f8fbff;">
         <button class="row-action-btn" data-act="config" data-id="${row.id}" title="옵션 설정">⚙</button>
-        <button class="row-action-btn" data-act="dup" data-id="${row.id}" title="행 복사">⏎</button>
+        <button class="row-action-btn" data-act="dup" data-id="${row.id}" title="행 복사">⎘</button>
         <button class="row-action-btn danger" data-act="del" data-id="${row.id}" title="행 삭제">✕</button>
       </td>`;
     $body.appendChild(tr);
@@ -421,7 +421,7 @@ function _makeStepRenderer(r){
 function _bindConfigEvents(r,def){
   const $db=document.getElementById('configDirtyBadge');
   const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
-  const clearDirty=()=>{configDirty=false;if($db)$bb.style.display='none';};
+  const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
   const KEYS_REBUILD=[(def.instanceParentKey||null)].filter(Boolean);
   $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
@@ -443,7 +443,7 @@ function _bindConfigEvents(r,def){
 
 function setStatus(kind,msg){const cls=kind==='ok'?'badge badge-ok':kind==='error'?'badge badge-error':'badge badge-loading';$apiStatus.innerHTML=`<span class="${cls}">${escapeHtml(msg)}</span>`;if(kind==='error')showToast(msg,'error');}
 
-// 화면 상단 중앙에 잠깐 뗴다 사라지는 알림 (특히 경고가 눈에 잘 띄도록)
+// 화면 상단 중앙에 잠깐 떴다 사라지는 알림 (특히 경고가 눈에 잘 띄도록)
 function showToast(msg,kind){
   kind=kind||'info';
   var wrap=document.getElementById('toastWrap');
