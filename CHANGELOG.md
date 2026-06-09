@@ -2,9 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v47 — 2026-06-09
+- feat: ZRS 미지원 리전에서 디스크(표준 SSD·프리미엄 SSD) 가격 조회가 0건일 때, 막연한 "매칭 실패" 대신 "이 리전에서 ZRS 미제공일 수 있음 - 중복성을 LRS로 바꿔 보세요" 안내 메시지 표시
+- 배경: ZRS 관리 디스크는 가용성 영역이 있는 리전에서만 제공됨(예: Korea Central 지원, Korea South 미지원). 미지원 리전에서 ZRS를 고르면 가격이 비어 혼란스러웠음. 없는 가격을 지어내지 않고(하드코딩 없음) 원인·해결법만 안내
+- 영향 파일: js/services/disk.js, CHANGELOG.md
+- 검증: node --check 통과. 매칭 로직·LRS 경로 미변경(에러 메시지 분기에 ZRS 조건 1줄씩, 표준/프리미엄 각각 추가, 삭제 0줄). 커밋본과 로컬 정답본 byte 동일 확인. 실제 메시지 노출은 브라우저에서 ZRS×미지원 리전으로 확인 권장
+
 ## v46 — 2026-06-09
 - feat: CSV 양식 다운로드 + CSV 불러오기(일괄 입력) 기능 추가. 1차 지원 서비스 = Virtual Machine, Disk, VPN Gateway
-- feat: SKU를 별도 열로 분리(컰럼: Region, 분류, ServiceCategory, SKU, Qty, Hours, Options). 업로드 시 SKU 열을 서비스별 옵션 키로 매핑(VM=instance, Disk=diskInstance, VPN=sku). 프로비저닝형 디스크는 SKU 비움
+- feat: SKU를 별도 열로 분리(컬럼: Region, 분류, ServiceCategory, SKU, Qty, Hours, Options). 업로드 시 SKU 열을 서비스별 옵션 키로 매핑(VM=instance, Disk=diskInstance, VPN=sku). 프로비저닝형 디스크는 SKU 비움
 - feat: 양식 파일 하단에 옵션 사전(허용값)을 코드 정의(_svcDefs, VM_INSTANCE_CATALOG, DISK_CATALOG)에서 자동 생성해 # 주석으로 포함. 업로드 시 # 줄/빈 줄 무시
 - 안전장치: 지원 외 ServiceCategory 또는 미지원 Region 행은 건너뛰고 요약에 제외 건수 표시. 옵션 미일치는 가짜 숫자 없이 기존 resolver의 미매칭 처리로 위임(하드코딩 없음)
 - 영향 파일: index.html, js/ui-and-bootstrap.js, CHANGELOG.md, README.md
