@@ -33,9 +33,10 @@ function calcGroup(item,qty,usage){
   const u=Number(item.unitPrice);if(isNaN(u))return null;
   return{unit:u,monthly:u*qty*usage,year:u*qty*usage*12};
 }
-function priceCells(data,hasItem){
+function priceCells(data,hasItem,isManual){
   if(!hasItem||!data)return`<td class="cell-readonly"></td><td class="cell-readonly"></td><td class="cell-readonly"></td>`;
-  return`<td class="cell-readonly cell-ok">${fmtUnit(data.unit)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.monthly)}</td><td class="cell-readonly cell-ok">${fmtMoney(data.year)}</td>`;
+  const cls=isManual?'cell-readonly cell-ok cell-fill':'cell-readonly cell-ok';
+  return`<td class="${cls}">${fmtUnit(data.unit)}</td><td class="${cls}">${fmtMoney(data.monthly)}</td><td class="${cls}">${fmtMoney(data.year)}</td>`;
 }
 
 const SERVICE_CATEGORY_ORDER = [
@@ -104,12 +105,13 @@ function render(){
       <td class="cell-detail"><div class="detail-wrap">${escapeHtml(row.detail)||'<span style="color:#a19f9d;font-size:10px;">자동 생성됨</span>'}</div></td>
       <td><input type="number" min="0" step="any" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="qty" value="${row.qty}" /></td>
       <td><input type="number" min="0" step="1" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="usage" value="${row.usage}" placeholder="730" /></td>
-      ${priceCells(payg,!!row.paygItem)}
-      ${priceCells(sp1,!!row.sp1Item)}
-      ${priceCells(sp3,!!row.sp3Item)}
-      ${priceCells(ri1,!!row.ri1Item)}
-      ${priceCells(ri3,!!row.ri3Item)}
+      ${priceCells(payg,!!row.paygItem,!!(row.paygItem&&row.paygItem._manualFill))}
+      ${priceCells(sp1,!!row.sp1Item,!!(row.sp1Item&&row.sp1Item._manualFill))}
+      ${priceCells(sp3,!!row.sp3Item,!!(row.sp3Item&&row.sp3Item._manualFill))}
+      ${priceCells(ri1,!!row.ri1Item,!!(row.ri1Item&&row.ri1Item._manualFill))}
+      ${priceCells(ri3,!!row.ri3Item,!!(row.ri3Item&&row.ri3Item._manualFill))}
       <td class="text-center whitespace-nowrap" style="background:#f8fbff;">
+        <button class="row-action-btn" data-act="fill-empty" data-id="${row.id}" title="빈 절약/예약 칸을 용량제 값으로 채우기 (셀 더블클릭으로 개별 토글)">⊕</button>
         <button class="row-action-btn" data-act="config" data-id="${row.id}" title="옵션 설정">⚙</button>
         <button class="row-action-btn" data-act="dup" data-id="${row.id}" title="행 복사">⎘</button>
         <button class="row-action-btn danger" data-act="del" data-id="${row.id}" title="행 삭제">✕</button>
@@ -138,9 +140,10 @@ function updatePriceCells(row){
       tds[base+1].className='cell-readonly';tds[base+1].textContent='';
       tds[base+2].className='cell-readonly';tds[base+2].textContent='';
     }else{
-      tds[base].className='cell-readonly cell-ok';tds[base].textContent=fmtUnit(data.unit);
-      tds[base+1].className='cell-readonly cell-ok';tds[base+1].textContent=fmtMoney(data.monthly);
-      tds[base+2].className='cell-readonly cell-ok';tds[base+2].textContent=fmtMoney(data.year);
+      const cls=(item&&item._manualFill)?'cell-readonly cell-ok cell-fill':'cell-readonly cell-ok';
+      tds[base].className=cls;tds[base].textContent=fmtUnit(data.unit);
+      tds[base+1].className=cls;tds[base+1].textContent=fmtMoney(data.monthly);
+      tds[base+2].className=cls;tds[base+2].textContent=fmtMoney(data.year);
     }
   });
 }
@@ -159,6 +162,69 @@ function updateTotalsRow(){
 }
 
 // ================================================================
+// 빈 절약/예약 그룹에 용량제(PAYG) 값 채우기 / 더블클릭 토글 (수동 채움)
+//   - 대상은 절약 1·3년, 예약 1·3년 4개 그룹뿐 (용량제는 원본이라 제외)
+//   - 채운 항목에는 _manualFill 표시를 달아 원본 API 값과 구분
+//   - 원래 API로 값이 들어온 그룹(및 용량제)은 어떤 동작에도 건드리지 않음 → 보호
+// ================================================================
+var FILLABLE_GROUPS = [
+  { key: 'sp1', itemKey: 'sp1Item', tdBase: 12 },
+  { key: 'sp3', itemKey: 'sp3Item', tdBase: 15 },
+  { key: 'ri1', itemKey: 'ri1Item', tdBase: 18 },
+  { key: 'ri3', itemKey: 'ri3Item', tdBase: 21 },
+];
+function _makeManualFromPayg(payg) {
+  if (!payg) return null;
+  var copy = Object.assign({}, payg);
+  copy._manualFill = true;
+  return copy;
+}
+function _fillEmptyGroups(rowId) {
+  var r = rows.find(function (x) { return x.id === rowId; });
+  if (!r) return;
+  if (!r.paygItem) { setStatus('error', '용량제 값이 없어 채울 수 없습니다.'); return; }
+  var filled = 0;
+  FILLABLE_GROUPS.forEach(function (g) {
+    if (!r[g.itemKey]) { r[g.itemKey] = _makeManualFromPayg(r.paygItem); filled++; }
+  });
+  render();
+  var idx = rows.findIndex(function (x) { return x.id === rowId; }) + 1;
+  if (filled > 0) setStatus('ok', '행 #' + idx + ': 빈 칸 ' + filled + '개 그룹을 용량제 값으로 채움(수동)');
+  else setStatus('ok', '행 #' + idx + ': 채울 빈 칸이 없습니다(이미 값이 있음).');
+}
+function _toggleGroupFill(rowId, groupKey) {
+  var r = rows.find(function (x) { return x.id === rowId; });
+  if (!r) return;
+  var g = FILLABLE_GROUPS.find(function (x) { return x.key === groupKey; });
+  if (!g) return;
+  var cur = r[g.itemKey];
+  if (cur && !cur._manualFill) return;          // 원본 API 값 → 보호(토글 금지)
+  if (cur && cur._manualFill) {
+    r[g.itemKey] = null;                         // 채움 → 빈칸
+  } else {
+    if (!r.paygItem) { setStatus('error', '용량제 값이 없어 채울 수 없습니다.'); return; }
+    r[g.itemKey] = _makeManualFromPayg(r.paygItem); // 빈칸 → 채움
+  }
+  render();
+}
+
+// 가격 셀 더블클릭 → 그룹 단위 토글 (절약/예약 4개 그룹만, 용량제 제외)
+$body.addEventListener('dblclick', function (e) {
+  var td = e.target.closest('td');
+  if (!td) return;
+  var tr = td.closest('tr');
+  if (!tr || !tr.dataset.id) return;
+  var ci = td.cellIndex;
+  var grp = null;
+  if (ci >= 12 && ci <= 14) grp = 'sp1';
+  else if (ci >= 15 && ci <= 17) grp = 'sp3';
+  else if (ci >= 18 && ci <= 20) grp = 'ri1';
+  else if (ci >= 21 && ci <= 23) grp = 'ri3';
+  if (!grp) return;
+  _toggleGroupFill(Number(tr.dataset.id), grp);
+});
+
+// ================================================================
 // 이벤트 위임
 // ================================================================
 function _resetRow(r){
@@ -168,11 +234,14 @@ function _resetRow(r){
 
 $body.addEventListener('click', async (e)=>{
   const t = e.target;
+  if(t.dataset.act==='fill-empty'){_fillEmptyGroups(Number(t.dataset.id));return;}
   if(t.dataset.act==='dup'){duplicateRow(Number(t.dataset.id));return;}
   if(t.dataset.act==='del'){removeRow(Number(t.dataset.id));return;}
   if(t.dataset.act==='drag-handle')return;
   if(t.tagName==='SELECT'||t.tagName==='OPTION')return;
   if(t.dataset.act==='num'||t.dataset.act==='freetext')return;
+  const _ptd=t.closest('td');
+  if(_ptd&&_ptd.cellIndex>=9&&_ptd.cellIndex<=23)return; // 가격 셀 클릭은 옵션 패널을 열지 않음(더블클릭 토글용)
   const tr=t.closest('tr');
   if(!tr||!tr.dataset.id)return;
   const rowId=Number(tr.dataset.id);
@@ -477,7 +546,7 @@ document.getElementById('btnExport').addEventListener('click',async ()=>{
   data.push([]);
   const bH=['#','Region','분류','Service Category','Service name (SKU)','상세 사양','Qty','사용량(Hours)'];
   const gHdr=[...bH],gCol=[...bH];
-  enabledGroups.forEach(g=>{gHdr.push(g.label,'','');gCol.push('Unit Price','1 Monthly Cost','1 Year cost');});
+  enabledGroups.forEach(g=>{gHdr.push(g.label,'','');gCol.push('Unit Price','1 Monthly Cost','1 Year Cost');});
   data.push(gHdr);data.push(gCol);
   let totals={};enabledGroups.forEach(g=>{totals[g.totMKey]=0;totals[g.totYKey]=0;});
   rows.forEach((r,idx)=>{
