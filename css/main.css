@@ -95,6 +95,8 @@
   .cell-readonly.text-left { text-align: left; }
   .cell-readonly.text-center { text-align: center; }
   .cell-ok { background: #fff !important; color: #323130 !important; }
+  /* 용량제 값을 복사해 수동으로 채운 셀(절약/예약) — 시각 구분 */
+  .cell-fill { background: #fff4ce !important; color: #7a5b00 !important; font-style: italic; }
   .cell-drag {
     cursor: grab; background: #eef2f7; text-align: center;
     color: #6c757d; user-select: none; width: 24px;
