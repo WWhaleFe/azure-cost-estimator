@@ -761,6 +761,7 @@ function _downloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
+// 디렉터리 핸들에 blob 1개 쓰기 (엑셀과 같은 폴더에 CSV 자동 저장용)
 async function _writeBlobToDir(dir, name, blob) {
   var fh = await dir.getFileHandle(name, { create: true });
   var w = await fh.createWritable();
@@ -768,21 +769,75 @@ async function _writeBlobToDir(dir, name, blob) {
   await w.close();
 }
 
-// 엑셀 + CSV를 같은 이름(base)으로 저장. 폴더 선택 지원 브라우저는 경로 지정 가능, 그 외에는 다운로드 폴백.
+// 파일 저장 위치 선택 창(showSaveFilePicker)으로 blob 1개 저장. 같은 폴더 핸들을 받으면 in 으로 재사용.
+async function _saveBlobWithPicker(suggestedName, blob, opts) {
+  opts = opts || {};
+  var pickerOpts = { suggestedName: suggestedName };
+  if (opts.startIn) pickerOpts.startIn = opts.startIn;
+  var ext = (suggestedName.split('.').pop() || '').toLowerCase();
+  if (ext === 'xlsx') {
+    pickerOpts.types = [{ description: 'Excel 통합 문서', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }];
+  } else if (ext === 'csv') {
+    pickerOpts.types = [{ description: 'CSV 파일', accept: { 'text/csv': ['.csv'] } }];
+  }
+  var handle = await window.showSaveFilePicker(pickerOpts);
+  var w = await handle.createWritable();
+  await w.write(blob);
+  await w.close();
+  return handle;
+}
+
+// 엑셀 + CSV를 같은 이름(base)으로 저장.
+// 1) showSaveFilePicker 지원: 엑셀 저장 위치를 고르면 CSV는 같은 폴더에 자동 저장 시도, 안 되면 CSV도 위치 선택.
+// 2) 미지원: 두 파일 다운로드. 어떤 단계에서 오류가 나도 마지막엔 반드시 다운로드로 폴백.
 async function _exportSaveFiles(base, xlsxBlob, csvBlob) {
-  if (window.showDirectoryPicker) {
+  if (window.showSaveFilePicker) {
+    var xlsxHandle = null;
     try {
-      var dir = await window.showDirectoryPicker();
-      await _writeBlobToDir(dir, base + '.xlsx', xlsxBlob);
-      await _writeBlobToDir(dir, base + '.csv', csvBlob);
-      setStatus('ok', '내보내기 완료 · ' + base + '.xlsx / .csv');
-      showToast('선택한 폴더에 저장했습니다: ' + base + '.xlsx, ' + base + '.csv', 'ok');
-      return;
+      xlsxHandle = await _saveBlobWithPicker(base + '.xlsx', xlsxBlob);
     } catch (e) {
       if (e && e.name === 'AbortError') { setStatus('ok', '내보내기 취소됨'); return; }
-      // 권한 거부 등 → 다운로드 폴백
+      // 그 외 오류 → 둘 다 다운로드로 폴백
+      _downloadBlob(xlsxBlob, base + '.xlsx');
+      _downloadBlob(csvBlob, base + '.csv');
+      setStatus('ok', '내보내기 완료(다운로드) · ' + base + '.xlsx / .csv');
+      showToast('저장 창을 쓸 수 없어 다운로드로 받았습니다: ' + base, 'info');
+      return;
+    }
+
+    // 엑셀이 저장된 같은 폴더에 CSV를 같은 이름으로 자동 저장 시도
+    if (xlsxHandle && window.FileSystemHandle && xlsxHandle.getParent) {
+      try {
+        var parent = await xlsxHandle.getParent();
+        await _writeBlobToDir(parent, base + '.csv', csvBlob);
+        setStatus('ok', '내보내기 완료 · ' + base + '.xlsx / .csv');
+        showToast('선택한 위치에 저장했습니다: ' + base + '.xlsx, ' + base + '.csv', 'ok');
+        return;
+      } catch (e2) { /* getParent 미지원/권한 → 아래에서 CSV도 위치 선택 */ }
+    }
+
+    // 같은 폴더 자동 저장이 안 되면 CSV 저장 위치를 한 번 더 선택 (엑셀과 같은 폴더에서 시작)
+    try {
+      await _saveBlobWithPicker(base + '.csv', csvBlob, { startIn: xlsxHandle || undefined });
+      setStatus('ok', '내보내기 완료 · ' + base + '.xlsx / .csv');
+      showToast('엑셀과 CSV를 저장했습니다: ' + base, 'ok');
+      return;
+    } catch (e3) {
+      if (e3 && e3.name === 'AbortError') {
+        // CSV 저장만 취소 → CSV는 다운로드로 보장
+        _downloadBlob(csvBlob, base + '.csv');
+        setStatus('ok', '엑셀 저장 완료 · CSV는 다운로드 · ' + base);
+        showToast('엑셀은 저장, CSV는 다운로드로 받았습니다: ' + base, 'info');
+        return;
+      }
+      _downloadBlob(csvBlob, base + '.csv');
+      setStatus('ok', '엑셀 저장 완료 · CSV는 다운로드 · ' + base);
+      showToast('CSV는 다운로드로 받았습니다: ' + base, 'info');
+      return;
     }
   }
+
+  // showSaveFilePicker 미지원 브라우저 → 기존 다운로드
   _downloadBlob(xlsxBlob, base + '.xlsx');
   _downloadBlob(csvBlob, base + '.csv');
   setStatus('ok', '내보내기 완료(다운로드) · ' + base + '.xlsx / .csv');
