@@ -508,3 +508,216 @@ document.getElementById('btnExport').addEventListener('click',()=>{
 addRow();addRow();addRow();
 setStatus('ok','준비 완료');
 bootDiagnostics();
+
+// ================================================================
+// CSV 양식 다운로드 / 업로드 (v46)
+// 1차 지원: Virtual Machine, Disk, VPN Gateway
+// SKU 열은 서비스별 옵션 키로 매핑(VM=instance, Disk=diskInstance, VPN=sku)
+// ================================================================
+var CSV_SUPPORTED_CATEGORIES = ['Virtual Machine', 'Disk', 'VPN Gateway'];
+var CSV_SKU_OPTION_KEY = { 'Virtual Machine': 'instance', 'Disk': 'diskInstance', 'VPN Gateway': 'sku' };
+var CSV_HEADER = ['Region', '분류', 'ServiceCategory', 'SKU', 'Qty', 'Hours', 'Options'];
+
+function _csvEscapeField(v) {
+  var s = (v === null || v === undefined) ? '' : String(v);
+  if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+function _csvRowToLine(arr) { return arr.map(_csvEscapeField).join(','); }
+
+function _csvBuildOptionGuide() {
+  var lines = [];
+  lines.push('# [옵션 사전] 아래 # 줄은 업로드 시 무시됩니다. Options 칸은 키=값을 세미콜론(;)으로 구분하세요.');
+  var defs = (typeof SERVICE_CATEGORIES !== 'undefined') ? SERVICE_CATEGORIES : {};
+
+  // Virtual Machine
+  var vm = defs['Virtual Machine'];
+  if (vm && vm.steps) {
+    var vmParts = [];
+    vm.steps.forEach(function (s) {
+      if (s.key === 'series') return;
+      if (Array.isArray(s.options)) vmParts.push(s.key + '=[' + s.options.join('|') + ']');
+      else if (s.type === 'number') vmParts.push(s.key + '=숫자');
+    });
+    lines.push('# Virtual Machine | SKU=인스턴스(예: D4s_v5) | Options: ' + vmParts.join('; '));
+    var series = (typeof VM_INSTANCE_CATALOG !== 'undefined') ? Object.keys(VM_INSTANCE_CATALOG) : [];
+    lines.push('#   series=[' + series.join('|') + '] (SKU는 선택한 series에 속한 인스턴스여야 함)');
+    series.forEach(function (sr) {
+      lines.push('#     ' + sr + ': ' + VM_INSTANCE_CATALOG[sr].map(function (i) { return i.name; }).join(', '));
+    });
+  }
+
+  // Disk (전용 패널 — 종류별 옵션이 다름)
+  if (typeof DISK_SUBTYPE_MAP !== 'undefined') {
+    lines.push('# Disk | Options 필수: diskSubType=[' + Object.keys(DISK_SUBTYPE_MAP).join('|') + ']');
+    lines.push('#   용량형(표준 HDD/표준 SSD/프리미엄 SSD): SKU=디스크 크기 SKU; Options: redundancy=[LRS|ZRS](HDD는 LRS 고정), snapshotGB=숫자, confEncryptionEnabled=[비활성 (기본)|활성화]');
+    if (typeof DISK_CATALOG !== 'undefined') {
+      Object.keys(DISK_CATALOG).forEach(function (st) {
+        lines.push('#     ' + st + ': ' + DISK_CATALOG[st].map(function (d) { return d.name; }).join(', '));
+      });
+    }
+    lines.push('#   표준 HDD/SSD 추가: transactionUnits=숫자(만 단위)');
+    lines.push('#   프리미엄 SSD 추가: burstingEnabled=[비활성 (기본)|활성화 (P30 이상)] (활성화 시 burstMaxIOPS, burstMaxThroughputMBs, burstMinsPerDay, burstWorkDaysPerMonth)');
+    lines.push('#   프로비저닝형(프리미엄 SSD v2/Ultra Disk): SKU는 비움; Options: diskSizeGiB=숫자, provisionedIOPS=숫자, provisionedMBps=숫자');
+  }
+
+  // VPN Gateway
+  var vpn = defs['VPN Gateway'];
+  if (vpn && vpn.steps) {
+    var vpnParts = [];
+    vpn.steps.forEach(function (s) {
+      if (s.key === 'sku') return;
+      if (Array.isArray(s.options)) vpnParts.push(s.key + '=[' + s.options.join('|') + ']');
+      else if (s.type === 'number') vpnParts.push(s.key + '=숫자');
+    });
+    lines.push('# VPN Gateway | SKU=게이트웨이 SKU(예: VpnGw1) | Options: ' + vpnParts.join('; '));
+  }
+
+  if (typeof REGION_LABEL !== 'undefined') {
+    lines.push('# Region 코드: ' + Object.keys(REGION_LABEL).join(', '));
+  }
+  return lines;
+}
+
+function _csvDownloadTemplate() {
+  var lines = [];
+  lines.push(_csvRowToLine(CSV_HEADER));
+  lines.push(_csvRowToLine(['koreacentral', 'Web 서버', 'Virtual Machine', 'D4s_v5', '2', '730', 'os=Windows; tier=Standard; license=라이선스 포함; series=D-series v5; swType=(OS Only)']));
+  lines.push(_csvRowToLine(['koreacentral', 'DB 디스크', 'Disk', 'P30', '1', '730', 'diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0']));
+  lines.push(_csvRowToLine(['koreacentral', '로그 디스크', 'Disk', '', '1', '730', 'diskSubType=Ultra Disk; diskSizeGiB=1024; provisionedIOPS=2000; provisionedMBps=200']));
+  lines.push(_csvRowToLine(['koreacentral', '본사 VPN', 'VPN Gateway', 'VpnGw1', '1', '730', 'gatewayHours=730; vnetTransferType=VNET 간; vnetGB=0']));
+  lines.push('');
+  _csvBuildOptionGuide().forEach(function (l) { lines.push(l); });
+
+  var csv = lines.join('\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'azure-quote-template.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function _csvParseOptions(str) {
+  var o = {};
+  if (!str) return o;
+  String(str).split(';').forEach(function (part) {
+    var p = part.trim();
+    if (!p) return;
+    var eq = p.indexOf('=');
+    if (eq < 0) return;
+    var k = p.slice(0, eq).trim();
+    var v = p.slice(eq + 1).trim();
+    if (k) o[k] = v;
+  });
+  return o;
+}
+
+function _csvNormalizeRegion(v) {
+  var s = String(v || '').trim();
+  if (!s) return '';
+  if (typeof REGION_LABEL === 'undefined') return s;
+  if (REGION_LABEL[s]) return s;
+  var low = s.toLowerCase();
+  for (var code in REGION_LABEL) {
+    if (REGION_LABEL[code].toLowerCase() === low) return code;
+  }
+  return '';
+}
+
+async function _csvHandleUpload(file) {
+  var text;
+  try { text = await file.text(); }
+  catch (e) { alert('파일을 읽지 못했습니다: ' + e.message); return; }
+
+  var aoa;
+  try {
+    var wb = XLSX.read(text, { type: 'string' });
+    var ws = wb.Sheets[wb.SheetNames[0]];
+    aoa = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false, raw: false });
+  } catch (e) { alert('CSV 해석에 실패했습니다: ' + e.message); return; }
+
+  var headerIdx = -1;
+  for (var i = 0; i < aoa.length; i++) {
+    var first = String((aoa[i] && aoa[i][0]) || '').trim().toLowerCase();
+    if (first === 'region') { headerIdx = i; break; }
+  }
+  if (headerIdx < 0) { alert('헤더 행(Region, 분류, ServiceCategory, SKU, Qty, Hours, Options)을 찾지 못했습니다.'); return; }
+
+  var dataRows = [];
+  for (var r = headerIdx + 1; r < aoa.length; r++) {
+    var rowArr = aoa[r] || [];
+    var c0 = String(rowArr[0] || '').trim();
+    if (!c0) continue;
+    if (c0.charAt(0) === '#') continue;
+    dataRows.push(rowArr);
+  }
+  if (dataRows.length === 0) { alert('불러올 데이터 행이 없습니다.'); return; }
+
+  var replace = true;
+  var hasExisting = rows.some(function (r) { return r.serviceCategory || r.skuName || (r.options && Object.keys(r.options).length > 0); });
+  if (hasExisting) {
+    replace = confirm('기존 행을 모두 비우고 불러올까요?\n확인 = 교체, 취소 = 기존 행 뒤에 추가');
+  }
+  if (replace) { rows = []; activeConfigRowId = null; closeConfig(); }
+
+  var created = 0, skippedCat = 0, skippedRegion = 0;
+  var newRows = [];
+  dataRows.forEach(function (arr) {
+    var region = _csvNormalizeRegion(arr[0]);
+    var category = String(arr[1] || '').trim();
+    var serviceCategory = String(arr[2] || '').trim();
+    var sku = String(arr[3] || '').trim();
+    var qty = Number(arr[4]); if (!isFinite(qty) || qty <= 0) qty = 1;
+    var hours = Number(arr[5]); if (!isFinite(hours) || hours <= 0) hours = 730;
+    var opts = _csvParseOptions(arr[6]);
+
+    if (CSV_SUPPORTED_CATEGORIES.indexOf(serviceCategory) < 0) { skippedCat++; return; }
+    if (!region) { skippedRegion++; return; }
+
+    var row = blankRow();
+    row.region = region;
+    row.category = category;
+    row.serviceCategory = serviceCategory;
+    row.qty = qty;
+    row.usage = hours;
+    row.options = opts;
+    var skuKey = CSV_SKU_OPTION_KEY[serviceCategory];
+    if (sku && skuKey) row.options[skuKey] = sku;
+    newRows.push(row);
+    created++;
+  });
+
+  rows = rows.concat(newRows);
+  render();
+
+  setStatus('loading', 'CSV 불러오기: 가격 조회 중... (0/' + newRows.length + ')');
+  var done = 0;
+  for (var k = 0; k < newRows.length; k++) {
+    var rr = newRows[k];
+    buildSkuAndDetail(rr);
+    try { await tryResolveItem(rr); } catch (e) { /* 개별 행 실패는 각 resolver가 상태로 처리 */ }
+    done++;
+    setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + done + '/' + newRows.length + ')');
+  }
+  render();
+
+  var msg = 'CSV 불러오기 완료: ' + created + '행 생성';
+  if (skippedCat > 0) msg += ', 미지원 서비스 ' + skippedCat + '행 제외';
+  if (skippedRegion > 0) msg += ', 미지원 Region ' + skippedRegion + '행 제외';
+  setStatus('ok', msg);
+  alert(msg + '\n(1차 지원 서비스: ' + CSV_SUPPORTED_CATEGORIES.join(', ') + ')');
+}
+
+document.getElementById('btnCsvTemplate').addEventListener('click', _csvDownloadTemplate);
+document.getElementById('btnCsvImport').addEventListener('click', function () { document.getElementById('fileCsvImport').click(); });
+document.getElementById('fileCsvImport').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  if (f) _csvHandleUpload(f);
+  e.target.value = '';
+});
