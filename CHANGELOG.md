@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v46 — 2026-06-09
+- feat: CSV 양식 다운로드 + CSV 불러오기(일괄 입력) 기능 추가. 1차 지원 서비스 = Virtual Machine, Disk, VPN Gateway
+- feat: SKU를 별도 열로 분리(컰럼: Region, 분류, ServiceCategory, SKU, Qty, Hours, Options). 업로드 시 SKU 열을 서비스별 옵션 키로 매핑(VM=instance, Disk=diskInstance, VPN=sku). 프로비저닝형 디스크는 SKU 비움
+- feat: 양식 파일 하단에 옵션 사전(허용값)을 코드 정의(_svcDefs, VM_INSTANCE_CATALOG, DISK_CATALOG)에서 자동 생성해 # 주석으로 포함. 업로드 시 # 줄/빈 줄 무시
+- 안전장치: 지원 외 ServiceCategory 또는 미지원 Region 행은 건너뛰고 요약에 제외 건수 표시. 옵션 미일치는 가짜 숫자 없이 기존 resolver의 미매칭 처리로 위임(하드코딩 없음)
+- 영향 파일: index.html, js/ui-and-bootstrap.js, CHANGELOG.md, README.md
+- 검증: node --check 통과(ui-and-bootstrap.js). DOM id(btnCsvTemplate/btnCsvImport/fileCsvImport) ↔ getElementById 일치 확인. 실제 업로드 동작·가격 조회는 prices.azure.com 직접 호출이 이 환경에서 막혀 브라우저에서 최종 확인 필요
+
 ## v45 — 2026-05-29
 - fix: VM 유형(SQL Server/BizTalk) 라이선스가 "미매칭"으로 가산되지 않던 문제 수정
 - 원인: 라이선스 미터는 리전 비종속(global)인데 armRegionName=리전 필터를 넣어 조회 결과가 0건이었음
@@ -18,16 +26,3 @@
 
 ## v43 — 2026-05-29
 - docs: README "기술 정보"의 CORS 폴백 목록을 실제 설정과 일치시킴
-- 변경 내용: 존재하지 않는 yacdn·cors.sh 제거, 실제 프록시 순서(direct → corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in) 반영
-- 영향 파일: README.md, CHANGELOG.md
-- 검증: 라이브 파일 js/core/config.js의 CORS_PROXIES 배열을 직접 대조. JS 미변경
-
-## v42 — 2026-05-29
-- refactor: 미사용 고아 파일 제거 (루트 js/config.js, js/network-layer.js)
-- docs: README "파일 구조" 섹션을 실제 js/core + js/services 구조로 동기화 (존재하지 않는 js/matchers.js 언급 제거)
-- 영향 파일:
-  - js/config.js (삭제)
-  - js/network-layer.js (삭제)
-  - README.md (수정)
-  - CHANGELOG.md (신규)
-- 검증: index.html이 두 고아 파일을 로드하지 않음을 직접 확인 (저장소 유일 HTML 진입점, <script>는 js/core 경로만 참조). 라이브 경로(js/core, js/services) 파일은 변경하지 않음
