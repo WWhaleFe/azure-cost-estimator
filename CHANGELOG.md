@@ -8,8 +8,8 @@
 - feat: Remark 내용을 단일 소스(REMARK_ITEMS)로 통합 — 본문 목록과 팝업이 같은 배열을 렌더링하므로 한 곳만 수정하면 둘 다 반영
 - feat: 본문 Remark 폰트 확대(12→14px, 제목 15px)로 가독성 개선
 - feat: 팝업은 내용 길이에 따라 자동 크기 조절(width min(720px,92vw), 최대 높이 85vh, 길면 본문만 스크롤)로 잘림 방지
-- 영향 파일: index.html, css/main.css, js/ui-and-bootstrap.js, CHANGELOG.md
-- 검증: node --check 통과. index.html의 신규 DOM id(remarkList, remarkModalList, remarkModalOverlay, btnRemarkClose, btnRemarkCloseFoot, btnRemarkHideToday, btnRemarkOpen) ↔ getElementById 일치 확인. 기존 하드코딩 li 제거(0건). 가격/조회 로직 미변경. 커밋본과 로컬 정답본 byte 동일 확인. 실제 팝업 표시·하루 숨김은 브라우저에서 확인 권장
+- 영향 파일: index.html, css/main.css, js/core/remark.js(신규), CHANGELOG.md
+- 검증: node --check 통과. 신규 파일 js/core/remark.js를 index.html 로드 순서(8번)에 등록. index.html의 신규 DOM id(remarkList, remarkModalList, remarkModalOverlay, btnRemarkClose, btnRemarkCloseFoot, btnRemarkHideToday, btnRemarkOpen) ↔ getElementById 일치 확인. 가격/조회 로직 미변경. 커밋본과 로컬 정답본 byte 동일 확인. 실제 팝업 표시·하루 숨김은 브라우저에서 확인 권장
 
 ## v50 — 2026-06-09
 - feat: 각 행 Action에 "빈 칸 채우기(⊕)" 버튼 추가 — 비어 있는 절약 1·3년, 예약 1·3년 그룹에 용량제(PAYG) 값을 복사해 채움(수동)
