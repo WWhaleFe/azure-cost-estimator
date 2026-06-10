@@ -136,16 +136,30 @@
     <div id="configContent" class="config-grid"></div>
   </div>
 
-  <div class="mt-4 bg-white border border-[#e1dfdd] p-3 rounded-sm text-xs text-[#323130] leading-relaxed">
-    <p class="font-semibold mb-2">[Remark]</p>
-    <ol class="list-decimal ml-5 space-y-0.5 text-[#605e5c]">
-      <li>"분류"는 자유 입력 필드입니다.</li>
-      <li>Service Category 선택 시 옵션 패널이 표 아래에 펼쳐집니다.</li>
-      <li>가격 그룹 5종: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.</li>
-      <li>사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours.</li>
-      <li><strong>엑셀 내보내기</strong>: 헤더의 체크박스(☑ 텍스트 앞)를 해제하면 해당 열이 엑셀에서 제외됩니다.</li>
-      <li>Action: ⊕ 빈 절약·예약 칸을 용량제 값으로 채우기(수동), ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경. 채운 셀은 더블클릭으로 채움↔빈칸 토글.</li>
-    </ol>
+  <!-- 본문 Remark: 내용은 ui-and-bootstrap.js의 REMARK_ITEMS 한 곳에서 렌더링(팝업과 동일 소스) -->
+  <div class="mt-4 bg-white border border-[#e1dfdd] p-3 rounded-sm remark-box leading-relaxed">
+    <div class="flex items-center justify-between mb-2">
+      <p class="font-semibold remark-heading">[Remark]</p>
+      <button id="btnRemarkOpen" class="btn btn-secondary" style="padding:4px 12px;font-size:13px;">안내 다시 보기</button>
+    </div>
+    <ol id="remarkList" class="remark-list list-decimal ml-5"></ol>
+  </div>
+</div>
+
+<!-- 첫 진입 안내 팝업 (내용은 REMARK_ITEMS 한 곳에서 렌더링) -->
+<div id="remarkModalOverlay" class="remark-overlay" style="display:none;">
+  <div class="remark-modal" role="dialog" aria-modal="true" aria-label="안내">
+    <div class="remark-modal-head">
+      <span class="remark-modal-title">[Remark] 사용 안내</span>
+      <button id="btnRemarkClose" class="remark-modal-x" title="닫기" aria-label="닫기">✕</button>
+    </div>
+    <div class="remark-modal-body">
+      <ol id="remarkModalList" class="remark-list list-decimal"></ol>
+    </div>
+    <div class="remark-modal-foot">
+      <button id="btnRemarkHideToday" class="btn btn-secondary">오늘 하루 보지 않기</button>
+      <button id="btnRemarkCloseFoot" class="btn btn-primary">닫기</button>
+    </div>
   </div>
 </div>
 

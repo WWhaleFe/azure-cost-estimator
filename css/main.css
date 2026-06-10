@@ -159,3 +159,44 @@
   .toast-error { background: #fde7e9; color: #a4262c; border: 1px solid #d13438; }
   .toast-ok { background: #dff6dd; color: #0b6a0b; border: 1px solid #107c10; }
   .toast-info { background: #eff6fc; color: #0050a0; border: 1px solid #0078d4; }
+
+  /* ===== Remark 본문(폰트 확대) + 첫 진입 안내 팝업 ===== */
+  .remark-box { font-size: 14px; color: #323130; }
+  .remark-heading { font-size: 15px; color: #1f3864; margin: 0; }
+  .remark-list { margin: 0; padding-left: 1.25rem; }
+  .remark-list li { font-size: 14px; line-height: 1.7; color: #323130; margin-top: 2px; }
+  .remark-list li + li { margin-top: 6px; }
+  .remark-list strong { color: #1f3864; }
+
+  .remark-overlay {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(31, 31, 31, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .remark-modal {
+    background: #fff; border-radius: 6px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+    width: min(720px, 92vw); max-height: 85vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .remark-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; background: #305496; color: #fff; flex-shrink: 0;
+  }
+  .remark-modal-title { font-size: 16px; font-weight: 700; }
+  .remark-modal-x {
+    background: transparent; border: none; color: #fff; cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 2px 8px; border-radius: 4px;
+  }
+  .remark-modal-x:hover { background: rgba(255, 255, 255, 0.18); }
+  .remark-modal-body {
+    padding: 18px 22px; overflow-y: auto; flex: 1 1 auto;
+  }
+  .remark-modal-body .remark-list { padding-left: 1.4rem; }
+  .remark-modal-body .remark-list li { font-size: 14px; line-height: 1.75; margin-top: 8px; }
+  .remark-modal-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 18px; border-top: 1px solid #e1dfdd; background: #faf9f8; flex-shrink: 0;
+  }

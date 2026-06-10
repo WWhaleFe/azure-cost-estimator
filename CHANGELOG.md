@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v51 — 2026-06-10
+- feat: [Remark] 안내를 첫 진입 시 팝업으로 표시. 팝업 상단에 닫기(✕), 하단에 "오늘 하루 보지 않기"·"닫기" 버튼 제공
+- feat: "오늘 하루 보지 않기"는 같은 브라우저에 당일만 기억(localStorage, 날짜 키). 다음 날 다시 표시. 본문에는 "안내 다시 보기" 버튼 추가
+- feat: Remark 내용을 단일 소스(REMARK_ITEMS)로 통합 — 본문 목록과 팝업이 같은 배열을 렌더링하므로 한 곳만 수정하면 둘 다 반영
+- feat: 본문 Remark 폰트 확대(12→14px, 제목 15px)로 가독성 개선
+- feat: 팝업은 내용 길이에 따라 자동 크기 조절(width min(720px,92vw), 최대 높이 85vh, 길면 본문만 스크롤)로 잘림 방지
+- 영향 파일: index.html, css/main.css, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: node --check 통과. index.html의 신규 DOM id(remarkList, remarkModalList, remarkModalOverlay, btnRemarkClose, btnRemarkCloseFoot, btnRemarkHideToday, btnRemarkOpen) ↔ getElementById 일치 확인. 기존 하드코딩 li 제거(0건). 가격/조회 로직 미변경. 커밋본과 로컬 정답본 byte 동일 확인. 실제 팝업 표시·하루 숨김은 브라우저에서 확인 권장
+
 ## v50 — 2026-06-09
 - feat: 각 행 Action에 "빈 칸 채우기(⊕)" 버튼 추가 — 비어 있는 절약 1·3년, 예약 1·3년 그룹에 용량제(PAYG) 값을 복사해 채움(수동)
 - feat: 수동으로 채운 셀은 배경색(cell-fill, 앰버)으로 구분 표시
