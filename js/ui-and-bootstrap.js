@@ -208,6 +208,42 @@ function _toggleGroupFill(rowId, groupKey) {
   render();
 }
 
+// 모든 행 일괄 처리 — 빈 절약/예약 칸을 용량제 값으로 채우기
+//   용량제가 있는 행만 대상. 원본 API 값이 있는 그룹은 건드리지 않음(빈 그룹에만 채움).
+function _fillAllEmptyGroups() {
+  var filledRows = 0, filledGroups = 0, noPaygRows = 0;
+  rows.forEach(function (r) {
+    if (!r.paygItem) { if (r.serviceCategory) noPaygRows++; return; }
+    var any = 0;
+    FILLABLE_GROUPS.forEach(function (g) {
+      if (!r[g.itemKey]) { r[g.itemKey] = _makeManualFromPayg(r.paygItem); filledGroups++; any++; }
+    });
+    if (any) filledRows++;
+  });
+  render();
+  var msg = '전체 채우기: ' + filledRows + '개 행, ' + filledGroups + '개 그룹을 용량제 값으로 채움(수동)';
+  if (noPaygRows > 0) msg += ' · 용량제 없는 ' + noPaygRows + '개 행 제외';
+  if (filledGroups === 0) msg = '전체 채우기: 채울 빈 칸이 없습니다(이미 값이 있거나 용량제 없음).';
+  setStatus('ok', msg);
+}
+
+// 모든 행 일괄 처리 — 수동으로 채운 절약/예약 값만 비우기
+//   _manualFill 표시가 달린 값만 제거. 용량제와 원본 API 값은 그대로 보존.
+function _clearAllManualFills() {
+  var clearedGroups = 0, clearedRows = 0;
+  rows.forEach(function (r) {
+    var any = 0;
+    FILLABLE_GROUPS.forEach(function (g) {
+      var cur = r[g.itemKey];
+      if (cur && cur._manualFill) { r[g.itemKey] = null; clearedGroups++; any++; }
+    });
+    if (any) clearedRows++;
+  });
+  render();
+  if (clearedGroups === 0) setStatus('ok', '전체 지우기: 지울 수동 입력 값이 없습니다.');
+  else setStatus('ok', '전체 지우기: ' + clearedRows + '개 행, ' + clearedGroups + '개 그룹의 수동 입력 값을 지움(원본 값은 유지)');
+}
+
 // 가격 셀 더블클릭 → 그룹 단위 토글 (절약/예약 4개 그룹만, 용량제 제외)
 $body.addEventListener('dblclick', function (e) {
   var td = e.target.closest('td');
@@ -278,6 +314,8 @@ $body.addEventListener('input',(e)=>{
 });
 
 document.getElementById('btnAddRow').addEventListener('click',addRow);
+document.getElementById('btnFillAll').addEventListener('click',_fillAllEmptyGroups);
+document.getElementById('btnClearAll').addEventListener('click',_clearAllManualFills);
 document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   const prev=e.target._prevValue||'KRW';clearCacheForCurrency(prev);e.target._prevValue=e.target.value;
   for(const r of rows){r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null;}
