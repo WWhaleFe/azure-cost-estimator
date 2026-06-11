@@ -120,8 +120,10 @@
     </table>
   </div>
 
-  <div class="mt-2">
-    <button id="btnAddRow" class="btn-add-row">+ 행 추가</button>
+  <div class="mt-2 flex flex-wrap gap-2 items-center">
+    <button id="btnAddRow" class="btn-add-row" style="width:auto;flex:1 1 auto;">+ 행 추가</button>
+    <button id="btnFillAll" class="btn btn-secondary" title="모든 행의 빈 절약·예약 칸을 용량제 값으로 한 번에 채웁니다(원본 값은 유지).">⊕ 전체 채우기</button>
+    <button id="btnClearAll" class="btn btn-secondary" title="수동으로 채운 절약·예약 값을 모든 행에서 한 번에 지웁니다(원본 값은 유지).">전체 지우기</button>
   </div>
 
   <div id="configPanel" class="config-panel mt-3">
