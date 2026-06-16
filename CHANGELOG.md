@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v53 — 2026-06-11
+- feat: 새 서비스 "Azure Kubernetes Service (AKS)" 추가 — 클러스터 관리(컨트롤 플레인) 요금 계산
+- 구조: AKS 행은 클러스터 관리 요금만 계산. 노드(워커 VM)와 디스크는 기존 Virtual Machine / Disk 행으로 따로 추가(Azure 계산기와 동일하게 비용 항목이 분리됨)
+- 계층 옵션: Free(무료, SLA 없음) / Standard(SLA) / Premium(LTS). Free는 0원, Standard·Premium은 Azure Retail Prices API의 'Azure Kubernetes Service'에서 클러스터당 시간당 요금을 실시간 조회(가격 하드코딩 없음). 매칭 실패 시 "매칭 실패" 표시
+- 가격 표시: 용량제(시간환산 단가, _billingMode='monthly')에 클러스터관리요금×사용량(Hours)×Qty(클러스터 수)를 월 비용으로 표시. 절약/예약은 클러스터 관리 요금에 적용되지 않아 비움
+- 신규 서비스 4단계: js/services/aks.js 생성 + window._svcDefs 등록 + index.html script(vm.js 다음) 추가 + SERVICE_CATEGORY_ORDER에 등록(VM 다음)
+- 영향 파일: js/services/aks.js(신규), index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: node --check 통과(aks.js, ui). 함수명(_buildDetail_Azure_Kubernetes_Service / _resolve_Azure_Kubernetes_Service)이 resolver-engine 규칙(공백→_)과 일치. 로드 순서상 aks.js가 service-categories.js보다 앞. 커밋본과 로컬 정답본 byte 동일 확인. AKS 관리 요금의 실제 API 미터명 매칭은 prices.azure.com 직접 호출이 이 환경에서 막혀 브라우저에서 최종 확인 필요(참고 확인치: Standard ~0.10/h, Premium ~0.60/h per cluster)
+
 ## v52 — 2026-06-11
 - feat: 표 아래 도구 영역에 "⊕ 전체 채우기"·"전체 지우기" 버튼 추가 — 모든 행을 한 번에 일괄 처리
 - 전체 채우기(_fillAllEmptyGroups): 용량제 값이 있는 모든 행의 비어 있는 절약 1·3년·예약 1·3년 그룹에 용량제(PAYG) 값을 복사해 채움(수동). 원본 API 값이 있는 그룹은 건드리지 않음. 처리 결과(채운 행/그룹 수, 용량제 없는 행 제외 수)를 상태창에 표시
