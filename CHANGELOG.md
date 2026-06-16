@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v54 — 2026-06-16
+- feat: AKS 계층을 "Standard(표준) / Automatic" 2종으로 개편(기존 Free/Standard/Premium에서 변경)
+- feat: 표준을 고른 경우에만 SLA 옵션(No SLA (free, non-production) / SLA / SLA and Long Term Support)을 추가로 노출. Automatic이면 SLA 옵션 숨김(Azure 계산기 화면과 동일한 동작)
+- 가격(모두 API 실시간 조회, 하드코딩 없음): 표준+No SLA=0원, 표준+SLA=표준 SLA 클러스터관리 미터, 표준+SLA and Long Term Support=LTS 미터, Automatic=표준 SLA 미터로 조회(Automatic 전용 관리요금 미터는 비공개이며 노드는 컴퓨팅 사용량 기준 별도 청구 → VM 행으로 추가)
+- 구현: aks.js step에 slaOption 추가 + _aks_applyStepVisibility로 계층에 따라 _hidden 토글. instanceParentKey='aksTier'로 계층 변경 시 패널 재렌더. 서비스 정의에 _applyStepVisibility 훅을 두고, ui renderConfigPanel이 패널을 그리기 직전 현재 행 기준으로 호출(여러 AKS 행 전환 시에도 정확)
+- 영향 파일: js/services/aks.js, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: node --check 통과(aks.js, ui). ui는 renderConfigPanel에 한 줄(서비스별 _applyStepVisibility 훅 호출) 추가, 다른 서비스는 훅이 없어 영향 없음. 가격 하드코딩 없음. 커밋본과 로컬 정답본 byte 동일 확인. 실제 API 미터 매칭(표준 SLA ~0.10/h, LTS ~0.60/h per cluster)·Automatic 청구는 prices.azure.com 직접 호출이 이 환경에서 막혀 브라우저에서 최종 확인 필요
+
 ## v53 — 2026-06-11
 - feat: 새 서비스 "Azure Kubernetes Service (AKS)" 추가 — 클러스터 관리(컨트롤 플레인) 요금 계산
 - 구조: AKS 행은 클러스터 관리 요금만 계산. 노드(워커 VM)와 디스크는 기존 Virtual Machine / Disk 행으로 따로 추가(Azure 계산기와 동일하게 비용 항목이 분리됨)

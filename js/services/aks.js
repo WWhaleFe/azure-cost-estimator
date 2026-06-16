@@ -26,6 +26,8 @@ window._svcDefs['Azure Kubernetes Service'] = {
   instanceField: false,
   // 계층(aksTier) 변경 시 옵션 패널을 다시 그려 SLA 옵션 노출 여부를 갱신
   instanceParentKey: 'aksTier',
+  // 패널을 그리기 직전 현재 행 기준으로 SLA 옵션 표시/숨김을 재평가(여러 AKS 행 전환 대비)
+  _applyStepVisibility: function(r){ if (window['_aks_applyStepVisibility']) window['_aks_applyStepVisibility'](r); },
 };
 
 // 계층에 따라 SLA 옵션 표시/숨김 토글 (Standard일 때만 노출)
