@@ -2,6 +2,17 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v69 — 2026-06-22
+- feat: App Service 전용 가격 조회 함수(_resolve_App_Service) 신설 — B 그룹 → A 그룹 승격. 기존 제네릭은 skuName 정확 일치였으나 옵션 표기('P1V3')가 실제 API skuName('P1 v3', 공백 포함)과 달라 매칭이 깨졌고, OS·계층별 productName 구분이 없었음
+- API 구조: serviceName='Azure App Service', productName='Azure App Service <계층> Plan'(Windows) / '... Plan - Linux'(Linux), skuName=인스턴스(공백 표기 'P1 v3','I1 v2' 등), meterName='<인스턴스> App', 단위 1 Hour
+- 계층에 따라 인스턴스(size) 옵션 동적 전환(instanceParentKey='tier' + _appsvc_applyStepVisibility): Free=F1, Basic=B1~B3, Standard=S1~S3, Premium v3=P0v3·P1 v3~P3 v3·P1mv3~P5mv3, Isolated v2=I1 v2~I6 v2·I1mv2~I5mv2. Shared 계층은 koreacentral 미제공이라 제외
+- 매칭: productName(계층+OS) + skuName=인스턴스 **정확 일치**. Windows/Linux 단가 차이 반영(예 Premium v3 P1 v3 Windows 0.341 / Linux 0.181). 월=단가×Qty(인스턴스 수)×usage(시간, 예 730). 절약/예약 미적용. 못 찾으면 "매칭 실패"
+- chore: CSV 양식(v63)의 App Service 예시 SKU를 'P1V3' → 'P1 v3'(실제 skuName)로 수정
+- 범위 외: Shared, Isolated 스탬프(ASIP)·Windows Container·도메인/SSL 등 부가 미터, 예약 인스턴스
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 App Service 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제)
+- 영향 파일: js/services/app-service.js, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(serviceName 'Azure App Service', 128건)로 productName(계층+OS)·skuName·meterName·단위·단가 확인. node --check 통과(2파일). 실데이터로 계층×OS×인스턴스 14건 매칭 검증(Free 0.0, Basic B1 Win 0.085/Linux 0.018, Standard S1, Premium v3 P1 v3·P3mv3, Isolated v2 I1 v2 등) 정확 일치. 함수명(_buildDetail_App_Service / _resolve_App_Service)이 resolver-engine 규칙과 일치. 실제 드롭다운(계층별 인스턴스 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v68 — 2026-06-22
 - feat: Azure SQL Database 전용 가격 조회 함수(_resolve_Azure_SQL_Database) 신설 — B 그룹 → A 그룹 승격. 기존 제네릭은 productName이 'Compute Gen5'로 고정되고 vCore 차원이 없어 특정 vCore 미터와 매칭되지 않아 취약했음. vCore 구매 모델을 정식 반영
 - vCore 수(vCores) 옵션 신설 + tier×compute×hardware → productName 매핑(7종): GP Provisioned Gen5/FSv2, GP Serverless Gen5, BC Provisioned Gen5/M-series, HS Provisioned Gen5, HS Serverless Gen5(=productName 'SQL Database SingleDB Hyperscale - Serverless - Compute Gen5')
