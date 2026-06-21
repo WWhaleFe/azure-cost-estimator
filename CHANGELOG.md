@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v61 — 2026-06-21
+- docs: 서비스별 구현·검증 현황표 추가(docs/service-status.csv) — 17개 카테고리의 구현 방식(전용 resolver/제네릭)·검증 수준·계산 항목·주요 옵션·알려진 한계를 정리. 엑셀에서 바로 열림(UTF-8)
+- 분류: A(전용 resolver + 라이브 API 검증) 7개 — Virtual Machine, Disk, VPN Gateway, AKS, Blob Storage, Backup, Azure Files / B(제네릭 처리, 실데이터 미검증) 8개 — Load Balancer, Application Gateway, Public IP, Azure Firewall, Azure SQL Database, App Service, Azure Bastion, NAT Gateway / C(제네릭 기본, 매칭 취약) 2개 — Azure Database for MySQL, Bandwidth
+- 코드 변경 아님(index.html이 로드하지 않는 독립 문서) → 앱 동작 영향 없음
+- 영향 파일: docs/service-status.csv(신규), CHANGELOG.md
+
 ## v60 — 2026-06-21
 - fix: Azure Files 가격 조회가 안 되던 문제 수정 — 전용 함수 _resolve_Azure_Files 신설. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 그 productName 매핑('General Purpose v2 Files','Cool Files' 등)이 실제 API에 존재하지 않아 조회가 0건이 되어 가격이 안 나왔음(Blob v57과 동일 유형)
 - 매칭 방식: skuName("<API계층> <중복성>")으로 묶고 metric을 meterName 키워드로 가름. 계층 매핑 Premium→productName 'Premium Files'(sku 'Premium ...'), Hot/Cool/Transaction Optimized→'Files v2'(sku 'Hot ...'/'Cool ...'/'Standard ...'). 청구 항목 Data Stored→'data stored', Snapshots→'snapshots', Metadata→'metadata'. 단, Premium은 'Data Stored' 미터가 없어 'Provisioned'(프로비저닝 용량, burst 제외)로 매칭
