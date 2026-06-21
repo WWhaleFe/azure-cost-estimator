@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v71 — 2026-06-22
+- feat: Azure Database for MySQL 전용 가격 조회 함수(_resolve_Azure_Database_for_MySQL) 신설 — C 그룹 → A 그룹 승격. 기존엔 엔진에 전용 매핑이 없어 제네릭 기본 경로(skuName 정확 일치)로 처리됐고, 옵션('D2ds_v4' 등)이 실제 API skuName과 달라 매칭이 거의 실패했음. Flexible Server 모델로 재설계
+- API 구조(serviceName='Azure Database for MySQL', koreacentral): 계층마다 productName·과금 구조가 다름:
+  - Burstable → '...Flexible Server Burstable BS Series Compute', meterName=인스턴스 정확 일치(B1MS 0.026 / B2S 0.104 / B2MS 0.208 / B4MS 0.416 / B8MS 0.832 / B12MS 1.248 / B16MS 1.664 / B20MS 2.08, 1 Hour)
+  - General Purpose → '...Flexible Server General Purpose Ddsv5 Series Compute', per-vCore 단가(skuName='vCore', meter 'vCore', 0.118) × vCore 수
+  - Business Critical → '...Flexible Server Memory Optimized Edsv5 Series Compute', meterName='<N> vCore' 정확 일치(전체 인스턴스 시간당가; N∈2/4/8/16/20/32/48/64/96/104)
+- 계층에 따라 입력 필드 전환(instanceParentKey='tier' + _mysql_applyStepVisibility): Burstable=인스턴스(instance) 선택, GP/BC=vCore 수(vCores) 선택. 기존 'compute' 단일 필드를 instance/vCores 2개로 분리
+- 월=단가(설정 1개 시간당가)×Qty(서버 수)×usage(시간, 예 730). 절약/예약 미적용. 못 찾으면 "매칭 실패"
+- chore: CSV 양식(v63)에서 MySQL 예시를 'tier=General Purpose; vCores=2'로 갱신, CSV_SKU_OPTION_KEY/CSV_SKU_DESC에서 MySQL의 'compute' 매핑 제거(이제 Options로 식별)
+- 범위 외(매칭 실패 정상): Single Server(레거시), 스토리지/백업, 표에 없는 D/E 시리즈(Dadsv6·Edsv6 등), Confidential Compute, Extended Support
+- 가격: 모두 API에서 동적 조회(하드코딩 없음)
+- 영향 파일: js/services/mysql.js, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(75건)로 productName 분포·skuName·meterName·단위·단가 확인. node --check 통과(2파일). 실데이터로 Burstable 인스턴스(B1MS/B2S/B4MS/B20MS), GP per-vCore(0.118×N), BC N vCore(2/8/32/104) 매칭 검증. 함수명이 resolver-engine 규칙과 일치. 실제 드롭다운(계층별 필드 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v70 — 2026-06-22
 - feat: NAT Gateway 전용 가격 조회 함수(_resolve_NAT_Gateway) 신설 — B 그룹 → A 그룹 승격(B 그룹 8개 전부 완료). 기존 svcDef는 apiServiceName이 'Virtual Network'였고 제네릭이 row.region(koreacentral)으로 조회해 0건이었음 — NAT Gateway 미터는 리전 비종속(Global)이라 koreacentral엔 없음(Load Balancer v64와 동일 유형)
 - API 구조: serviceName='NAT Gateway', productName='NAT Gateway', **armRegionName='Global'**, skuName='Standard'. row.region이 아닌 'Global'로 조회. apiServiceName도 'NAT Gateway'로 정정

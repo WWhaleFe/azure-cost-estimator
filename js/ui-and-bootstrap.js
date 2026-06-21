@@ -649,7 +649,7 @@ var CSV_SUPPORTED_CATEGORIES = (typeof SERVICE_CATEGORY_ORDER !== 'undefined')
   : ['Virtual Machine', 'Disk', 'VPN Gateway'];
 var CSV_SKU_OPTION_KEY = {
   'Virtual Machine': 'instance', 'Disk': 'diskInstance', 'VPN Gateway': 'sku',
-  'App Service': 'size', 'Azure Database for MySQL': 'compute',
+  'App Service': 'size',
   'Application Gateway': 'sku', 'Public IP': 'sku',
 };
 var CSV_HEADER = ['Region', '분류', 'ServiceCategory', 'SKU', 'Qty', 'Hours', 'Options'];
@@ -669,7 +669,6 @@ var CSV_SKU_DESC = {
   'Disk': '디스크 크기 SKU(예 P30; 프로비저닝형은 비움)',
   'VPN Gateway': '게이트웨이 SKU(예 VpnGw1)',
   'App Service': '인스턴스(예 P1V3)',
-  'Azure Database for MySQL': 'vCore SKU(예 D2ds_v4)',
   'Application Gateway': 'SKU(예 Standard_v2)',
   'Public IP': 'SKU(예 Standard)',
 };
@@ -694,7 +693,7 @@ function _csvBuildExampleRows() {
     ['koreacentral', '아웃바운드 전송',       'Bandwidth',                  '',             '1', '1000', 'direction=Outbound (Internet Egress)'],
     ['koreacentral', 'NAT 게이트웨이',        'NAT Gateway',                '',             '1', '730',  'metric=Resource Hour'],
     ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2'],
-    ['koreacentral', 'MySQL',              'Azure Database for MySQL',   'D2ds_v4',      '1', '730',  'tier=General Purpose'],
+    ['koreacentral', 'MySQL',              'Azure Database for MySQL',   '',             '1', '730',  'tier=General Purpose; vCores=2'],
     ['koreacentral', '앱 서비스',            'App Service',                'P1 v3',        '1', '730',  'tier=Premium v3; os=Linux'],
     ['koreacentral', 'Bastion',            'Azure Bastion',              '',             '1', '730',  'tier=Basic; metric=게이트웨이(시간당)'],
   ];
