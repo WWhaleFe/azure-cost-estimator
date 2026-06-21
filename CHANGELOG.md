@@ -2,13 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v59 — 2026-06-21
+- fix: 새 서비스 "Backup"이 Service Category 드롭다운에 나타나지 않던 문제 수정(스크린샷). SERVICE_CATEGORY_ORDER 배열('Blob Storage' 다음)에 'Backup'을 직접 추가
+- 원인: v58에서 backup.js가 DOMContentLoaded 시점에 SERVICE_CATEGORY_ORDER에 지연 등록하도록 했으나, 부트스트랩이 addRow()×3를 스크립트 실행 중(동기) 호출해 초기 render()가 지연 등록보다 먼저 끝남 → 초기 드롭다운에 Backup 누락. render()는 매 호출 시 SERVICE_CATEGORY_ORDER로 카테고리 select를 다시 만들므로, 배열에 직접 넣으면 초기 동기 렌더부터 포함됨(다른 17개 카테고리와 동일 방식)
+- refactor: backup.js의 지연 등록 IIFE 블록 제거(코어 배열 직접 등록으로 불필요해짐). resolve/visibility/buildDetail 로직은 변경 없음
+- 영향 파일: js/ui-and-bootstrap.js, js/services/backup.js, CHANGELOG.md
+- 검증: 두 변경 모두 get_commit 패치로 범위 확인 — ui-and-bootstrap.js는 배열 한 줄만(추가 1·삭제 1, 그 외 무변경 → 나머지 원본과 동일하므로 문법 보존), backup.js는 지연 등록 블록 제거(-28)+헤더 주석(+1). 실제 드롭다운 노출·선택·가격 조회는 브라우저에서 최종 확인 권장
+
 ## v58 — 2026-06-21
 - feat: 새 서비스 "Azure Backup" 추가 — 두 청구 요소(보호 인스턴스 / 백업 저장소)를 청구 항목(metric)으로 선택해 각각 계산
 - 보호 인스턴스(Protected Instance, 단위 1/Month): 워크로드별 월정액. skuName=워크로드, meterName '...Protected Instance' 매칭. 워크로드 13종(Azure VM $10, SQL Server in Azure VM $33.75, SAP HANA on Azure VM $108, SAP ASE on Azure VM $108, Azure Files $5.5, Azure Files Vaulted $13.5, Azure Blob $13.5, ADLS Gen2 Vaulted $13.5, Cross region for ADLS and Blobs $12, PostgreSQL $7.5, Cosmos DB $33.75, Azure Kubernetes $12, On Premises Server $10). Qty=인스턴스 수, usage=1 권장
 - 백업 저장소(Data Stored, 단위 1 GB/Month): skuName=계층(Standard/Archive), meterName '<계층> <중복성> Data Stored' 정확 일치(GRS↔RA-GRS 부분 문자열 충돌 방지). Standard LRS $0.0246 / ZRS $0.0308 / GRS $0.0493 / RA-GRS $0.0626, Archive LRS $0.0027 / GRS $0.0063(Archive는 LRS/GRS만 제공 → 그 외 조합은 매칭 실패가 정상). usage=GB
 - 월=단가×Qty×usage(엔진 기본 계산). 절약/예약 미적용. 매칭 실패 시 "매칭 실패" 표시. 인스턴스 요금과 저장소 요금은 각각 별도 Backup 행으로 추가
 - 조건부 옵션: instanceParentKey='metric' + _backup_applyStepVisibility로 보호 인스턴스→워크로드만, 백업 저장소→계층+중복성만 노출(AKS 패턴)
-- 신규 서비스 등록: js/services/backup.js 생성 + window._svcDefs 등록 + index.html script(blob-storage.js 다음) 추가. 단, 이번엔 코어 파일(ui-and-bootstrap.js)을 직접 수정하지 않고 backup.js가 DOMContentLoaded 시점에 SERVICE_CATEGORY_ORDER에 'Backup'을 지연 등록(Blob Storage 다음, 중복 가드 포함) — 대용량 코어 파일 재작성에 따른 위험을 피하기 위함
+- 신규 서비스 등록: js/services/backup.js 생성 + window._svcDefs 등록 + index.html script(blob-storage.js 다음) 추가. 단, 이번엔 코어 파일(ui-and-bootstrap.js)을 직접 수정하지 않고 backup.js가 DOMContentLoaded 시점에 SERVICE_CATEGORY_ORDER에 'Backup'을 지연 등록(Blob Storage 다음, 중복 가드 포함) — 대용량 코어 파일 재작성에 따른 위험을 피하기 위함 ※ v59에서 이 방식이 동작하지 않아 코어 배열 직접 등록으로 교체
 - 가격: 모두 API(serviceName 'Backup', productName 'Backup')에서 동적 조회(하드코딩 없음). 'Backup Reserved Capacity'(예약 용량 SKU)는 기본 견적에서 제외
 - 영향 파일: js/services/backup.js(신규), index.html, CHANGELOG.md
 - 검증: koreacentral 라이브 API로 보호 인스턴스/저장소 미터명·skuName·단위·단가 확인. node --check 통과. 실데이터로 매칭 로직 확인(보호 인스턴스 skuName=워크로드 & 'protected instance' 포함, 저장소 meterName '<계층> <중복성> data stored' 정확 일치). 함수명(_buildDetail_Backup / _resolve_Backup)이 resolver-engine 규칙(공백→_)과 일치. 커밋 후 get_commit 패치로 backup.js(+등록 블록)·index.html(+script 1줄) 변경 범위만 확인(이번 환경은 로컬 byte 대조 불가로 패치 검토로 대체). 실제 행 표시·매칭·카테고리 노출은 브라우저에서 최종 확인 권장
