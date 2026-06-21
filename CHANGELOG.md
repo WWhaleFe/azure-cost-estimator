@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v60 — 2026-06-21
+- fix: Azure Files 가격 조회가 안 되던 문제 수정 — 전용 함수 _resolve_Azure_Files 신설. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 그 productName 매핑('General Purpose v2 Files','Cool Files' 등)이 실제 API에 존재하지 않아 조회가 0건이 되어 가격이 안 나왔음(Blob v57과 동일 유형)
+- 매칭 방식: skuName("<API계층> <중복성>")으로 묶고 metric을 meterName 키워드로 가름. 계층 매핑 Premium→productName 'Premium Files'(sku 'Premium ...'), Hot/Cool/Transaction Optimized→'Files v2'(sku 'Hot ...'/'Cool ...'/'Standard ...'). 청구 항목 Data Stored→'data stored', Snapshots→'snapshots', Metadata→'metadata'. 단, Premium은 'Data Stored' 미터가 없어 'Provisioned'(프로비저닝 용량, burst 제외)로 매칭
+- 월=단가×Qty×usage(엔진 기본, 단위 1 GB/Month). usage 칸에 GB 입력. 절약/예약 미적용. 못 찾으면 "매칭 실패" 표시(Premium은 GRS·Metadata 없음, Snapshots는 Premium만, Transaction Optimized는 Metadata 없음 → 정상적으로 매칭 실패)
+- 가격: 모두 API(serviceName 'Storage')에서 동적 조회(하드코딩 없음)
+- 영향 파일: js/services/azure-files.js, CHANGELOG.md
+- 검증: koreacentral 라이브 API(contains(productName,'Files')) 응답으로 실제 productName/skuName/meterName/단위 확인. 실데이터 단가 대조(Hot LRS 0.03 / GRS 0.06 / ZRS 0.0375, Cool LRS 0.0216 / GRS 0.0432 / ZRS 0.027, Transaction Optimized LRS 0.066 / GRS 0.11 / ZRS 0.0825, Premium LRS Provisioned 0.176 / ZRS 0.22, Hot LRS Metadata 0.0286, Premium LRS Snapshots 0.15, 단위 1 GB/Month). 함수명(_resolve_Azure_Files)이 resolver-engine 규칙과 일치. 커밋 후 get_commit 패치로 변경 범위(헤더 주석 + resolver 추가, def·buildDetail 무변경) 확인. 실제 행 표시는 브라우저에서 최종 확인 권장
+
 ## v59 — 2026-06-21
 - fix: 새 서비스 "Backup"이 Service Category 드롭다운에 나타나지 않던 문제 수정(스크린샷). SERVICE_CATEGORY_ORDER 배열('Blob Storage' 다음)에 'Backup'을 직접 추가
 - 원인: v58에서 backup.js가 DOMContentLoaded 시점에 SERVICE_CATEGORY_ORDER에 지연 등록하도록 했으나, 부트스트랩이 addRow()×3를 스크립트 실행 중(동기) 호출해 초기 render()가 지연 등록보다 먼저 끝남 → 초기 드롭다운에 Backup 누락. render()는 매 호출 시 SERVICE_CATEGORY_ORDER로 카테고리 select를 다시 만들므로, 배열에 직접 넣으면 초기 동기 렌더부터 포함됨(다른 17개 카테고리와 동일 방식)
