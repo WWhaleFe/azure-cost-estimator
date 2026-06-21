@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v66 — 2026-06-22
+- feat: Public IP 전용 가격 조회 함수(_resolve_Public_IP) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 skuName 부분일치(sku & ipType 포함)만 했음
+- API 구조: serviceName='Virtual Network', productName='IP Addresses', skuName=SKU. 미터명 패턴 '<SKU> IPv4 <Static|Dynamic> Public IP'(단위 1 Hour, IPv4). koreacentral 단가: Standard Static 0.005 / Global Static 0.01 / Basic Static 0.0036 / Basic Dynamic 0.004
+- SKU 옵션에 Global 추가(Standard/Global/Basic). Standard·Global SKU는 Static만 제공(Dynamic 미지원)하므로 SKU에 따라 IP 유형 옵션을 동적 전환(instanceParentKey='sku' + _pip_applyStepVisibility). Basic만 Static/Dynamic 모두
+- 매칭: skuName=SKU + meterName='<SKU> IPv4 <유형> Public IP' **정확 일치**. 못 찾으면 "매칭 실패"(Standard+Dynamic은 미터가 없어 정상적으로 실패, UI에서도 미노출)
+- 월=단가×Qty×usage(엔진 기본). usage 칸에 시간(예 730), Qty=IP 개수. 절약/예약 미적용. IPv6·Public IP Prefix는 범위 외(현재 IPv4 단일 주소만)
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 Public IP 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제 — 이전 버전과 동일 방침)
+- 영향 파일: js/services/public-ip.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(productName 'IP Addresses', 4개 미터)로 skuName/meterName/단위/단가 확인. node --check 통과. 실데이터로 5개 조합 검증 — Standard Static/Global Static/Basic Static/Basic Dynamic 정확 일치, Standard Dynamic은 미터 없음 확인(매칭 실패 정상). 함수명(_buildDetail_Public_IP / _resolve_Public_IP)이 resolver-engine 규칙과 일치. 실제 드롭다운(SKU별 IP 유형 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v65 — 2026-06-22
 - feat: Application Gateway 전용 가격 조회 함수(_resolve_Application_Gateway) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 skuName 부분일치만 했고, 제품군마다 다른 과금 체계(v2=고정+CU, v1=게이트웨이+데이터)를 반영하지 못했음
 - API 구조: serviceName='Application Gateway'(koreacentral). 제품군(productName)별로 과금이 다름:
