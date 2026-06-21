@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v65 — 2026-06-22
+- feat: Application Gateway 전용 가격 조회 함수(_resolve_Application_Gateway) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 skuName 부분일치만 했고, 제품군마다 다른 과금 체계(v2=고정+CU, v1=게이트웨이+데이터)를 반영하지 못했음
+- API 구조: serviceName='Application Gateway'(koreacentral). 제품군(productName)별로 과금이 다름:
+  - v2 제품군(고정 비용 + 용량 단위 CU, 단위 1/Hour): Standard_v2→'Application Gateway Standard v2'(Fixed 0.27/CU 0.008), WAF_v2→'Application Gateway WAF v2'(Fixed 0.486/CU 0.0144), Basic_v2→'Application Gateway Basic v2'(Fixed 0.0225/CU 0.008)
+  - v1 제품군(게이트웨이 시간당 + 데이터 처리 GB): Standard_Small/Medium/Large→'Basic Application Gateway'(Gateway 0.027/0.0756/0.3456, Data 0.008/0.007/0.0035), WAF_Medium/Large→'WAF Application Gateway'(Gateway 0.1701/0.604, 데이터 처리 미터 없음)
+- SKU(제품군)에 따라 청구 항목(metric) 옵션을 동적 전환(instanceParentKey='sku' + _agw_applyStepVisibility). v2=고정 비용/용량 단위, v1=게이트웨이/데이터 처리. SKU 변경 시 청구 항목을 해당 제품군 첫 항목으로 기본 설정
+- 매칭: productName+skuName+meterName **정확 일치** → 'Application Gateway WAF v2 - Discounted'(예약형 할인 제품, Fixed 0.27)를 자동 제외하고 PAYG(0.486) 선택. 데이터 처리는 무료(0.0) 구간을 빼고 첫 유료 구간 사용. 'Application Gateway for Containers'(AGC)는 범위 외
+- 월=단가×Qty×usage(엔진 기본). 시간제는 usage 칸에 시간(예 730), 데이터 처리는 GB. 절약/예약 미적용. 못 찾으면 "매칭 실패"
+- chore: CSV 양식(v63)의 Application Gateway 예시 행에 metric=고정 비용 (시간당) 추가(새 청구 항목 옵션 반영)
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 Application Gateway 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제 — 이전 버전과 동일 방침)
+- 영향 파일: js/services/app-gateway.js, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API 27건으로 제품군/skuName/meterName/단위/단가 확인. node --check 통과(app-gateway.js, ui-and-bootstrap.js). 실데이터로 14개(SKU×청구 항목) 조합 전부 정확 일치 확인('- Discounted' 제외·데이터 처리 유료 구간 선택 포함). 함수명(_buildDetail_Application_Gateway / _resolve_Application_Gateway)이 resolver-engine 규칙과 일치. 실제 드롭다운(SKU별 청구 항목 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v64 — 2026-06-21
 - feat: Load Balancer 전용 가격 조회 함수(_resolve_Load_Balancer) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, productName을 '<계층> Load Balancer'(존재하지 않음)로 조회하고 row.region(koreacentral)으로 찾아 0건이 됐음(LB 미터는 리전 비종속이라 koreacentral엔 없음)
 - API 구조: serviceName='Load Balancer', productName='Load Balancer', **armRegionName='Global'**(리전 비종속), skuName=계층. row.region이 아닌 'Global'로 조회

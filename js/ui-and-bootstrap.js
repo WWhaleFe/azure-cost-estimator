@@ -688,7 +688,7 @@ function _csvBuildExampleRows() {
     ['koreacentral', '백업-저장소',          'Backup',                     '',             '1', '500',  'metric=백업 저장소; storageTier=Standard; redundancy=LRS'],
     ['koreacentral', '본사 VPN',            'VPN Gateway',                'VpnGw1',       '1', '730',  'gatewayHours=730; vnetTransferType=VNET 간; vnetGB=0'],
     ['koreacentral', '부하 분산',            'Load Balancer',              '',             '1', '730',  'tier=Standard; metric=Rules'],
-    ['koreacentral', '앱 게이트웨이',         'Application Gateway',         'Standard_v2',  '1', '730',  ''],
+    ['koreacentral', '앱 게이트웨이',         'Application Gateway',         'Standard_v2',  '1', '730',  'metric=고정 비용 (시간당)'],
     ['koreacentral', '공인 IP',             'Public IP',                  'Standard',     '1', '730',  'ipType=Static'],
     ['koreacentral', '방화벽',              'Azure Firewall',             '',             '1', '730',  'tier=Standard; metric=Deployment'],
     ['koreacentral', '아웃바운드 전송',       'Bandwidth',                  '',             '1', '1000', 'direction=Outbound (Internet Egress)'],
