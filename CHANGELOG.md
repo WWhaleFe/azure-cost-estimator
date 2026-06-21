@@ -2,6 +2,18 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v62 — 2026-06-21
+- feat: Azure Bastion 전용 가격 조회 함수(_resolve_Azure_Bastion) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 거기서 productName을 'Azure Bastion <계층>'(존재하지 않음)으로 조회하고 매칭 조건이 `return true`(첫 consumption 항목)라 게이트웨이 시간요금/추가 게이트웨이/데이터 전송이 구분되지 않고 부정확했음(Blob v57·Azure Files v60과 동일 유형)
+- 옵션 확장: 계층에 Premium 추가(Basic/Standard/**Premium**), 청구 항목(metric) 신설 — 게이트웨이(시간당) / 추가 게이트웨이(시간당) / 데이터 전송 아웃(GB)
+- API 구조(koreacentral, USD): serviceName='Azure Bastion', productName='Azure Bastion'(계층 접미사 없음), skuName=계층. 매칭은 skuName=계층 + meterName 정확 일치('Standard Gateway'가 'Standard Additional Gateway'와 부분 충돌하지 않도록 정확 일치 사용)
+  - 게이트웨이(시간당): '<계층> Gateway'(단위 1 Hour) — Basic 0.19 / Standard 0.29 / Premium 0.45
+  - 추가 게이트웨이(시간당): '<계층> Additional Gateway'(단위 1 Hour, 스케일 유닛 추가분) — Standard 0.14 / Premium 0.22. Basic은 미터가 없어 매칭 실패가 정상
+  - 데이터 전송 아웃(GB): '<계층> Data Transfer Out'(단위 1 GB, 계단형). 첫 5GB 무료 후 0.12부터(대용량 0.085→0.082→0.08). 엔진은 단일 단가만 쓰므로 '첫 유료 구간(unitPrice>0, tierMinimumUnits 최소=5GB) 단가 0.12'를 대표값으로 사용 → 무료 한도·대용량 할인은 미반영(상태창에 명시)
+- 월=단가×Qty×usage(엔진 기본). 게이트웨이/추가 게이트웨이 usage 칸엔 시간(예 730), 데이터 전송 usage 칸엔 GB 입력. 절약/예약(SP/RI) 미적용 → sp/ri 전부 null. 매칭 실패 시 "매칭 실패" 표시
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 _genericResolve 내 Azure Bastion 매핑(productName/`return true`)은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 위험 회피 위해 이번엔 미삭제 — Azure Files v60과 동일 방침)
+- 영향 파일: js/services/bastion.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(serviceName 'Azure Bastion', 20건)로 실제 productName/skuName/meterName/단위/단가 확인. node --check 통과. 매칭 로직 확인 — skuName=계층 & meterName 정확 일치, 데이터 전송은 무료 0원 구간 제외 후 최소 tierMinimumUnits(=5GB,0.12) 선택. 함수명(_buildDetail_Azure_Bastion / _resolve_Azure_Bastion)이 resolver-engine 규칙(공백→_)과 일치. 실제 행 표시·드롭다운(Premium·청구항목 노출)·매칭은 브라우저에서 최종 확인 권장
+
 ## v61 — 2026-06-21
 - docs: 서비스별 구현·검증 현황표 추가(docs/service-status.csv) — 17개 카테고리의 구현 방식(전용 resolver/제네릭)·검증 수준·계산 항목·주요 옵션·알려진 한계를 정리. 엑셀에서 바로 열림(UTF-8)
 - 분류: A(전용 resolver + 라이브 API 검증) 7개 — Virtual Machine, Disk, VPN Gateway, AKS, Blob Storage, Backup, Azure Files / B(제네릭 처리, 실데이터 미검증) 8개 — Load Balancer, Application Gateway, Public IP, Azure Firewall, Azure SQL Database, App Service, Azure Bastion, NAT Gateway / C(제네릭 기본, 매칭 취약) 2개 — Azure Database for MySQL, Bandwidth
