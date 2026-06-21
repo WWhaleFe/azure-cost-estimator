@@ -693,7 +693,7 @@ function _csvBuildExampleRows() {
     ['koreacentral', '방화벽',              'Azure Firewall',             '',             '1', '730',  'tier=Standard; metric=Deployment (배포, 시간당)'],
     ['koreacentral', '아웃바운드 전송',       'Bandwidth',                  '',             '1', '1000', 'direction=Outbound (Internet Egress)'],
     ['koreacentral', 'NAT 게이트웨이',        'NAT Gateway',                '',             '1', '730',  'metric=Resource Hour'],
-    ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'tier=General Purpose; compute=Provisioned; hardware=Gen5'],
+    ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2'],
     ['koreacentral', 'MySQL',              'Azure Database for MySQL',   'D2ds_v4',      '1', '730',  'tier=General Purpose'],
     ['koreacentral', '앱 서비스',            'App Service',                'P1V3',         '1', '730',  'tier=Premium v3; os=Linux'],
     ['koreacentral', 'Bastion',            'Azure Bastion',              '',             '1', '730',  'tier=Basic; metric=게이트웨이(시간당)'],

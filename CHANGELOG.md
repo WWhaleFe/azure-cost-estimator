@@ -2,6 +2,18 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v68 — 2026-06-22
+- feat: Azure SQL Database 전용 가격 조회 함수(_resolve_Azure_SQL_Database) 신설 — B 그룹 → A 그룹 승격. 기존 제네릭은 productName이 'Compute Gen5'로 고정되고 vCore 차원이 없어 특정 vCore 미터와 매칭되지 않아 취약했음. vCore 구매 모델을 정식 반영
+- vCore 수(vCores) 옵션 신설 + tier×compute×hardware → productName 매핑(7종): GP Provisioned Gen5/FSv2, GP Serverless Gen5, BC Provisioned Gen5/M-series, HS Provisioned Gen5, HS Serverless Gen5(=productName 'SQL Database SingleDB Hyperscale - Serverless - Compute Gen5')
+- 가격은 vCore에 선형 비례: Provisioned는 skuName='<N> vCore'(meter 'vCore') 정확 일치 단가(N vCore 전체 시간당가)를 우선, 없으면 per-vCore 기준 단가(skuName='vCore') × N. Serverless는 per-vCore 단가(skuName='1 vCore', meter 'vCore', '- Free' 제외) × N(최대 vCore 기준 상한 추정 — 실제는 사용 vCore-초로 과금, 상태창에 명시)
+- tier에 따라 compute/hardware 옵션 동적 전환(instanceParentKey='tier' + _sql_applyStepVisibility): BC는 Provisioned만, 하드웨어 GP=Gen5·Fsv2-series / BC=Gen5·M-series / HS=Gen5
+- 월=단가(설정 1개 시간당가)×Qty(DB 수)×usage(시간, 예 730). 절약/예약(RI) 미적용. 매칭 미터를 그대로 두지 않고 N vCore 환산가를 paygItem.unitPrice로 구성(per-vCore·vCore 수·산출 근거를 _sqlPerVcore/_sqlVcores/_sqlBasis에 보존)
+- 범위 외(매칭 실패 정상): Zone Redundancy(비ZR 기준), 예약 용량, 스토리지/백업(PITR·LTR), DTU 모델(Basic/Standard/Premium), Elastic Pool 전용 미터, 매핑 표에 없는 조합
+- chore: CSV 양식(v63)의 SQL Database 예시에 vCores=2 추가
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 Azure SQL Database 제네릭 매핑/Reservation 분기는 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제)
+- 영향 파일: js/services/sql-database.js, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(serviceName 'SQL Database', 261건)로 productName 분포·skuName('<N> vCore')·meterName('vCore')·단위·단가 확인. node --check 통과(2파일). 실데이터로 7개 productName×vCore(2·8) 해석 검증 — Provisioned 정확 미터가(GP Gen5 2vCore 0.3440, BC Gen5 8vCore 2.7521 등)와 per-vCore 선형(FSv2 0.150945×N, GP Serverless 0.589587×N, HS Serverless 0.79×N, HS Provisioned 0.206406×N) 일치 확인. 실제 드롭다운(계층별 compute/hardware 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v67 — 2026-06-22
 - feat: Azure Firewall 전용 가격 조회 함수(_resolve_Azure_Firewall) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 productName 'Azure Firewall <계층>'(존재하지 않음) + meterName 부분일치로 처리해 부정확했음(실제 productName은 'Azure Firewall' 단일)
 - API 구조: serviceName='Azure Firewall', productName='Azure Firewall', skuName=계층(독립형 VNet 기준 'Standard'/'Premium'/'Basic'). koreacentral 단가:
