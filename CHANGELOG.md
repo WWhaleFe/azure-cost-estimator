@@ -2,6 +2,17 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v58 — 2026-06-21
+- feat: 새 서비스 "Azure Backup" 추가 — 두 청구 요소(보호 인스턴스 / 백업 저장소)를 청구 항목(metric)으로 선택해 각각 계산
+- 보호 인스턴스(Protected Instance, 단위 1/Month): 워크로드별 월정액. skuName=워크로드, meterName '...Protected Instance' 매칭. 워크로드 13종(Azure VM $10, SQL Server in Azure VM $33.75, SAP HANA on Azure VM $108, SAP ASE on Azure VM $108, Azure Files $5.5, Azure Files Vaulted $13.5, Azure Blob $13.5, ADLS Gen2 Vaulted $13.5, Cross region for ADLS and Blobs $12, PostgreSQL $7.5, Cosmos DB $33.75, Azure Kubernetes $12, On Premises Server $10). Qty=인스턴스 수, usage=1 권장
+- 백업 저장소(Data Stored, 단위 1 GB/Month): skuName=계층(Standard/Archive), meterName '<계층> <중복성> Data Stored' 정확 일치(GRS↔RA-GRS 부분 문자열 충돌 방지). Standard LRS $0.0246 / ZRS $0.0308 / GRS $0.0493 / RA-GRS $0.0626, Archive LRS $0.0027 / GRS $0.0063(Archive는 LRS/GRS만 제공 → 그 외 조합은 매칭 실패가 정상). usage=GB
+- 월=단가×Qty×usage(엔진 기본 계산). 절약/예약 미적용. 매칭 실패 시 "매칭 실패" 표시. 인스턴스 요금과 저장소 요금은 각각 별도 Backup 행으로 추가
+- 조건부 옵션: instanceParentKey='metric' + _backup_applyStepVisibility로 보호 인스턴스→워크로드만, 백업 저장소→계층+중복성만 노출(AKS 패턴)
+- 신규 서비스 등록: js/services/backup.js 생성 + window._svcDefs 등록 + index.html script(blob-storage.js 다음) 추가. 단, 이번엔 코어 파일(ui-and-bootstrap.js)을 직접 수정하지 않고 backup.js가 DOMContentLoaded 시점에 SERVICE_CATEGORY_ORDER에 'Backup'을 지연 등록(Blob Storage 다음, 중복 가드 포함) — 대용량 코어 파일 재작성에 따른 위험을 피하기 위함
+- 가격: 모두 API(serviceName 'Backup', productName 'Backup')에서 동적 조회(하드코딩 없음). 'Backup Reserved Capacity'(예약 용량 SKU)는 기본 견적에서 제외
+- 영향 파일: js/services/backup.js(신규), index.html, CHANGELOG.md
+- 검증: koreacentral 라이브 API로 보호 인스턴스/저장소 미터명·skuName·단위·단가 확인. node --check 통과. 실데이터로 매칭 로직 확인(보호 인스턴스 skuName=워크로드 & 'protected instance' 포함, 저장소 meterName '<계층> <중복성> data stored' 정확 일치). 함수명(_buildDetail_Backup / _resolve_Backup)이 resolver-engine 규칙(공백→_)과 일치. 커밋 후 get_commit 패치로 backup.js(+등록 블록)·index.html(+script 1줄) 변경 범위만 확인(이번 환경은 로컬 byte 대조 불가로 패치 검토로 대체). 실제 행 표시·매칭·카테고리 노출은 브라우저에서 최종 확인 권장
+
 ## v57 — 2026-06-21
 - fix: Blob Storage 전용 가격 조회 함수(_resolve_Blob_Storage)를 추가해 청구 항목별로 올바른 미터를 매칭. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 거기서 청구 항목(metric)을 전혀 쓰지 않아 어떤 항목을 골라도 같은 미터로 매칭되고, productName 매핑('Hot Block Blob' 등)이 실제 API에 없어('General Block Blob v2'가 실제) 매칭이 안 됐음
 - 매칭 방식: skuName("<계층> <중복성>", 예 'Hot LRS')로 계층+중복성을 묶고, meterName 키워드로 청구 항목을 가름 — Data Stored→'data stored'(GB/Month, tierMinimumUnits=0 우선), Read Operations→'read operations'(10K), Write Operations→'write operations'(10K), Data Retrieval→'data retrieval'(GB). 'priority' 계열(Archive Priority)은 제외
