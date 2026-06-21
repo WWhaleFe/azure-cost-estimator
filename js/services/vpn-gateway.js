@@ -51,7 +51,12 @@ window['_resolve_VPN_Gateway'] = async function(row, cur) {
   const ZM={eastus:1,eastus2:1,westus:1,westus2:1,westus3:1,northcentralus:1,southcentralus:1,centralus:1,westcentralus:1,westeurope:1,northeurope:1,francecentral:1,francesouth:1,uksouth:1,ukwest:1,canadacentral:1,canadaeast:1,koreacentral:2,koreasouth:2,japaneast:2,japanwest:2,eastasia:2,southeastasia:2,australiaeast:2,australiasoutheast:2,centralindia:2,southindia:2,westindia:2,qatarcentral:2,brazilsouth:3,brazilsoutheast:3,southafricanorth:3,southafricawest:3,uaenorth:3,uaecentral:3,israelcentral:3};
   const uZ=ZM[row.region]||1,tt=o.vnetTransferType||'VNET 간';
   const exGb=items=>items.filter(it=>{ if((it.type||'').toLowerCase()!=='consumption') return false; const u=(it.unitOfMeasure||'').toLowerCase(); return u.includes('gb')&&!u.includes('hour'); });
-  const isVnetOut=it=>{ const a=`${it.meterName||''} ${it.productName||''} ${it.skuName||''}`.toLowerCase(); return a.includes('inter-virtual network')||a.includes('inter virtual network')||a.includes('inter-vnet')||a.includes('inter vnet')||a.includes('vnet to vnet')||a.includes('vnet-to-vnet')||(a.includes('peering')&&a.includes('out'))||(a.includes('outbound')&&(a.includes('vnet')||a.includes('virtual network'))); };
+  // VNET 간(VNet-to-VNet) 송신 미터 판정.
+  //   같은 리전 전용 미터가 없는 리전(예: koreacentral)에서는 'Global Virtual Network
+  //   Peering'의 Inter-Region Egress($/GB)가 유일한 VNet 피어링 송신 미터이므로,
+  //   송신 동의어에 egress를 포함하고 'virtual network peering'도 vnet 계열로 인식한다.
+  //   수신(ingress)은 전송 비용 기준이 송신이라 매칭에서 제외된다.
+  const isVnetOut=it=>{ const a=`${it.meterName||''} ${it.productName||''} ${it.skuName||''}`.toLowerCase(); const out=a.includes('outbound')||a.includes('egress')||/\bout\b/.test(a); const vnetish=a.includes('inter-virtual network')||a.includes('inter virtual network')||a.includes('inter-vnet')||a.includes('inter vnet')||a.includes('vnet to vnet')||a.includes('vnet-to-vnet')||a.includes('virtual network peering')||a.includes('vnet peering'); if(vnetish&&out) return true; if(a.includes('peering')&&out) return true; if(a.includes('outbound')&&(a.includes('vnet')||a.includes('virtual network'))) return true; return false; };
   const isVpnE=it=>{ const a=`${it.meterName||''} ${it.productName||''} ${it.skuName||''}`.toLowerCase(); if(a.includes('inter-virtual network')||a.includes('inter-vnet')||a.includes('peering')||a.includes('inter-region')||a.includes('cross region')) return false; return a.includes('vpn')||a.includes('data transfer'); };
   const fbT=(gbC,type)=>type==='VNET 간'?gbC.filter(it=>Number(it.unitPrice||0)>0&&isVnetOut(it)):gbC.filter(it=>isVpnE(it));
   const srtC=cands=>{ const zr=new RegExp(`zone\\s*${uZ}\\b`,'i'),ck=it=>zr.test(it.meterName||'')||zr.test(it.skuName||'')||zr.test(it.productName||''); return cands.slice().sort((a,b)=>{ const az=ck(a)?0:1,bz=ck(b)?0:1; if(az!==bz)return az-bz; const ao=/\bout\b|outbound/i.test(a.meterName||'')?0:1,bo=/\bout\b|outbound/i.test(b.meterName||'')?0:1; if(ao!==bo)return ao-bo; return Number(a.unitPrice||0)-Number(b.unitPrice||0); }); };
@@ -72,7 +77,17 @@ window['_resolve_VPN_Gateway'] = async function(row, cur) {
   let payg=null;
   if(gateway)payg={...gateway,unitPrice:hEq,retailPrice:hEq,unitOfMeasure:'1 Hour (equivalent)',_billingMode:'monthly',_monthlyTotal:monthly,_gwHourly:gwH2,_gatewayHours:gwH,_partialErrors:errors.length>0?errors:undefined};
   row.paygItem=payg;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null;
-  if(payg){const tags=[gateway?'GW✓':'GW✗'];if(eS2s>0)tags.push(s2sItem?'S2S✓':'S2S✗');if(eP2s>0)tags.push(p2sItem?'P2S✓':'P2S✗');if(vnetGB>0)tags.push(vnetItem?'VNET✓':'VNET✗');setStatus('ok',`${sku} 완료 [${tags.join(', ')}] · ${monthly.toFixed(2)}/월`);}
+  // VNET 간을 입력했는데 매칭 미터를 못 찾으면 조용한 0원 대신 매칭 실패를 노출
+  const vnetFailed=(vnetGB>0&&!vnetItem);
+  if(payg){
+    const tags=[gateway?'GW✓':'GW✗'];if(eS2s>0)tags.push(s2sItem?'S2S✓':'S2S✗');if(eP2s>0)tags.push(p2sItem?'P2S✓':'P2S✗');if(vnetGB>0)tags.push(vnetItem?'VNET✓':'VNET✗');
+    if(vnetFailed){
+      setStatus('error',`${sku}: VNET 간 데이터 전송 미터 매칭 실패 — 이 리전에 해당 미터 없음(VNET 비용 미포함) [${tags.join(', ')}] · GW등 ${monthly.toFixed(2)}/월`);
+    }else{
+      const vnote=(vnetGB>0&&vnetItem)?` · VNET ${vnetItem.meterName||''} ${vGbP}/GB`:'';
+      setStatus('ok',`${sku} 완료 [${tags.join(', ')}] · ${monthly.toFixed(2)}/월${vnote}`);
+    }
+  }
   else setStatus('error',`${sku}: GW 매칭 실패`);
   updatePriceCells(row);updateTotalsRow();
 };
