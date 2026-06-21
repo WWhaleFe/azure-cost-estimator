@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v56 — 2026-06-21
+- fix: VPN Gateway "VNET 간" 데이터 전송 비용이 koreacentral에서 조용히 0원으로 누락되던 버그 수정. isVnetOut 송신 판정에 egress/outbound/단어 'out'을 포함하고 vnet 계열 판정에 'virtual network peering'을 추가 → 'Global Virtual Network Peering / Inter-Region Egress'($/GB) 미터를 "VNET 간" 송신으로 매칭(수신 Ingress·인터넷 Data Transfer Out은 제외)
+- fix: "VNET 간"을 입력했는데 매칭 미터가 없으면 vnetItem=null로 비용이 조용히 0원 처리되고 상태가 ok로 표시되던 것을, vnetFailed 플래그로 상태를 error("VNET 간 데이터 전송 미터 매칭 실패")로 노출하도록 변경
+- 표기: VNET 매칭 시 적용 미터명과 단가($/GB, API 실시간 값)를 상태창에 함께 표시 → 같은 리전 전용 미터가 없어 리전 간 피어링 송신 미터가 적용됐음을 투명하게 안내
+- 참고: VPN Gateway 서비스에는 데이터 전송 미터가 없고, koreacentral에는 같은 리전 VNet-to-VNet 전용 미터가 존재하지 않음(후보는 모두 리전 간 미터: Global VNet Peering Inter-Region Egress/Ingress $0.09, Bandwidth Inter-Region Data Transfer $0.08)
+- 가격: 모두 API 응답에서 동적 조회(하드코딩 없음)
+- 영향 파일: js/services/vpn-gateway.js, CHANGELOG.md
+- 검증: koreacentral 라이브 API 조회로 후보 미터 확인. node --check 통과. 보강된 isVnetOut 실데이터 검증(Inter-Region Egress만 매칭, Ingress·인터넷 송신·Bandwidth 전송은 모두 비매칭). 커밋본과 로컬 정답본 byte 동일 확인(sha256 일치). 실제 행 표시·매칭 실패 메시지는 브라우저에서 최종 확인 권장
+
 ## v55 — 2026-06-21
 - fix: AKS "SLA and Long Term Support"(LTS)가 항상 매칭 실패하던 버그 수정. _aks_pickGradeHourly의 looksCluster 키워드 게이트에 long term / long-term 추가(LTS 미터명 "Standard Long Term Support"에 cluster/management/uptime/sla가 없어 탈락하던 것이 원인)
 - fix: AKS Automatic 관리요금이 표준 SLA 미터($0.10/h)로 잘못 조회되던 문제 수정. Automatic 전용 미터(productName "...- Automatic" + meterName "...Control Plane" = "Automatic Hosted Control Plane")를 조회하는 'automatic' 등급 경로 신설. resolve에서 Automatic이면 grade='automatic'. 공식 계산기 Automatic 클러스터관리(월 약 17.5만원, 약 $0.16/h)와 일치
