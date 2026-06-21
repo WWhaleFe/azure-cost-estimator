@@ -102,3 +102,31 @@ window['_resolve_Backup'] = async function(row, cur) {
   setStatus('ok', 'Backup ' + label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + ' (월=단가×Qty×usage)');
   updatePriceCells(row); updateTotalsRow();
 };
+
+// ----------------------------------------------------------------
+// 카테고리 등록: SERVICE_CATEGORY_ORDER('Blob Storage' 다음)에 'Backup' 삽입.
+//   이 파일(services)은 ui-and-bootstrap.js(해당 const 정의)보다 먼저 로드되므로,
+//   const가 초기화된 이후(문서 로드 완료) 지연 등록한다. 중복 삽입 가드 포함.
+//   (다른 서비스는 ui-and-bootstrap.js 배열에 직접 등록돼 있으나, 코어 파일 변경을
+//    피하기 위해 Backup은 여기서 등록한다.)
+// ----------------------------------------------------------------
+(function registerBackupCategory() {
+  function reg() {
+    try {
+      if (typeof SERVICE_CATEGORY_ORDER === 'undefined' || !Array.isArray(SERVICE_CATEGORY_ORDER)) return false;
+      if (SERVICE_CATEGORY_ORDER.indexOf('Backup') === -1) {
+        var i = SERVICE_CATEGORY_ORDER.indexOf('Blob Storage');
+        if (i >= 0) SERVICE_CATEGORY_ORDER.splice(i + 1, 0, 'Backup');
+        else SERVICE_CATEGORY_ORDER.push('Backup');
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+  if (!reg()) {
+    if (typeof document !== 'undefined' && document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', reg);
+    } else {
+      setTimeout(reg, 0);
+    }
+  }
+})();
