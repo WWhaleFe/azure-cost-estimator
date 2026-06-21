@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v64 — 2026-06-21
+- feat: Load Balancer 전용 가격 조회 함수(_resolve_Load_Balancer) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, productName을 '<계층> Load Balancer'(존재하지 않음)로 조회하고 row.region(koreacentral)으로 찾아 0건이 됐음(LB 미터는 리전 비종속이라 koreacentral엔 없음)
+- API 구조: serviceName='Load Balancer', productName='Load Balancer', **armRegionName='Global'**(리전 비종속), skuName=계층. row.region이 아닌 'Global'로 조회
+- 계층마다 미터 체계가 달라 청구 항목(metric) 옵션을 계층에 따라 교체(instanceParentKey='tier' + _lb_applyStepVisibility, Backup/AKS 패턴):
+  - Standard/Global: 규칙(시간당, 5개 포함)='<계층> Included LB Rules and Outbound Rules'(1 Hour, 0.025) / 초과 규칙(시간당)='<계층> Overage ...'(1/Hour, 0.01) / 데이터 처리(GB)='<계층> Data Processed'(Standard 0.005 / Global 0.0)
+  - Gateway: 게이트웨이(시간당)='Gateway'(0.0125) / 게이트웨이 체인(시간당)='Gateway Chain'(0.01) / 데이터 처리(GB)='Gateway Data Processed'(0.004)
+  - Basic: 과금 미터 없음(무료) → 선택 시 "무료" 안내만 표시(paygItem=null)
+- 매칭: skuName=계층 + meterName **정확 일치**('- Free' 무료 변형 미터 자동 제외). 계층에 없는 항목 조합은 "매칭 실패"
+- 월=단가×Qty×usage(엔진 기본). 시간제는 usage 칸에 시간(초과 규칙은 Qty=추가 규칙 수), 데이터 처리는 usage 칸에 GB. 절약/예약 미적용
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 Load Balancer 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 위험 회피 위해 미삭제 — Azure Files v60·Bastion v62와 동일 방침)
+- 영향 파일: js/services/load-balancer.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 0건 확인 후 armRegionName='Global'에서 12개 미터 확보. node --check 통과. 실데이터로 9개(계층×청구 항목) 조합 전부 정확 일치 확인('- Free' 제외, Standard/Global/Gateway 각 단가 대조). 함수명(_buildDetail_Load_Balancer / _resolve_Load_Balancer)이 resolver-engine 규칙과 일치. 실제 드롭다운(계층별 청구 항목 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v63 — 2026-06-21
 - feat: "CSV 양식 다운로드"가 전체 17개 서비스 카테고리의 예시 행을 포함하도록 재작성. 기존엔 Virtual Machine·Disk·VPN Gateway 3개 예시만 들어 있었고 업로드도 그 3개만 지원했음 → 모든 서비스를 양식·업로드 모두에서 지원
 - 예시 행 19개(복합 서비스 Disk·Backup은 2개씩): Virtual Machine, Azure Kubernetes Service, Disk(용량형+프로비저닝형), Azure Files, Blob Storage, Backup(보호 인스턴스+저장소), VPN Gateway, Load Balancer, Application Gateway, Public IP, Azure Firewall, Bandwidth, NAT Gateway, Azure SQL Database, Azure Database for MySQL, App Service, Azure Bastion. 각 행은 실제 옵션 키(예: blobTier/redundancy/metric, tier/metric, fileTier 등)로 채워 그대로 업로드 가능
