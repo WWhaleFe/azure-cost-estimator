@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v67 — 2026-06-22
+- feat: Azure Firewall 전용 가격 조회 함수(_resolve_Azure_Firewall) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 productName 'Azure Firewall <계층>'(존재하지 않음) + meterName 부분일치로 처리해 부정확했음(실제 productName은 'Azure Firewall' 단일)
+- API 구조: serviceName='Azure Firewall', productName='Azure Firewall', skuName=계층(독립형 VNet 기준 'Standard'/'Premium'/'Basic'). koreacentral 단가:
+  - Deployment(배포, 1 Hour): Standard 1.25 / Premium 1.75 / Basic 0.395
+  - Data Processed(데이터 처리, 1 GB): Standard 0.016 / Premium 0.016 / Basic 0.065
+  - Capacity Unit(용량 단위, 1 Hour): Standard 0.07 / Premium 0.11 (Basic은 미터 없음)
+- 계층에 따라 청구 항목(metric) 옵션 동적 전환(instanceParentKey='tier' + _fw_applyStepVisibility): Standard/Premium=3개(Deployment/Data Processed/Capacity Unit), Basic=2개(Capacity Unit 없음)
+- 매칭: skuName=계층 + meterName='<계층> <청구 항목>' **정확 일치** → Virtual WAN용 'Secured Virtual Hub' SKU(skuName='Standard Secure Virtual Hub' 등)를 자동 제외(범위 외). 못 찾으면 "매칭 실패"
+- 월=단가×Qty×usage(엔진 기본). 시간제(Deployment/Capacity Unit)는 usage 칸에 시간(예 730), 데이터 처리는 GB. 절약/예약 미적용
+- chore: CSV 양식(v63)의 Azure Firewall 예시 행 metric을 'Deployment (배포, 시간당)'로 갱신(새 청구 항목 라벨 반영)
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 Azure Firewall 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제 — 이전 버전과 동일 방침)
+- 영향 파일: js/services/firewall.js, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API 16건으로 skuName/meterName/단위/단가 확인. node --check 통과(2파일). 실데이터로 8개(계층×청구 항목) 조합 전부 정확 일치 확인, Basic Capacity Unit 미터 부재(미노출 정상) 확인. 함수명(_buildDetail_Azure_Firewall / _resolve_Azure_Firewall)이 resolver-engine 규칙과 일치. 실제 드롭다운(계층별 청구 항목 전환)·행 표시는 브라우저에서 최종 확인 권장
+
 ## v66 — 2026-06-22
 - feat: Public IP 전용 가격 조회 함수(_resolve_Public_IP) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve가 skuName 부분일치(sku & ipType 포함)만 했음
 - API 구조: serviceName='Virtual Network', productName='IP Addresses', skuName=SKU. 미터명 패턴 '<SKU> IPv4 <Static|Dynamic> Public IP'(단위 1 Hour, IPv4). koreacentral 단가: Standard Static 0.005 / Global Static 0.01 / Basic Static 0.0036 / Basic Dynamic 0.004
