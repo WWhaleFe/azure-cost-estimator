@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v72 — 2026-06-22
+- feat: Bandwidth 전용 가격 조회 함수(_resolve_Bandwidth) 신설 — C 그룹 → A 그룹 승격(C 그룹까지 전부 완료). 기존엔 엔진에 전용 매핑이 없어 제네릭 기본 경로(skuName='Outbound (Internet Egress)' 정확 일치)로 처리됐는데 실제 API skuName('Standard')·meterName과 달라 매칭이 거의 실패했음
+- API 구조(serviceName='Bandwidth', koreacentral): productName='Rtn Preference: MGN'(Microsoft Global Network), 단위 1 GB. 전송 방향(direction) → meterName:
+  - Outbound (Internet Egress) → 'Standard Data Transfer Out'(계단형: 0~100GB 무료, 이후 0.12 → 0.085 → 0.082 → 0.08). 엔진은 단일 단가만 쓰므로 첫 유료 구간(tierMinimumUnits=100, 0.12)을 대표값으로 사용 → 무료 100GB·대용량 할인은 미반영(상태창에 명시)
+  - Inter-region → 'Standard Inter-Region Data Transfer'(0.08)
+  - Intra-region → 'Standard Inter-Availability Zone Data Transfer Out'(0.01, 가용성 영역 간)
+- 매칭: productName='Rtn Preference: MGN' + meterName **정확 일치**, Egress는 무료(0.0) 구간 제외 후 첫 유료 구간 선택. 월=단가×Qty×usage(엔진 기본, usage 칸에 GB). 절약/예약 미적용. 못 찾으면 "매칭 실패"
+- 범위 외: Routing Preference: Internet(별도 라우팅 제품, Out 0.11), Data Transfer In(수신, 무료), China 전용 미터
+- 가격: 모두 API에서 동적 조회(하드코딩 없음)
+- 영향 파일: js/services/bandwidth.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API(17건)로 productName/meterName/tierMinimumUnits/단위/단가 확인. node --check 통과. 실데이터로 3개 방향(Internet Egress 0.12, Inter-region 0.08, Intra-region 0.01) 정확 일치 확인. 함수명(_buildDetail_Bandwidth / _resolve_Bandwidth)이 resolver-engine 규칙과 일치. 실제 행 표시는 브라우저에서 최종 확인 권장
+- 마일스톤: 전체 17개 카테고리 모두 전용 resolver + 라이브 검증 완료(A 그룹 17개, B·C 그룹 0개). B 그룹 8개(v62~v70)·C 그룹 2개(v71~v72) 승격 종료
+
 ## v71 — 2026-06-22
 - feat: Azure Database for MySQL 전용 가격 조회 함수(_resolve_Azure_Database_for_MySQL) 신설 — C 그룹 → A 그룹 승격. 기존엔 엔진에 전용 매핑이 없어 제네릭 기본 경로(skuName 정확 일치)로 처리됐고, 옵션('D2ds_v4' 등)이 실제 API skuName과 달라 매칭이 거의 실패했음. Flexible Server 모델로 재설계
 - API 구조(serviceName='Azure Database for MySQL', koreacentral): 계층마다 productName·과금 구조가 다름:
