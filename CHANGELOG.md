@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v63 — 2026-06-21
+- feat: "CSV 양식 다운로드"가 전체 17개 서비스 카테고리의 예시 행을 포함하도록 재작성. 기존엔 Virtual Machine·Disk·VPN Gateway 3개 예시만 들어 있었고 업로드도 그 3개만 지원했음 → 모든 서비스를 양식·업로드 모두에서 지원
+- 예시 행 19개(복합 서비스 Disk·Backup은 2개씩): Virtual Machine, Azure Kubernetes Service, Disk(용량형+프로비저닝형), Azure Files, Blob Storage, Backup(보호 인스턴스+저장소), VPN Gateway, Load Balancer, Application Gateway, Public IP, Azure Firewall, Bandwidth, NAT Gateway, Azure SQL Database, Azure Database for MySQL, App Service, Azure Bastion. 각 행은 실제 옵션 키(예: blobTier/redundancy/metric, tier/metric, fileTier 등)로 채워 그대로 업로드 가능
+- 업로드 확장: CSV_SUPPORTED_CATEGORIES를 SERVICE_CATEGORY_ORDER 전체로 자동 동기화(향후 카테고리 추가 시 자동 반영). SKU 열 매핑(CSV_SKU_OPTION_KEY)에 App Service=size, Azure Database for MySQL=compute, Application Gateway=sku, Public IP=sku 추가(기존 VM=instance/Disk=diskInstance/VPN=sku 유지). 인스턴스·단일 SKU가 없는 서비스는 SKU 열을 비우고 Options만으로 식별 — 모든 서비스가 _buildDetail_*에서 options로 skuName을 구성하므로 동작함
+- 옵션 사전(# 주석) 자동 생성: SERVICE_CATEGORIES.steps에서 서비스별 옵션을 모두 나열(SKU 열로 받는 키는 제외 표기), VM series 인스턴스 카탈로그·Disk 종류별 카탈로그·Backup 조건부 옵션·저장/전송 사용량 단위(Hours 칸=GB) 안내 포함. 총 47줄
+- 주의: 가격 매칭 정확도는 각 서비스 resolver 수준을 따름(A 그룹=라이브 검증, 일부 제네릭 서비스는 매칭 취약 가능 — docs/service-status.csv 참고). 업로드 완료 안내문도 이 취지로 수정
+- 가격 하드코딩 없음(양식은 옵션 메타데이터만 사용, 가격은 업로드 후 API 실시간 조회)
+- 영향 파일: js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: node --check 통과. Node 하니스로 실제 서비스 정의(js/services/*.js)를 로드해 _csvBuildExampleRows/_csvBuildOptionGuide 실행 — 17개 카테고리 전부 예시 포함(누락 0·오타 0), 옵션 사전 47줄 정상 생성 확인. 실제 다운로드 파일·재업로드 동작은 브라우저에서 최종 확인 권장
+
 ## v62 — 2026-06-21
 - feat: Azure Bastion 전용 가격 조회 함수(_resolve_Azure_Bastion) 신설 — B 그룹 → A 그룹 승격. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 거기서 productName을 'Azure Bastion <계층>'(존재하지 않음)으로 조회하고 매칭 조건이 `return true`(첫 consumption 항목)라 게이트웨이 시간요금/추가 게이트웨이/데이터 전송이 구분되지 않고 부정확했음(Blob v57·Azure Files v60과 동일 유형)
 - 옵션 확장: 계층에 Premium 추가(Basic/Standard/**Premium**), 청구 항목(metric) 신설 — 게이트웨이(시간당) / 추가 게이트웨이(시간당) / 데이터 전송 아웃(GB)
