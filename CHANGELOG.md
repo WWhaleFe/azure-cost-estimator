@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v70 — 2026-06-22
+- feat: NAT Gateway 전용 가격 조회 함수(_resolve_NAT_Gateway) 신설 — B 그룹 → A 그룹 승격(B 그룹 8개 전부 완료). 기존 svcDef는 apiServiceName이 'Virtual Network'였고 제네릭이 row.region(koreacentral)으로 조회해 0건이었음 — NAT Gateway 미터는 리전 비종속(Global)이라 koreacentral엔 없음(Load Balancer v64와 동일 유형)
+- API 구조: serviceName='NAT Gateway', productName='NAT Gateway', **armRegionName='Global'**, skuName='Standard'. row.region이 아닌 'Global'로 조회. apiServiceName도 'NAT Gateway'로 정정
+- 청구 항목(metric) 매핑: Resource Hour → 'Standard Gateway'(1 Hour, 0.045) / Data Processed → 'Standard Data Processed'(1 GB, 0.045). skuName='Standard' + meterName **정확 일치**로 StandardV2(Log Enabled, 1/Month)를 제외
+- 월=단가×Qty×usage(엔진 기본). Resource Hour는 usage 칸에 시간(예 730), Data Processed는 GB. 절약/예약 미적용. 못 찾으면 "매칭 실패". StandardV2 Log Enabled는 범위 외
+- 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 NAT Gateway 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제)
+- 영향 파일: js/services/nat-gateway.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 0건 확인 후 armRegionName='Global'에서 미터 확보. node --check 통과. 실데이터로 2개 청구 항목(Resource Hour 0.045/Hour, Data Processed 0.045/GB) 정확 일치 확인. 함수명(_buildDetail_NAT_Gateway / _resolve_NAT_Gateway)이 resolver-engine 규칙과 일치. 실제 행 표시는 브라우저에서 최종 확인 권장
+- 마일스톤: B 그룹 8개(Load Balancer, Application Gateway, Public IP, Azure Firewall, Azure SQL Database, App Service, Azure Bastion, NAT Gateway) 전부 전용 resolver + 라이브 검증 완료(A 그룹 15개). 남은 보완 대상은 C 그룹 2개(Azure Database for MySQL, Bandwidth)
+
 ## v69 — 2026-06-22
 - feat: App Service 전용 가격 조회 함수(_resolve_App_Service) 신설 — B 그룹 → A 그룹 승격. 기존 제네릭은 skuName 정확 일치였으나 옵션 표기('P1V3')가 실제 API skuName('P1 v3', 공백 포함)과 달라 매칭이 깨졌고, OS·계층별 productName 구분이 없었음
 - API 구조: serviceName='Azure App Service', productName='Azure App Service <계층> Plan'(Windows) / '... Plan - Linux'(Linux), skuName=인스턴스(공백 표기 'P1 v3','I1 v2' 등), meterName='<인스턴스> App', 단위 1 Hour
