@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v57 — 2026-06-21
+- fix: Blob Storage 전용 가격 조회 함수(_resolve_Blob_Storage)를 추가해 청구 항목별로 올바른 미터를 매칭. 기존엔 전용 resolver가 없어 엔진 _genericResolve로 처리됐는데, 거기서 청구 항목(metric)을 전혀 쓰지 않아 어떤 항목을 골라도 같은 미터로 매칭되고, productName 매핑('Hot Block Blob' 등)이 실제 API에 없어('General Block Blob v2'가 실제) 매칭이 안 됐음
+- 매칭 방식: skuName("<계층> <중복성>", 예 'Hot LRS')로 계층+중복성을 묶고, meterName 키워드로 청구 항목을 가름 — Data Stored→'data stored'(GB/Month, tierMinimumUnits=0 우선), Read Operations→'read operations'(10K), Write Operations→'write operations'(10K), Data Retrieval→'data retrieval'(GB). 'priority' 계열(Archive Priority)은 제외
+- 월 비용 = 단가 × Qty × usage(엔진 기본 계산). 저장은 usage에 GB, 작업은 usage에 "1만 건 수"를 입력. 절약/예약은 저장소 단가에 적용 안 함. 못 찾으면 "매칭 실패" 표시(예: Hot의 Data Retrieval, Archive의 ZRS 등은 미터가 없어 정상적으로 매칭 실패)
+- 가격: 모두 API 응답에서 동적 조회(하드코딩 없음)
+- 영향 파일: js/services/blob-storage.js, CHANGELOG.md
+- 검증: koreacentral 라이브 API로 실제 productName/skuName/meterName/단위 확인. node --check 통과. 실데이터 조합별 선택 검증(Hot LRS Data Stored $0.02 GB/Month, Hot LRS Read $0.004 10K, Hot LRS Write $0.05 10K, Hot LRS Retrieval 매칭 실패, Cool GRS Data Stored $0.0254, Cold ZRS Retrieval $0.03, Archive LRS Data Stored $0.002, Archive ZRS 매칭 실패). 커밋본과 로컬 정답본 byte 동일 확인(sha256 일치). 실제 행 표시는 브라우저에서 최종 확인 권장
+
 ## v56 — 2026-06-21
 - fix: VPN Gateway "VNET 간" 데이터 전송 비용이 koreacentral에서 조용히 0원으로 누락되던 버그 수정. isVnetOut 송신 판정에 egress/outbound/단어 'out'을 포함하고 vnet 계열 판정에 'virtual network peering'을 추가 → 'Global Virtual Network Peering / Inter-Region Egress'($/GB) 미터를 "VNET 간" 송신으로 매칭(수신 Ingress·인터넷 Data Transfer Out은 제외)
 - fix: "VNET 간"을 입력했는데 매칭 미터가 없으면 vnetItem=null로 비용이 조용히 0원 처리되고 상태가 ok로 표시되던 것을, vnetFailed 플래그로 상태를 error("VNET 간 데이터 전송 미터 매칭 실패")로 노출하도록 변경
