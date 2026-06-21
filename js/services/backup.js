@@ -9,6 +9,7 @@
 //        - Archive는 LRS/GRS만 제공(그 외 조합은 미터가 없어 매칭 실패가 정상)
 //   하나의 Backup 행은 한 가지 청구 항목만 계산합니다. 인스턴스 요금과 저장소 요금은
 //   각각 별도의 Backup 행으로 추가하세요. 절약/예약은 적용하지 않습니다.
+//   ※ 카테고리 등록(SERVICE_CATEGORY_ORDER에 'Backup')은 js/ui-and-bootstrap.js에서 직접 함.
 // ================================================================
 window._svcDefs['Backup'] = {
   apiServiceName: 'Backup',
@@ -102,31 +103,3 @@ window['_resolve_Backup'] = async function(row, cur) {
   setStatus('ok', 'Backup ' + label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + ' (월=단가×Qty×usage)');
   updatePriceCells(row); updateTotalsRow();
 };
-
-// ----------------------------------------------------------------
-// 카테고리 등록: SERVICE_CATEGORY_ORDER('Blob Storage' 다음)에 'Backup' 삽입.
-//   이 파일(services)은 ui-and-bootstrap.js(해당 const 정의)보다 먼저 로드되므로,
-//   const가 초기화된 이후(문서 로드 완료) 지연 등록한다. 중복 삽입 가드 포함.
-//   (다른 서비스는 ui-and-bootstrap.js 배열에 직접 등록돼 있으나, 코어 파일 변경을
-//    피하기 위해 Backup은 여기서 등록한다.)
-// ----------------------------------------------------------------
-(function registerBackupCategory() {
-  function reg() {
-    try {
-      if (typeof SERVICE_CATEGORY_ORDER === 'undefined' || !Array.isArray(SERVICE_CATEGORY_ORDER)) return false;
-      if (SERVICE_CATEGORY_ORDER.indexOf('Backup') === -1) {
-        var i = SERVICE_CATEGORY_ORDER.indexOf('Blob Storage');
-        if (i >= 0) SERVICE_CATEGORY_ORDER.splice(i + 1, 0, 'Backup');
-        else SERVICE_CATEGORY_ORDER.push('Backup');
-      }
-      return true;
-    } catch (e) { return false; }
-  }
-  if (!reg()) {
-    if (typeof document !== 'undefined' && document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', reg);
-    } else {
-      setTimeout(reg, 0);
-    }
-  }
-})();
