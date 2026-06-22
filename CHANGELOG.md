@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v73 — 2026-06-22
+- feat: 페이지 최하단에 "시뮬레이터 소개 · 사용 가이드 보기" 링크 버튼 추가. index.html의 [Remark] 박스 아래에 <footer>를 두고 https://wwhalefe-log.vercel.app/azure-cost-estimator-guide-20260622 로 새 탭 이동(target=_blank, rel=noopener noreferrer). 기존 'btn btn-calculator' 스타일 재사용
+- 비고: index.html 변경은 커밋 0b894dd5에 들어갔는데, 저장소가 동시에 v72까지 진행된 것을 모른 채 그 커밋 메시지를 "v62"로 잘못 표기함(v62는 Azure Bastion). 실제 버전은 이 v73 항목으로 확정
+- 영향 파일: index.html(커밋 0b894dd5), CHANGELOG.md
+- 검증: get_commit 패치로 footer 블록만 추가(6줄, 삭제 0, 그 외 무변경 → 나머지 원본과 동일하므로 DOM 구조·스크립트 로드 순서 보존) 확인. list_commits로 index.html HEAD가 0b894dd5(footer)임을 확인(이후 작업에 덮이지 않음). 외부 링크 실제 동작·생존 여부는 브라우저에서 확인 권장(이 환경은 외부 URL 접속 불가)
+
 ## v72 — 2026-06-22
 - feat: Bandwidth 전용 가격 조회 함수(_resolve_Bandwidth) 신설 — C 그룹 → A 그룹 승격(C 그룹까지 전부 완료). 기존엔 엔진에 전용 매핑이 없어 제네릭 기본 경로(skuName='Outbound (Internet Egress)' 정확 일치)로 처리됐는데 실제 API skuName('Standard')·meterName과 달라 매칭이 거의 실패했음
 - API 구조(serviceName='Bandwidth', koreacentral): productName='Rtn Preference: MGN'(Microsoft Global Network), 단위 1 GB. 전송 방향(direction) → meterName:
