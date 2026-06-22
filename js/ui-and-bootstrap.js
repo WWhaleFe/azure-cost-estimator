@@ -128,6 +128,7 @@ function render(){
     <td class="cell-readonly cell-ok group-ri1">-</td><td class="cell-readonly cell-ok group-ri1">${fmtMoney(totals.ri1M)}</td><td class="cell-readonly cell-ok group-ri1">${fmtMoney(totals.ri1Y)}</td>
     <td class="cell-readonly cell-ok group-ri3">-</td><td class="cell-readonly cell-ok group-ri3">${fmtMoney(totals.ri3M)}</td><td class="cell-readonly cell-ok group-ri3">${fmtMoney(totals.ri3Y)}</td>
     <td></td></tr>`;
+  _refreshFillButtons();
 }
 
 function updatePriceCells(row){
@@ -248,36 +249,58 @@ function _clearAllManualFills() {
 }
 
 // ================================================================
-// 열(그룹) 단위 처리 — 표 위 '열 도구' 툴바에서 사용 (v74)
-//   _fillColumnAllRows: 특정 한 그룹만, 모든 행의 빈 칸을 용량제 값으로 채움(수동)
-//   _toggleColumnVisibility: 특정 그룹 열을 CSS로 숨김/표시(셀은 제거하지 않아 위치·계산 로직 보존)
+// 열(그룹) 단위 처리 (v75)
+//   _toggleFillColumn: 헤더 '채우기' 버튼 토글 — 그 열에 수동 채움이 있으면 모두 지우고,
+//                      없으면 용량제 값이 있는 모든 행의 빈 칸을 채움
+//   _columnHasManualFill / _refreshFillButtons: 헤더 버튼의 채움 상태 표시 동기화(render마다)
+//   _applyColumnVisibility: Region 박스의 '열 보기' 체크박스 — 그 열을 CSS로 표시/숨김
+//                           (셀은 DOM에서 제거하지 않아 셀 위치·더블클릭·총계·엑셀 로직 보존)
 // ================================================================
-function _fillColumnAllRows(groupKey) {
+function _columnHasManualFill(groupKey) {
+  var g = FILLABLE_GROUPS.find(function (x) { return x.key === groupKey; });
+  if (!g) return false;
+  return rows.some(function (r) { var c = r[g.itemKey]; return c && c._manualFill; });
+}
+function _toggleFillColumn(groupKey) {
   var g = FILLABLE_GROUPS.find(function (x) { return x.key === groupKey; });
   if (!g) return;
   var label = COLUMN_LABELS[groupKey] || groupKey;
-  var filled = 0, noPaygRows = 0;
-  rows.forEach(function (r) {
-    if (!r.paygItem) { if (r.serviceCategory) noPaygRows++; return; }
-    if (!r[g.itemKey]) { r[g.itemKey] = _makeManualFromPayg(r.paygItem); filled++; }
-  });
-  render();
-  var msg = label + ' 열 채우기: ' + filled + '개 행을 용량제 값으로 채움(수동)';
-  if (noPaygRows > 0) msg += ' · 용량제 없는 ' + noPaygRows + '개 행 제외';
-  if (filled === 0) msg = label + ' 열 채우기: 채울 빈 칸이 없습니다(이미 값이 있거나 용량제 없음).';
-  setStatus('ok', msg);
+  if (_columnHasManualFill(groupKey)) {
+    var cleared = 0;
+    rows.forEach(function (r) { var c = r[g.itemKey]; if (c && c._manualFill) { r[g.itemKey] = null; cleared++; } });
+    render();
+    setStatus('ok', label + ' 열: 수동 채움 ' + cleared + '개 행 지움(원본 값은 유지)');
+  } else {
+    var filled = 0, noPaygRows = 0;
+    rows.forEach(function (r) {
+      if (!r.paygItem) { if (r.serviceCategory) noPaygRows++; return; }
+      if (!r[g.itemKey]) { r[g.itemKey] = _makeManualFromPayg(r.paygItem); filled++; }
+    });
+    render();
+    var msg = label + ' 열: 빈 칸 ' + filled + '개 행을 용량제 값으로 채움(수동)';
+    if (noPaygRows > 0) msg += ' · 용량제 없는 ' + noPaygRows + '개 행 제외';
+    if (filled === 0) msg = label + ' 열: 채울 빈 칸이 없습니다(이미 값이 있거나 용량제 없음).';
+    setStatus('ok', msg);
+  }
 }
-function _toggleColumnVisibility(groupKey) {
+function _refreshFillButtons() {
+  ['sp1', 'sp3', 'ri1', 'ri3'].forEach(function (k) {
+    var btn = document.getElementById('btnFillCol-' + k);
+    if (!btn) return;
+    var on = _columnHasManualFill(k);
+    var label = COLUMN_LABELS[k] || k;
+    btn.classList.toggle('on', on);
+    btn.textContent = on ? '지우기' : '채우기';
+    btn.title = on ? (label + ' 열의 수동 채움 값을 모두 지웁니다') : (label + ' 열의 빈 칸을 용량제 값으로 채웁니다');
+  });
+}
+function _applyColumnVisibility(groupKey, visible) {
   var table = document.getElementById('mainTable');
   if (!table) return;
   var label = COLUMN_LABELS[groupKey] || groupKey;
-  var nowHidden = table.classList.toggle('hide-' + groupKey);
-  var btn = document.getElementById('btnToggleCol-' + groupKey);
-  if (btn) {
-    btn.classList.toggle('btn-col-off', nowHidden);
-    btn.title = label + (nowHidden ? ' 열 보이기' : ' 열 숨기기');
-  }
-  setStatus('ok', label + (nowHidden ? ' 열을 숨겼습니다(데이터는 유지).' : ' 열을 다시 표시했습니다.'));
+  if (visible) table.classList.remove('hide-' + groupKey);
+  else table.classList.add('hide-' + groupKey);
+  setStatus('ok', label + (visible ? ' 열을 표시했습니다.' : ' 열을 숨겼습니다(데이터는 유지).'));
 }
 
 // 가격 셀 더블클릭 → 그룹 단위 토글 (절약/예약 4개 그룹만, 용량제 제외)
@@ -352,13 +375,14 @@ $body.addEventListener('input',(e)=>{
 document.getElementById('btnAddRow').addEventListener('click',addRow);
 document.getElementById('btnFillAll').addEventListener('click',_fillAllEmptyGroups);
 document.getElementById('btnClearAll').addEventListener('click',_clearAllManualFills);
-// 열 도구(v74): 그룹별 빈칸 채우기 / 열 숨기기·보이기 버튼 연결
+// 열 도구(v75): 헤더 '채우기' 토글 버튼 + Region 박스 '열 보기' 체크박스 연결
 ['sp1','sp3','ri1','ri3'].forEach(function(k){
   var fb=document.getElementById('btnFillCol-'+k);
-  if(fb)fb.addEventListener('click',function(){_fillColumnAllRows(k);});
-  var tb=document.getElementById('btnToggleCol-'+k);
-  if(tb)tb.addEventListener('click',function(){_toggleColumnVisibility(k);});
+  if(fb)fb.addEventListener('click',function(){_toggleFillColumn(k);});
+  var vc=document.getElementById('chkVis-'+k);
+  if(vc)vc.addEventListener('change',function(e){_applyColumnVisibility(k,e.target.checked);});
 });
+_refreshFillButtons();
 document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   const prev=e.target._prevValue||'KRW';clearCacheForCurrency(prev);e.target._prevValue=e.target.value;
   for(const r of rows){r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null;}
