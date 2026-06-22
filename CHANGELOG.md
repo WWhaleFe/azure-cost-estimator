@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v74 — 2026-06-22
+- feat: 표 위에 "열 도구" 툴바 신설 — 절약 플랜 1년·3년, 예약 1년·3년 4개 열에 대해 (1) 열별 빈칸 채우기, (2) 열별 숨기기/보이기 제공
+- 열별 빈칸 채우기(_fillColumnAllRows): 선택한 한 열(그룹)만, 용량제(PAYG) 값이 있는 모든 행의 빈 칸을 용량제 값으로 복사해 채움(수동, _manualFill). 원본 API 값이 있는 그룹·용량제 없는 행은 건드리지 않음. 처리 결과(채운 행 수, 용량제 없는 행 제외 수)를 상태창에 표시. 기존 행별 ⊕·전체 채우기(v50/v52)와 동일한 _makeManualFromPayg 로직 재사용
+- 열별 숨기기/보이기(_toggleColumnVisibility): 표 element에 hide-<key> 클래스를 토글해 CSS display:none으로만 숨김 — 셀을 DOM에서 제거하지 않으므로 셀 위치(cellIndex 9~23)·더블클릭 그룹 토글(v50)·총계 map·엑셀 내보내기 로직이 모두 보존됨. 숨긴 열의 토글 버튼은 회색+취소선(btn-col-off)으로 상태 표시. 데이터는 유지되며 다시 누르면 복원
+- 가격 셀(본문/총계)에 그룹 클래스(group-payg/sp1/sp3/ri1/ri3) 부여: priceCells에 groupClass 인자 추가, render()의 5개 호출과 총계행 td에 클래스 부여, updatePriceCells도 className 갱신 시 그룹 클래스를 함께 유지(가격 재계산 후에도 숨김 지속). 헤더 th에는 기존부터 그룹 클래스가 있어 그대로 사용
+- 주의: 열 숨김은 화면 표시 전용이며 엑셀 출력 대상은 기존 헤더 체크박스(chk-group-*)로 별도 제어됨(숨겨도 출력에는 영향 없음)
+- 가격 로직·하드코딩 변경 없음(표시/입력 보조 기능만)
+- 영향 파일: index.html, css/main.css, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 3개 파일 각각 get_commit 패치로 변경 범위 확인 — css(+8, 삭제 0: hide-* 규칙·btn-col-off만 추가), index.html(+17, 삭제 0: columnToolbar 블록만 추가), ui-and-bootstrap.js(+63/-20: priceCells·render 5개 호출·총계행·updatePriceCells에 그룹 클래스, COLUMN_LABELS, 두 함수, 버튼 연결 루프만 — 셀 인덱스/더블클릭/총계 map/엑셀 getEnabledGroups 로직 무변경). 신규 DOM id(btnFillCol-* / btnToggleCol-* / columnToolbar) ↔ getElementById 일치 확인. 실제 채우기·숨김 동작은 브라우저에서 하드 새로고침 후 확인 권장(Mac Chrome/Edge: Cmd+Shift+R)
+
 ## v73 — 2026-06-22
 - feat: 페이지 최하단에 "시뮬레이터 소개 · 사용 가이드 보기" 링크 버튼 추가. index.html의 [Remark] 박스 아래에 <footer>를 두고 https://wwhalefe-log.vercel.app/azure-cost-estimator-guide-20260622 로 새 탭 이동(target=_blank, rel=noopener noreferrer). 기존 'btn btn-calculator' 스타일 재사용
 - 비고: index.html 변경은 커밋 0b894dd5에 들어갔는데, 저장소가 동시에 v72까지 진행된 것을 모른 채 그 커밋 메시지를 "v62"로 잘못 표기함(v62는 Azure Bastion). 실제 버전은 이 v73 항목으로 확정
