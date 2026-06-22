@@ -209,3 +209,14 @@
   .grid-table.hide-ri3 .group-ri3 { display: none; }
   /* 토글로 숨겨진 열의 버튼: 회색+취소선으로 '숨김 상태'임을 표시 */
   .btn.btn-col-off { background: #edebe9; color: #a19f9d; border-color: #d2d0ce; text-decoration: line-through; }
+
+  /* ===== 열 도구(v75): 헤더 그룹 체크박스 옆 '채우기' 토글 버튼 ===== */
+  /* 라벨 아래 줄에 표시. on(채워진 상태)일 때 흰 배경+앰버 글자로 cell-fill 색과 맞춤 */
+  .th-fill-btn {
+    display: block; margin: 4px auto 0; padding: 1px 8px;
+    font-size: 10px; font-weight: 600; line-height: 1.5; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.75); border-radius: 2px;
+    background: rgba(255,255,255,0.18); color: #fff; white-space: nowrap;
+  }
+  .th-fill-btn:hover { background: rgba(255,255,255,0.32); }
+  .th-fill-btn.on { background: #fff; color: #7a5b00; border-color: #fff; }
