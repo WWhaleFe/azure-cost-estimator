@@ -33,10 +33,11 @@ function calcGroup(item,qty,usage){
   const u=Number(item.unitPrice);if(isNaN(u))return null;
   return{unit:u,monthly:u*qty*usage,year:u*qty*usage*12};
 }
-function priceCells(data,hasItem,isManual){
-  if(!hasItem||!data)return`<td class="cell-readonly"></td><td class="cell-readonly"></td><td class="cell-readonly"></td>`;
+function priceCells(data,hasItem,isManual,groupClass){
+  const gc=groupClass?(' '+groupClass):'';
+  if(!hasItem||!data)return`<td class="cell-readonly${gc}"></td><td class="cell-readonly${gc}"></td><td class="cell-readonly${gc}"></td>`;
   const cls=isManual?'cell-readonly cell-ok cell-fill':'cell-readonly cell-ok';
-  return`<td class="${cls}">${fmtUnit(data.unit)}</td><td class="${cls}">${fmtMoney(data.monthly)}</td><td class="${cls}">${fmtMoney(data.year)}</td>`;
+  return`<td class="${cls}${gc}">${fmtUnit(data.unit)}</td><td class="${cls}${gc}">${fmtMoney(data.monthly)}</td><td class="${cls}${gc}">${fmtMoney(data.year)}</td>`;
 }
 
 const SERVICE_CATEGORY_ORDER = [
@@ -105,11 +106,11 @@ function render(){
       <td class="cell-detail"><div class="detail-wrap">${escapeHtml(row.detail)||'<span style="color:#a19f9d;font-size:10px;">자동 생성됨</span>'}</div></td>
       <td><input type="number" min="0" step="any" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="qty" value="${row.qty}" /></td>
       <td><input type="number" min="0" step="1" class="cell-input text-right" data-act="num" data-id="${row.id}" data-field="usage" value="${row.usage}" placeholder="730" /></td>
-      ${priceCells(payg,!!row.paygItem,!!(row.paygItem&&row.paygItem._manualFill))}
-      ${priceCells(sp1,!!row.sp1Item,!!(row.sp1Item&&row.sp1Item._manualFill))}
-      ${priceCells(sp3,!!row.sp3Item,!!(row.sp3Item&&row.sp3Item._manualFill))}
-      ${priceCells(ri1,!!row.ri1Item,!!(row.ri1Item&&row.ri1Item._manualFill))}
-      ${priceCells(ri3,!!row.ri3Item,!!(row.ri3Item&&row.ri3Item._manualFill))}
+      ${priceCells(payg,!!row.paygItem,!!(row.paygItem&&row.paygItem._manualFill),'group-payg')}
+      ${priceCells(sp1,!!row.sp1Item,!!(row.sp1Item&&row.sp1Item._manualFill),'group-sp1')}
+      ${priceCells(sp3,!!row.sp3Item,!!(row.sp3Item&&row.sp3Item._manualFill),'group-sp3')}
+      ${priceCells(ri1,!!row.ri1Item,!!(row.ri1Item&&row.ri1Item._manualFill),'group-ri1')}
+      ${priceCells(ri3,!!row.ri3Item,!!(row.ri3Item&&row.ri3Item._manualFill),'group-ri3')}
       <td class="text-center whitespace-nowrap" style="background:#f8fbff;">
         <button class="row-action-btn" data-act="fill-empty" data-id="${row.id}" title="빈 절약/예약 칸을 용량제 값으로 채우기 (셀 더블클릭으로 개별 토글)">⊕</button>
         <button class="row-action-btn" data-act="config" data-id="${row.id}" title="옵션 설정">⚙</button>
@@ -121,29 +122,29 @@ function render(){
 
   $foot.innerHTML=`<tr class="total-row">
     <td colspan="9" style="text-align:right;padding:6px 8px;">Total</td>
-    <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.paygM)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.paygY)}</td>
-    <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.sp1M)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.sp1Y)}</td>
-    <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.sp3M)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.sp3Y)}</td>
-    <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri1M)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri1Y)}</td>
-    <td class="cell-readonly cell-ok">-</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri3M)}</td><td class="cell-readonly cell-ok">${fmtMoney(totals.ri3Y)}</td>
+    <td class="cell-readonly cell-ok group-payg">-</td><td class="cell-readonly cell-ok group-payg">${fmtMoney(totals.paygM)}</td><td class="cell-readonly cell-ok group-payg">${fmtMoney(totals.paygY)}</td>
+    <td class="cell-readonly cell-ok group-sp1">-</td><td class="cell-readonly cell-ok group-sp1">${fmtMoney(totals.sp1M)}</td><td class="cell-readonly cell-ok group-sp1">${fmtMoney(totals.sp1Y)}</td>
+    <td class="cell-readonly cell-ok group-sp3">-</td><td class="cell-readonly cell-ok group-sp3">${fmtMoney(totals.sp3M)}</td><td class="cell-readonly cell-ok group-sp3">${fmtMoney(totals.sp3Y)}</td>
+    <td class="cell-readonly cell-ok group-ri1">-</td><td class="cell-readonly cell-ok group-ri1">${fmtMoney(totals.ri1M)}</td><td class="cell-readonly cell-ok group-ri1">${fmtMoney(totals.ri1Y)}</td>
+    <td class="cell-readonly cell-ok group-ri3">-</td><td class="cell-readonly cell-ok group-ri3">${fmtMoney(totals.ri3M)}</td><td class="cell-readonly cell-ok group-ri3">${fmtMoney(totals.ri3Y)}</td>
     <td></td></tr>`;
 }
 
 function updatePriceCells(row){
   const tr=$body.querySelector(`tr[data-id="${row.id}"]`);if(!tr)return;
   const tds=tr.querySelectorAll('td'),qty=Number(row.qty)||0,usage=Number(row.usage)||0;
-  [{item:row.paygItem,base:9},{item:row.sp1Item,base:12},{item:row.sp3Item,base:15},{item:row.ri1Item,base:18},{item:row.ri3Item,base:21}].forEach(({item,base})=>{
+  [{item:row.paygItem,base:9,gc:'group-payg'},{item:row.sp1Item,base:12,gc:'group-sp1'},{item:row.sp3Item,base:15,gc:'group-sp3'},{item:row.ri1Item,base:18,gc:'group-ri1'},{item:row.ri3Item,base:21,gc:'group-ri3'}].forEach(({item,base,gc})=>{
     if(!tds[base]||!tds[base+1]||!tds[base+2])return;
     const data=calcGroup(item,qty,usage);
     if(!data){
-      tds[base].className='cell-readonly';tds[base].textContent='';
-      tds[base+1].className='cell-readonly';tds[base+1].textContent='';
-      tds[base+2].className='cell-readonly';tds[base+2].textContent='';
+      tds[base].className='cell-readonly '+gc;tds[base].textContent='';
+      tds[base+1].className='cell-readonly '+gc;tds[base+1].textContent='';
+      tds[base+2].className='cell-readonly '+gc;tds[base+2].textContent='';
     }else{
       const cls=(item&&item._manualFill)?'cell-readonly cell-ok cell-fill':'cell-readonly cell-ok';
-      tds[base].className=cls;tds[base].textContent=fmtUnit(data.unit);
-      tds[base+1].className=cls;tds[base+1].textContent=fmtMoney(data.monthly);
-      tds[base+2].className=cls;tds[base+2].textContent=fmtMoney(data.year);
+      tds[base].className=cls+' '+gc;tds[base].textContent=fmtUnit(data.unit);
+      tds[base+1].className=cls+' '+gc;tds[base+1].textContent=fmtMoney(data.monthly);
+      tds[base+2].className=cls+' '+gc;tds[base+2].textContent=fmtMoney(data.year);
     }
   });
 }
@@ -173,6 +174,8 @@ var FILLABLE_GROUPS = [
   { key: 'ri1', itemKey: 'ri1Item', tdBase: 18 },
   { key: 'ri3', itemKey: 'ri3Item', tdBase: 21 },
 ];
+// 열(그룹) 라벨 — 열 도구 버튼/상태 메시지에서 사용
+var COLUMN_LABELS = { sp1: '절약 플랜 1년', sp3: '절약 플랜 3년', ri1: '예약 1년', ri3: '예약 3년' };
 function _makeManualFromPayg(payg) {
   if (!payg) return null;
   var copy = Object.assign({}, payg);
@@ -242,6 +245,39 @@ function _clearAllManualFills() {
   render();
   if (clearedGroups === 0) setStatus('ok', '전체 지우기: 지울 수동 입력 값이 없습니다.');
   else setStatus('ok', '전체 지우기: ' + clearedRows + '개 행, ' + clearedGroups + '개 그룹의 수동 입력 값을 지움(원본 값은 유지)');
+}
+
+// ================================================================
+// 열(그룹) 단위 처리 — 표 위 '열 도구' 툴바에서 사용 (v74)
+//   _fillColumnAllRows: 특정 한 그룹만, 모든 행의 빈 칸을 용량제 값으로 채움(수동)
+//   _toggleColumnVisibility: 특정 그룹 열을 CSS로 숨김/표시(셀은 제거하지 않아 위치·계산 로직 보존)
+// ================================================================
+function _fillColumnAllRows(groupKey) {
+  var g = FILLABLE_GROUPS.find(function (x) { return x.key === groupKey; });
+  if (!g) return;
+  var label = COLUMN_LABELS[groupKey] || groupKey;
+  var filled = 0, noPaygRows = 0;
+  rows.forEach(function (r) {
+    if (!r.paygItem) { if (r.serviceCategory) noPaygRows++; return; }
+    if (!r[g.itemKey]) { r[g.itemKey] = _makeManualFromPayg(r.paygItem); filled++; }
+  });
+  render();
+  var msg = label + ' 열 채우기: ' + filled + '개 행을 용량제 값으로 채움(수동)';
+  if (noPaygRows > 0) msg += ' · 용량제 없는 ' + noPaygRows + '개 행 제외';
+  if (filled === 0) msg = label + ' 열 채우기: 채울 빈 칸이 없습니다(이미 값이 있거나 용량제 없음).';
+  setStatus('ok', msg);
+}
+function _toggleColumnVisibility(groupKey) {
+  var table = document.getElementById('mainTable');
+  if (!table) return;
+  var label = COLUMN_LABELS[groupKey] || groupKey;
+  var nowHidden = table.classList.toggle('hide-' + groupKey);
+  var btn = document.getElementById('btnToggleCol-' + groupKey);
+  if (btn) {
+    btn.classList.toggle('btn-col-off', nowHidden);
+    btn.title = label + (nowHidden ? ' 열 보이기' : ' 열 숨기기');
+  }
+  setStatus('ok', label + (nowHidden ? ' 열을 숨겼습니다(데이터는 유지).' : ' 열을 다시 표시했습니다.'));
 }
 
 // 가격 셀 더블클릭 → 그룹 단위 토글 (절약/예약 4개 그룹만, 용량제 제외)
@@ -316,6 +352,13 @@ $body.addEventListener('input',(e)=>{
 document.getElementById('btnAddRow').addEventListener('click',addRow);
 document.getElementById('btnFillAll').addEventListener('click',_fillAllEmptyGroups);
 document.getElementById('btnClearAll').addEventListener('click',_clearAllManualFills);
+// 열 도구(v74): 그룹별 빈칸 채우기 / 열 숨기기·보이기 버튼 연결
+['sp1','sp3','ri1','ri3'].forEach(function(k){
+  var fb=document.getElementById('btnFillCol-'+k);
+  if(fb)fb.addEventListener('click',function(){_fillColumnAllRows(k);});
+  var tb=document.getElementById('btnToggleCol-'+k);
+  if(tb)tb.addEventListener('click',function(){_toggleColumnVisibility(k);});
+});
 document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   const prev=e.target._prevValue||'KRW';clearCacheForCurrency(prev);e.target._prevValue=e.target.value;
   for(const r of rows){r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null;}
