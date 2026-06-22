@@ -53,24 +53,14 @@
     <span class="text-[#605e5c]">기본 사용량(Hours):</span>
     <input id="defaultHours" type="number" value="730" class="border border-[#d2d0ce] rounded-sm px-2 py-1 w-20" />
     <div class="flex-1"></div>
+    <!-- 열 보기/숨기기(v75): 체크 해제 시 해당 열을 화면에서 숨김(데이터·엑셀 출력에는 영향 없음) -->
+    <span class="font-semibold text-[#605e5c]">열 보기:</span>
+    <label class="text-[#605e5c]" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" id="chkVis-sp1" checked> 절약 1년</label>
+    <label class="text-[#605e5c]" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" id="chkVis-sp3" checked> 절약 3년</label>
+    <label class="text-[#605e5c]" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" id="chkVis-ri1" checked> 예약 1년</label>
+    <label class="text-[#605e5c]" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" id="chkVis-ri3" checked> 예약 3년</label>
+    <span class="text-[#a19f9d]">|</span>
     <div id="apiStatus"></div>
-  </div>
-
-  <!-- 열 도구(v74): 그룹별 빈칸 채우기 / 열 숨기기·보이기. 표시는 화면 전용이며 엑셀 출력은 표 헤더 체크박스로 별도 제어 -->
-  <div id="columnToolbar" class="bg-white border border-[#e1dfdd] rounded-sm p-2 mb-2 flex flex-wrap gap-3 items-center text-xs">
-    <span class="font-semibold text-[#605e5c]">열 도구</span>
-    <span class="text-[#a19f9d]">|</span>
-    <span class="text-[#605e5c]">빈칸 채우기(용량제 값 복사):</span>
-    <button id="btnFillCol-sp1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '절약 플랜 1년' 칸을 용량제 값으로 채웁니다">절약 1년</button>
-    <button id="btnFillCol-sp3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '절약 플랜 3년' 칸을 용량제 값으로 채웁니다">절약 3년</button>
-    <button id="btnFillCol-ri1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '예약 1년' 칸을 용량제 값으로 채웁니다">예약 1년</button>
-    <button id="btnFillCol-ri3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '예약 3년' 칸을 용량제 값으로 채웁니다">예약 3년</button>
-    <span class="text-[#a19f9d]">|</span>
-    <span class="text-[#605e5c]">열 숨기기/보이기:</span>
-    <button id="btnToggleCol-sp1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'절약 플랜 1년' 열 숨기기">절약 1년</button>
-    <button id="btnToggleCol-sp3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'절약 플랜 3년' 열 숨기기">절약 3년</button>
-    <button id="btnToggleCol-ri1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'예약 1년' 열 숨기기">예약 1년</button>
-    <button id="btnToggleCol-ri3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'예약 3년' 열 숨기기">예약 3년</button>
   </div>
 
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
@@ -86,7 +76,7 @@
           <th rowspan="2" style="width:260px;">상세 사양</th>
           <th rowspan="2" style="width:44px;">Qty</th>
           <th rowspan="2" style="width:80px;">사용량<br>(Hours)</th>
-          <!-- 체크박스가 텍스트 앞(왼쪽)에 배치 -->
+          <!-- 체크박스(엑셀 출력 선택)가 텍스트 앞(왼쪽)에 배치. 절약/예약 그룹은 아래에 '채우기' 토글 버튼(v75) -->
           <th colspan="3" class="group-payg th-with-checkbox">
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-payg" checked title="엑셀 출력 선택"> 용량제 (PAYG)
@@ -96,21 +86,25 @@
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-sp1" checked title="엑셀 출력 선택"> 절약 플랜 1년
             </label>
+            <button type="button" id="btnFillCol-sp1" class="th-fill-btn" title="이 열의 빈 칸을 용량제 값으로 채우기 / 다시 누르면 채운 값 지우기">채우기</button>
           </th>
           <th colspan="3" class="group-sp3 th-with-checkbox">
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-sp3" checked title="엑셀 출력 선택"> 절약 플랜 3년
             </label>
+            <button type="button" id="btnFillCol-sp3" class="th-fill-btn" title="이 열의 빈 칸을 용량제 값으로 채우기 / 다시 누르면 채운 값 지우기">채우기</button>
           </th>
           <th colspan="3" class="group-ri1 th-with-checkbox">
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-ri1" checked title="엑셀 출력 선택"> 예약 1년
             </label>
+            <button type="button" id="btnFillCol-ri1" class="th-fill-btn" title="이 열의 빈 칸을 용량제 값으로 채우기 / 다시 누르면 채운 값 지우기">채우기</button>
           </th>
           <th colspan="3" class="group-ri3 th-with-checkbox">
             <label class="th-checkbox-label">
               <input type="checkbox" id="chk-group-ri3" checked title="엑셀 출력 선택"> 예약 3년
             </label>
+            <button type="button" id="btnFillCol-ri3" class="th-fill-btn" title="이 열의 빈 칸을 용량제 값으로 채우기 / 다시 누르면 채운 값 지우기">채우기</button>
           </th>
           <th rowspan="2" style="width:100px;">Action</th>
         </tr>
