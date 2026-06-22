@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v75 — 2026-06-22
+- refactor: v74의 표 위 "열 도구" 툴바를 해체하고 두 기능을 더 직관적인 위치로 이동
+  - 빈칸 채우기: 표 헤더의 절약 1년/3년·예약 1년/3년 그룹 체크박스 아래에 '채우기' 토글 버튼(btnFillCol-*)으로 이동. 누르면 그 열에 수동 채움이 있으면 모두 지우고(지우기), 없으면 용량제(PAYG) 값이 있는 모든 행의 빈 칸을 채움(채우기) — _toggleFillColumn. 버튼 텍스트/상태(on)는 render마다 _refreshFillButtons로 현재 열의 수동 채움 여부에 맞춰 동기화(더블클릭 토글·행별 ⊕·통화 변경 등 모든 갱신 반영)
+  - 열 숨기기/보이기: "기본 Region" 박스 우측에 체크박스 4개(chkVis-sp1/sp3/ri1/ri3, 기본 체크=표시)로 이동. 체크 해제 시 표 element에 hide-<key> 클래스를 더해 CSS display:none으로만 숨김 — 셀을 DOM에서 제거하지 않아 셀 위치(cellIndex 9~23)·더블클릭 그룹 토글·총계 map·엑셀 내보내기 로직 보존 — _applyColumnVisibility
+- 제거: v74의 columnToolbar(index.html), _fillColumnAllRows·_toggleColumnVisibility·btnToggleCol-* 의존 코드. v74에서 추가한 CSS hide-* 규칙은 체크박스가 그대로 재사용(무변경)
+- 주의: 열 숨김은 화면 표시 전용이며 엑셀 출력 대상은 기존 헤더 체크박스(chk-group-*)로 별도 제어됨(숨겨도 출력에는 영향 없음)
+- 가격 로직·하드코딩 변경 없음(표시/입력 보조 기능만)
+- 영향 파일: css/main.css, index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 3개 파일 각각 get_commit 패치로 변경 범위 확인 — css(커밋 d3a00296: .th-fill-btn 스타일만 추가, 기존 규칙 무변경), index.html(커밋 d1ce12dc, +12/-18: columnToolbar 제거 + Region 박스 chkVis-* 4개 + 헤더 btnFillCol-* 4개, 표 본문/엑셀 체크박스 무변경), ui-and-bootstrap.js(커밋 955e90fa, +49/-25: render 끝에 _refreshFillButtons 호출, v74 함수 2개를 _columnHasManualFill·_toggleFillColumn·_refreshFillButtons·_applyColumnVisibility로 교체, 바인딩을 토글 버튼+체크박스로 교체 — 셀 인덱스/더블클릭/총계 map/엑셀 getEnabledGroups 무변경). 신규 DOM id(btnFillCol-* / chkVis-*) ↔ getElementById 일치 확인. 실제 토글·숨김 동작은 브라우저에서 하드 새로고침 후 확인 권장(Mac Chrome/Edge: Cmd+Shift+R)
+
 ## v74 — 2026-06-22
 - feat: 표 위에 "열 도구" 툴바 신설 — 절약 플랜 1년·3년, 예약 1년·3년 4개 열에 대해 (1) 열별 빈칸 채우기, (2) 열별 숨기기/보이기 제공
 - 열별 빈칸 채우기(_fillColumnAllRows): 선택한 한 열(그룹)만, 용량제(PAYG) 값이 있는 모든 행의 빈 칸을 용량제 값으로 복사해 채움(수동, _manualFill). 원본 API 값이 있는 그룹·용량제 없는 행은 건드리지 않음. 처리 결과(채운 행 수, 용량제 없는 행 제외 수)를 상태창에 표시. 기존 행별 ⊕·전체 채우기(v50/v52)와 동일한 _makeManualFromPayg 로직 재사용
