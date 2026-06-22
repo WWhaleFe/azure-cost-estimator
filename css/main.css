@@ -200,3 +200,12 @@
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     padding: 12px 18px; border-top: 1px solid #e1dfdd; background: #faf9f8; flex-shrink: 0;
   }
+
+  /* ===== 열 도구(v74): 그룹 열 숨김 + 토글 버튼 비활성 표시 ===== */
+  /* 셀을 DOM에서 제거하지 않고 CSS로만 숨김 → 셀 위치(cellIndex)·더블클릭 토글·총계·엑셀 로직 보존 */
+  .grid-table.hide-sp1 .group-sp1,
+  .grid-table.hide-sp3 .group-sp3,
+  .grid-table.hide-ri1 .group-ri1,
+  .grid-table.hide-ri3 .group-ri3 { display: none; }
+  /* 토글로 숨겨진 열의 버튼: 회색+취소선으로 '숨김 상태'임을 표시 */
+  .btn.btn-col-off { background: #edebe9; color: #a19f9d; border-color: #d2d0ce; text-decoration: line-through; }
