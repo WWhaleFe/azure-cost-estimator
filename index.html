@@ -56,6 +56,23 @@
     <div id="apiStatus"></div>
   </div>
 
+  <!-- 열 도구(v74): 그룹별 빈칸 채우기 / 열 숨기기·보이기. 표시는 화면 전용이며 엑셀 출력은 표 헤더 체크박스로 별도 제어 -->
+  <div id="columnToolbar" class="bg-white border border-[#e1dfdd] rounded-sm p-2 mb-2 flex flex-wrap gap-3 items-center text-xs">
+    <span class="font-semibold text-[#605e5c]">열 도구</span>
+    <span class="text-[#a19f9d]">|</span>
+    <span class="text-[#605e5c]">빈칸 채우기(용량제 값 복사):</span>
+    <button id="btnFillCol-sp1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '절약 플랜 1년' 칸을 용량제 값으로 채웁니다">절약 1년</button>
+    <button id="btnFillCol-sp3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '절약 플랜 3년' 칸을 용량제 값으로 채웁니다">절약 3년</button>
+    <button id="btnFillCol-ri1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '예약 1년' 칸을 용량제 값으로 채웁니다">예약 1년</button>
+    <button id="btnFillCol-ri3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="모든 행의 빈 '예약 3년' 칸을 용량제 값으로 채웁니다">예약 3년</button>
+    <span class="text-[#a19f9d]">|</span>
+    <span class="text-[#605e5c]">열 숨기기/보이기:</span>
+    <button id="btnToggleCol-sp1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'절약 플랜 1년' 열 숨기기">절약 1년</button>
+    <button id="btnToggleCol-sp3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'절약 플랜 3년' 열 숨기기">절약 3년</button>
+    <button id="btnToggleCol-ri1" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'예약 1년' 열 숨기기">예약 1년</button>
+    <button id="btnToggleCol-ri3" class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" title="'예약 3년' 열 숨기기">예약 3년</button>
+  </div>
+
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
     <table class="grid-table" id="mainTable" style="min-width:1800px;">
       <thead>
