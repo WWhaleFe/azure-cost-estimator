@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v76 — 2026-06-22
+- fix: App Service의 절약 플랜(1·3년)·예약(1·3년) 비용이 항상 빈칸으로 나오던 문제 수정. _resolve_App_Service가 sp1/sp3/ri1/ri3를 항상 null로 두고 "절약/예약 미적용"으로 처리하던 것을, VM·_genericResolve와 동일한 방식으로 실제 API 값에서 채우도록 변경(용량제 계산은 기존과 동일 — 정상)
+- 절약 플랜: 매칭된 Consumption 항목(productName=계층+OS, skuName=인스턴스)에 중첩된 savingsPlan 배열에서 1년·3년 term을 makeSpItem으로 추출. 매칭 항목에 없으면 같은 skuName의 다른 Consumption 항목에서 폴백
+- 예약: priceType='Reservation'을 region 기준으로 함께 조회한 뒤 skuName=인스턴스 + OS(productName의 Linux 여부) + reservationTerm(1/3년)으로 필터하고 최저가를 normalizeReservationPrice로 시간당 단가로 환산(VM과 동일한 정규화: 전체 기간가→시간당). 월=시간당×Qty×usage
+- 절약 플랜·예약은 이를 제공하는 계층(주로 Premium v3·Isolated v2)에서만 값이 나오고, 미제공 계층(Free/Basic/Standard)은 자연히 빈칸으로 남음(정상)
+- 한계: 예약은 컴퓨팅 기준이라 Windows OS 라이선스 추가분은 미반영(별도 PAYG 미터). 절약 플랜은 매칭된 OS 항목의 savingsPlan을 쓰므로 OS가 반영됨
+- 가격 하드코딩 없음(절약 플랜·예약 모두 Azure Retail Prices API에서 동적 조회)
+- 영향 파일: js/services/app-service.js, CHANGELOG.md
+- 검증: get_commit 패치로 변경 범위 확인(커밋 a50e8bbf, +58/-11: 헤더 주석 + resolver만 — def·_applyStepVisibility·_buildDetail 무변경). 헬퍼 makeSpItem/normalizeReservationPrice는 resolver-engine.js에 기존 존재(VM이 동일 사용)하므로 함수 부재 위험 없음. 실제 절약/예약 단가·구간은 prices.azure.com 직접 호출이 이 환경에서 막혀 브라우저에서 최종 확인 권장(특히 예약 항목의 skuName·OS 표기, savingsPlan 제공 여부)
+
 ## v75 — 2026-06-22
 - refactor: v74의 표 위 "열 도구" 툴바를 해체하고 두 기능을 더 직관적인 위치로 이동
   - 빈칸 채우기: 표 헤더의 절약 1년/3년·예약 1년/3년 그룹 체크박스 아래에 '채우기' 토글 버튼(btnFillCol-*)으로 이동. 누르면 그 열에 수동 채움이 있으면 모두 지우고(지우기), 없으면 용량제(PAYG) 값이 있는 모든 행의 빈 칸을 채움(채우기) — _toggleFillColumn. 버튼 텍스트/상태(on)는 render마다 _refreshFillButtons로 현재 열의 수동 채움 여부에 맞춰 동기화(더블클릭 토글·행별 ⊕·통화 변경 등 모든 갱신 반영)
@@ -69,7 +79,7 @@
 - feat: App Service 전용 가격 조회 함수(_resolve_App_Service) 신설 — B 그룹 → A 그룹 승격. 기존 제네릭은 skuName 정확 일치였으나 옵션 표기('P1V3')가 실제 API skuName('P1 v3', 공백 포함)과 달라 매칭이 깨졌고, OS·계층별 productName 구분이 없었음
 - API 구조: serviceName='Azure App Service', productName='Azure App Service <계층> Plan'(Windows) / '... Plan - Linux'(Linux), skuName=인스턴스(공백 표기 'P1 v3','I1 v2' 등), meterName='<인스턴스> App', 단위 1 Hour
 - 계층에 따라 인스턴스(size) 옵션 동적 전환(instanceParentKey='tier' + _appsvc_applyStepVisibility): Free=F1, Basic=B1~B3, Standard=S1~S3, Premium v3=P0v3·P1 v3~P3 v3·P1mv3~P5mv3, Isolated v2=I1 v2~I6 v2·I1mv2~I5mv2. Shared 계층은 koreacentral 미제공이라 제외
-- 매칭: productName(계층+OS) + skuName=인스턴스 **정확 일치**. Windows/Linux 단가 차이 반영(예 Premium v3 P1 v3 Windows 0.341 / Linux 0.181). 월=단가×Qty(인스턴스 수)×usage(시간, 예 730). 절약/예약 미적용. 못 찾으면 "매칭 실패"
+- 매칭: productName(계층+OS) + skuName=인스턴스 **정확 일치**. Windows/Linux 단가 차이 반영(예 Premium v3 P1 v3 Windows 0.341 / Linux 0.181). 월=단가×Qty(인스턴스 수)×usage(시간, 예 730). 절약/예약 미적용. 못 찾으면 "매칭 실패" ※ v76에서 절약 플랜·예약을 채우도록 보완
 - chore: CSV 양식(v63)의 App Service 예시 SKU를 'P1V3' → 'P1 v3'(실제 skuName)로 수정
 - 범위 외: Shared, Isolated 스탬프(ASIP)·Windows Container·도메인/SSL 등 부가 미터, 예약 인스턴스
 - 가격: 모두 API에서 동적 조회(하드코딩 없음). resolver-engine.js의 App Service 제네릭 매핑은 전용 resolver 우선 호출로 더 이상 타지 않음(데드코드, 미삭제)
