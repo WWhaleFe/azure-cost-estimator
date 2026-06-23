@@ -41,10 +41,11 @@ function priceCells(data,hasItem,isManual,groupClass){
 }
 
 const SERVICE_CATEGORY_ORDER = [
-  'Virtual Machine','Azure Kubernetes Service','Disk','Azure Files','Blob Storage','Backup',
-  'VPN Gateway','Load Balancer','Application Gateway','Public IP',
+  'Virtual Machine','Azure Kubernetes Service','Disk','Azure Files','Blob Storage','Storage Account','Backup',
+  'Virtual Network','VPN Gateway','Load Balancer','Application Gateway','Public IP',
   'Azure Firewall','Bandwidth','NAT Gateway',
   'Azure SQL Database','Azure Database for MySQL','App Service','Azure Bastion',
+  'Log Analytics','Microsoft Sentinel','Azure Synapse Analytics',
 ];
 
 function _updateActiveRowHighlight(){
@@ -750,6 +751,7 @@ function _csvBuildExampleRows() {
     ['koreacentral', '로그 디스크(프로비저닝)', 'Disk',                     '',             '1', '730',  'diskSubType=Ultra Disk; diskSizeGiB=1024; provisionedIOPS=2000; provisionedMBps=200'],
     ['koreacentral', '파일 공유',            'Azure Files',                '',             '1', '100',  'fileTier=Hot; redundancy=LRS; metric=Data Stored'],
     ['koreacentral', '오브젝트 스토리지',     'Blob Storage',               '',             '1', '1000', 'blobTier=Hot; redundancy=LRS; metric=Data Stored'],
+    ['koreacentral', '테이블 스토리지',       'Storage Account',            '',             '1', '100',  'storageType=Table; redundancy=LRS; metric=Data Stored'],
     ['koreacentral', '백업-보호 인스턴스',    'Backup',                     '',             '1', '1',    'metric=보호 인스턴스; workload=Azure VM'],
     ['koreacentral', '백업-저장소',          'Backup',                     '',             '1', '500',  'metric=백업 저장소; storageTier=Standard; redundancy=LRS'],
     ['koreacentral', '본사 VPN',            'VPN Gateway',                'VpnGw1',       '1', '730',  'gatewayHours=730; vnetTransferType=VNET 간; vnetGB=0'],
@@ -757,12 +759,16 @@ function _csvBuildExampleRows() {
     ['koreacentral', '앱 게이트웨이',         'Application Gateway',         'Standard_v2',  '1', '730',  'metric=고정 비용 (시간당)'],
     ['koreacentral', '공인 IP',             'Public IP',                  'Standard',     '1', '730',  'ipType=Static'],
     ['koreacentral', '방화벽',              'Azure Firewall',             '',             '1', '730',  'tier=Standard; metric=Deployment (배포, 시간당)'],
+    ['koreacentral', 'VNet 글로벌 피어링',    'Virtual Network',            '',             '1', '1000', 'direction=Global Peering - Outbound (Egress)'],
     ['koreacentral', '아웃바운드 전송',       'Bandwidth',                  '',             '1', '1000', 'direction=Outbound (Internet Egress)'],
     ['koreacentral', 'NAT 게이트웨이',        'NAT Gateway',                '',             '1', '730',  'metric=Resource Hour'],
     ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2'],
     ['koreacentral', 'MySQL',              'Azure Database for MySQL',   '',             '1', '730',  'tier=General Purpose; vCores=2'],
     ['koreacentral', '앱 서비스',            'App Service',                'P1 v3',        '1', '730',  'tier=Premium v3; os=Linux'],
     ['koreacentral', 'Bastion',            'Azure Bastion',              '',             '1', '730',  'tier=Basic; metric=게이트웨이(시간당)'],
+    ['koreacentral', '로그 분석',           'Log Analytics',              '',             '1', '100',  'metric=Data Ingestion'],
+    ['koreacentral', 'Sentinel SIEM',      'Microsoft Sentinel',         '',             '1', '100',  'model=Pay-as-you-go'],
+    ['koreacentral', 'Synapse DW',         'Azure Synapse Analytics',    '',             '1', '730',  'component=Dedicated SQL Pool (DWU); dwuLevel=DW100c'],
   ];
 }
 

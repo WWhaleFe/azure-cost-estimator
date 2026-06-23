@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v78 — 2026-06-23
+- feat: 신규 5개 카테고리 추가(전부 전용 resolver + 라이브 API 검증) — Storage Account, Virtual Network, Log Analytics, Microsoft Sentinel, Azure Synapse Analytics. 총 17 → 22개 카테고리. 가격은 모두 Azure Retail Prices API에서 동적 조회(하드코딩 없음)
+- **Storage Account**(storage-account.js, serviceName='Storage'): 범용 v2 계정의 Table·Queue 스토리지를 다룸(Blob/파일은 기존 Blob Storage·Azure Files 카테고리 사용). 종류(Table→productName='Tables' / Queue→'Queues v2') × 중복성(skuName='Standard <LRS/ZRS/GRS/RA-GRS/GZRS/RA-GZRS>') × 청구 항목(meterName). 작업 미터 표기가 종류별로 달라(Table=Write/Read Operations, Queue=Class 1/2 Operations) 키워드+대안으로 매칭, Batch/Additional IO 제외. Data Stored=GB/Month, 작업=10K 단위. Account Encrypted SKU 범위 외
+- **Virtual Network**(virtual-network.js, serviceName='Virtual Network'): VNet 리소스 자체는 무료이므로 과금되는 **글로벌 피어링 데이터 전송**을 다룸. productName='Global Virtual Network Peering' + meterName 정확 일치(Inter-Region Egress/Ingress, 0.09/GB). usage=GB. 동일 리전 내(Intra-Region) 피어링·공인 IP(Public IP 카테고리)·Public IP Prefix 범위 외
+- **Log Analytics**(log-analytics.js, serviceName='Log Analytics'): skuName='Analytics Logs' + 청구 항목(metric) → meterName 키워드 매칭. Data Ingestion(3.11/GB, 무료 0.0 미터 제외) / Data Retention(0.14/GB·Month) / Data Analyzed(2.3/GB). Free 계층·Basic/Auxiliary Logs·커밋 계층 범위 외
+- **Microsoft Sentinel**(sentinel.js, serviceName='Sentinel'): productName='Sentinel' + skuName(과금 모델) 정확 일치. Pay-as-you-go(5.81/GB) / Basic Logs(1.18/GB) / 100~10000 GB Commitment Tier(1/Day, usage=일수). Free Trial·M365 Defender 무료 혜택·SAP 솔루션·Classic Auxiliary Logs 범위 외
+- **Azure Synapse Analytics**(synapse.js, serviceName='Azure Synapse Analytics'): 구성요소(component)별 productName 분리 + 필드 전환(instanceParentKey='component' + _synapse_applyStepVisibility). Dedicated SQL Pool=skuName(DWU 레벨 DW100c~DW30000c)+meter '100 DWUs'(예약 미터 섞이면 최저 시간단가 선택) / Serverless SQL Pool='Standard Data Processed'(6.0/TB) / Data Flow=유형별 productName(Basic/Standard/Compute Optimized)+meter 'vCore'. 파이프라인/IR·SSIS·Spark 풀·스토리지 범위 외
+- 공통: 월=단가×Qty×usage(엔진 기본). 절약/예약 미적용(전부 Consumption 미터). 못 찾으면 "매칭 실패"
+- chore: index.html 스크립트 로드 추가(5개), SERVICE_CATEGORY_ORDER에 5종 등록, CSV 양식 예시 행 5개 추가
+- 영향 파일: js/services/{storage-account,virtual-network,log-analytics,sentinel,synapse}.js, index.html, js/ui-and-bootstrap.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API로 5개 서비스 모두 productName/skuName/meterName/단위/단가 확인(Sentinel 18건, Synapse 125건, Virtual Network 12건, Log Analytics 5건, Storage Table/Queue). node --check 6파일 통과. 함수명(_buildDetail_*/_resolve_*)이 resolver-engine 정규화 규칙과 일치. 실제 드롭다운·행 표시는 브라우저에서 최종 확인 권장
+- 비고: 본래 로컬에서 v73으로 작성했으나 원격이 v77까지 진행되어(v73~v77 사용 중) rebase 후 v78로 재번호
+- 마일스톤: 전체 22개 카테고리 전용 resolver + 라이브 검증
+
 ## v76 — 2026-06-22
 - fix: App Service의 절약 플랜(1·3년)·예약(1·3년) 비용이 항상 빈칸으로 나오던 문제 수정. _resolve_App_Service가 sp1/sp3/ri1/ri3를 항상 null로 두고 "절약/예약 미적용"으로 처리하던 것을, VM·_genericResolve와 동일한 방식으로 실제 API 값에서 채우도록 변경(용량제 계산은 기존과 동일 — 정상)
 - 절약 플랜: 매칭된 Consumption 항목(productName=계층+OS, skuName=인스턴스)에 중첩된 savingsPlan 배열에서 1년·3년 term을 makeSpItem으로 추출. 매칭 항목에 없으면 같은 skuName의 다른 Consumption 항목에서 폴백
@@ -37,7 +51,6 @@
 - 비고: index.html 변경은 커밋 0b894dd5에 들어갔는데, 저장소가 동시에 v72까지 진행된 것을 모른 채 그 커밋 메시지를 "v62"로 잘못 표기함(v62는 Azure Bastion). 실제 버전은 이 v73 항목으로 확정
 - 영향 파일: index.html(커밋 0b894dd5), CHANGELOG.md
 - 검증: get_commit 패치로 footer 블록만 추가(6줄, 삭제 0, 그 외 무변경 → 나머지 원본과 동일하므로 DOM 구조·스크립트 로드 순서 보존) 확인. list_commits로 index.html HEAD가 0b894dd5(footer)임을 확인(이후 작업에 덮이지 않음). 외부 링크 실제 동작·생존 여부는 브라우저에서 확인 권장(이 환경은 외부 URL 접속 불가)
-
 ## v72 — 2026-06-22
 - feat: Bandwidth 전용 가격 조회 함수(_resolve_Bandwidth) 신설 — C 그룹 → A 그룹 승격(C 그룹까지 전부 완료). 기존엔 엔진에 전용 매핑이 없어 제네릭 기본 경로(skuName='Outbound (Internet Egress)' 정확 일치)로 처리됐는데 실제 API skuName('Standard')·meterName과 달라 매칭이 거의 실패했음
 - API 구조(serviceName='Bandwidth', koreacentral): productName='Rtn Preference: MGN'(Microsoft Global Network), 단위 1 GB. 전송 방향(direction) → meterName:
