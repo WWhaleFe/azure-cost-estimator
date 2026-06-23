@@ -11,7 +11,10 @@
 //                          vCore 수 선택, per-vCore 단가(skuName='vCore', meter 'vCore', 0.118) × N
 //     - Business Critical→ productName '...Flexible Server Memory Optimized Edsv5 Series Compute'
 //                          vCore 수 선택, meterName='<N> vCore' 정확 일치(전체 인스턴스 시간당가)
-//   월=단가×Qty(서버 수)×usage(시간, 예 730). 절약/예약 미적용. 못 찾으면 "매칭 실패".
+//   월=단가×Qty(서버 수)×usage(시간, 예 730). 못 찾으면 "매칭 실패".
+//   절약 플랜(1년)·예약(1·3년)도 표시: 용량제로 쓴 항목의 savingsPlan을 같은 배수로 환산하고,
+//     예약은 세대 무관 generic "<GP/MO> Series Compute" 제품(skuName='vCore')을 시간당 단가로 환산 × N.
+//     Burstable은 예약 미제공(빈칸 정상), 절약은 현재 1년만 노출(API에 3년 없음).
 //   범위 외(매칭 실패 정상): Single Server(레거시), 스토리지/백업, 다른 D/E 시리즈(Dadsv6·Edsv6 등),
 //     Confidential Compute, Extended Support.
 // ================================================================
@@ -23,6 +26,12 @@ var _MYSQL_PRODUCT = {
   'Burstable':         'Azure Database for MySQL Flexible Server Burstable BS Series Compute',
   'General Purpose':   'Azure Database for MySQL Flexible Server General Purpose Ddsv5 Series Compute',
   'Business Critical': 'Azure Database for MySQL Flexible Server Memory Optimized Edsv5 Series Compute',
+};
+// 예약(Reservation)은 하드웨어 세대별 제품이 아니라 세대 무관 generic "Series Compute" 제품에 존재
+// (Ddsv5/Edsv5 자체엔 예약 미터 없음). Burstable은 예약 미제공.
+var _MYSQL_RESV_PRODUCT = {
+  'General Purpose':   'Azure Database for MySQL Flexible Server General Purpose Series Compute',
+  'Business Critical': 'Azure Database for MySQL Flexible Server Memory Optimized Series Compute',
 };
 
 window._svcDefs['Azure Database for MySQL'] = {
@@ -131,8 +140,27 @@ window['_resolve_Azure_Database_for_MySQL'] = async function(row, cur) {
     meterName: chosen.meterName, unitOfMeasure: '1 Hour', type: 'Consumption',
     _mysqlPerVcore: perVcore, _mysqlVcores: (tier === 'Burstable') ? null : N,
   };
-  row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
+
+  // ── 절약 플랜 / 예약(RI) ──
+  // 절약: 용량제로 쓴 항목의 savingsPlan을 같은 배수로(per-vCore면 ×N, 인스턴스/전체 N vCore면 ×1)
+  var spBase = chosen, spMult = 1;
+  if (tier !== 'Burstable') {
+    var pvBase = items.filter(function(it){ return isCons(it) && String(it.meterName||'').toLowerCase()==='vcore' && String(it.skuName||'').toLowerCase()==='vcore'; })[0];
+    if (pvBase) { spBase = pvBase; spMult = N; }
+  }
+  var sp = spItemsFromBase(spBase, spMult, cur);
+  // 예약: 세대 무관 generic "Series Compute" 제품에서 skuName='vCore' 1·3년 → 시간당 환산 × N (Burstable 미제공)
+  var ri = { ri1:null, ri3:null };
+  var resvProduct = _MYSQL_RESV_PRODUCT[tier];
+  if (resvProduct) {
+    var resv = [];
+    try { resv = await apiFetch({ serviceName:'Azure Database for MySQL', armRegionName:row.region, productName:resvProduct, priceType:'Reservation' }, cur, 200, 3, {pageSize:200, expectedSizeKB:40}); } catch(e) { resv = []; }
+    ri = riItemsFromResv(resv, 'vcore', N, cur);
+  }
+
+  row.sp1Item = sp.sp1; row.sp3Item = sp.sp3; row.ri1Item = ri.ri1; row.ri3Item = ri.ri3;
+  var tags = ['PAYG']; if(sp.sp1)tags.push('SP1Y'); if(sp.sp3)tags.push('SP3Y'); if(ri.ri1)tags.push('RI1Y'); if(ri.ri3)tags.push('RI3Y');
   var basis = (tier === 'General Purpose') ? (' [per-vCore ' + perVcore + ' × ' + N + ']') : '';
-  setStatus('ok', 'Azure Database for MySQL ' + label + ' 완료 · ' + price.toFixed(4) + ' /1 Hour' + basis);
+  setStatus('ok', 'Azure Database for MySQL ' + label + ' 완료 [' + tags.join(', ') + '] · ' + price.toFixed(4) + ' /1 Hour' + basis);
   updatePriceCells(row); updateTotalsRow();
 };

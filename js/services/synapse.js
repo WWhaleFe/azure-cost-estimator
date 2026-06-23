@@ -11,7 +11,10 @@
 //          meter 'Standard Data Processed' (1 TB, 6.0). usage 칸에 처리 TB 입력
 //     - Data Flow (vCore-Hour) → productName='Azure Synapse Analytics Data Flow - <유형>',
 //          meter 'vCore' (1 Hour). usage 칸에 vCore-시간 입력
-//   월=단가×Qty×usage(엔진 기본). 절약/예약 미적용. 못 찾으면 "매칭 실패".
+//   월=단가×Qty×usage(엔진 기본). 못 찾으면 "매칭 실패".
+//   예약(1·3년)도 표시: Dedicated SQL Pool은 같은 productName의 Reservation(skuName=DWU 레벨)을 시간당
+//     단가로 환산해 노출(현재 API엔 DW100c만 예약 존재 → 다른 레벨/Serverless/Data Flow는 빈칸 정상).
+//     Synapse는 절약 플랜(Savings Plan) 미제공.
 //   범위 외: 파이프라인/IR(데이터 이동·오케스트레이션), SSIS, Spark 풀, 스토리지(별도 미터).
 // ================================================================
 
@@ -115,9 +118,20 @@ window['_resolve_Azure_Synapse_Analytics'] = async function(row, cur) {
     updatePriceCells(row); updateTotalsRow(); return;
   }
 
-  // 매칭 미터를 그대로 반환 → 엔진 기본 계산(월=단가×Qty×usage). 절약/예약 미적용.
+  // 매칭 미터를 그대로 반환 → 엔진 기본 계산(월=단가×Qty×usage).
   row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
+
+  // ── 예약(RI) ── Dedicated SQL Pool만 제공. 같은 productName의 Reservation에서 skuName=DWU 레벨,
+  //    1·3년을 시간당 단가로 환산(절약 플랜은 Synapse에 없음)
+  var tags = ['PAYG'];
+  if (comp.indexOf('Dedicated') >= 0) {
+    var resv = [];
+    try { resv = await apiFetch({ serviceName:'Azure Synapse Analytics', armRegionName:row.region, productName:product, priceType:'Reservation' }, cur, 200, 3, {pageSize:200, expectedSizeKB:40}); } catch(e) { resv = []; }
+    var ri = riItemsFromResv(resv, String(chosen.skuName||'').toLowerCase(), 1, cur);
+    row.ri1Item = ri.ri1; row.ri3Item = ri.ri3;
+    if (ri.ri1) tags.push('RI1Y'); if (ri.ri3) tags.push('RI3Y');
+  }
+  setStatus('ok', label + ' 완료 [' + tags.join(', ') + '] · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
   updatePriceCells(row); updateTotalsRow();
 };

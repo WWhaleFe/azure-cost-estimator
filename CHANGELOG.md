@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v79 — 2026-06-23
+- feat: 용량제만 나오던 컴퓨팅 서비스에 **절약 플랜·예약(RI)** 가격 추가 표시 — Azure SQL Database, Azure Database for MySQL, Azure Synapse Analytics. 기존엔 세 resolver가 sp/ri를 항상 null로 두고 "절약/예약 미적용"으로 처리했음. 가격 하드코딩 없음(모두 API 동적 조회)
+- 조사: 22개 카테고리 전체를 라이브 API로 스캔해 savingsPlan(절약)·priceType=Reservation(예약) 보유 여부 확인. 컴퓨팅 모델이 앱의 시간당×N 계산과 정합한 3개만 구현 대상으로 선정. Backup·Storage(Blob/Files)의 Reserved Capacity는 100TB~10PB 대용량 약정 SKU(GB/Month)라 per-GB 사용량 모델과 불일치하여 제외(문서에 명시). 그 외(AKS·Bastion·Firewall·LB·NAT·VNet·Public IP·VPN·Bandwidth·Log Analytics·Sentinel·Storage Account)는 SP/RI 자체가 API에 없음
+- 공용 헬퍼 2개 신설(js/core/resolver-engine.js): `spItemsFromBase(base, mult, cur)` — Consumption 항목의 savingsPlan을 1·3년 시간당 단가로 ×mult 환산; `riItemsFromResv(resvItems, skuLower, mult, cur)` — Reservation 항목을 normalizeReservationPrice로 시간당 환산 후 ×mult. 둘 다 unitOfMeasure='1 Hour'로 통일해 엔진 기본 계산(월=단가×Qty×usage)에 그대로 합류
+- **Azure SQL Database**: per-vCore Consumption 항목의 savingsPlan(1년)을 ×N, 같은 productName의 Reservation(skuName='vCore') 1·3년을 시간당 환산 ×N. Provisioned GP/BC는 예약 제공, Serverless는 절약만(예약 미제공→빈칸 정상). 절약은 1년만(API에 3년 없음)
+- **Azure Database for MySQL**: 절약은 용량제로 쓴 항목의 savingsPlan을 같은 배수로(GP=per-vCore×N, Burstable/BC=×1). 예약은 하드웨어 세대별 제품(Ddsv5/Edsv5)엔 미터가 없어 **세대 무관 generic 'General Purpose/Memory Optimized Series Compute' 제품**(skuName='vCore')에서 1·3년을 시간당 환산 ×N. Burstable은 예약 미제공(빈칸 정상)
+- **Azure Synapse Analytics**: Dedicated SQL Pool만 같은 productName의 Reservation(skuName=DWU 레벨) 1·3년을 시간당 환산. 현재 API엔 DW100c만 예약 존재 → 다른 DWU 레벨·Serverless·Data Flow는 빈칸이 정상. Synapse는 절약 플랜 미제공
+- 영향 파일: js/core/resolver-engine.js, js/services/{sql-database,mysql,synapse}.js, CHANGELOG.md, docs/service-status.csv
+- 검증: koreacentral 라이브 API로 정규화·대소관계 확인(예약 < 절약 < 용량제). 예) SQL GP Gen5 8vCore/h PAYG 2065.30 > SP1 1652.24 > RI1 1341.90 > RI3 929.32; MySQL GP 4vCore/h 708.42 > 566.74 > 424.91 > 283.27; Synapse DW100c/h 2536.52 > RI1 1598.05 > RI3 887.75. 예약 없는 구성(Synapse DW300c 등)은 빈칸 확인. node --check 4파일 통과. 실제 행 표시는 브라우저에서 최종 확인 권장
+
 ## v78 — 2026-06-23
 - feat: 신규 5개 카테고리 추가(전부 전용 resolver + 라이브 API 검증) — Storage Account, Virtual Network, Log Analytics, Microsoft Sentinel, Azure Synapse Analytics. 총 17 → 22개 카테고리. 가격은 모두 Azure Retail Prices API에서 동적 조회(하드코딩 없음)
 - **Storage Account**(storage-account.js, serviceName='Storage'): 범용 v2 계정의 Table·Queue 스토리지를 다룸(Blob/파일은 기존 Blob Storage·Azure Files 카테고리 사용). 종류(Table→productName='Tables' / Queue→'Queues v2') × 중복성(skuName='Standard <LRS/ZRS/GRS/RA-GRS/GZRS/RA-GZRS>') × 청구 항목(meterName). 작업 미터 표기가 종류별로 달라(Table=Write/Read Operations, Queue=Class 1/2 Operations) 키워드+대안으로 매칭, Batch/Additional IO 제외. Data Stored=GB/Month, 작업=10K 단위. Account Encrypted SKU 범위 외

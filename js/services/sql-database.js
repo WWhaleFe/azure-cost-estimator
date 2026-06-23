@@ -18,8 +18,11 @@
 //                    (최대 vCore 기준 상한 추정 — 실제 서버리스는 사용한 vCore-초로 과금)
 //   tier에 따라 compute/hardware 옵션을 전환(instanceParentKey='tier' + _sql_applyStepVisibility):
 //     BC는 Provisioned만 / 하드웨어 GP=Gen5·Fsv2-series, BC=Gen5·M-series, HS=Gen5.
-//   월=단가(설정 1개의 시간당가)×Qty(DB 수)×usage(시간, 예 730). 절약/예약(RI) 미적용.
-//   범위 외(매칭 실패 정상): Zone Redundancy(비ZR 기준), 예약 용량, 스토리지/백업(PITR·LTR),
+//   월=단가(설정 1개의 시간당가)×Qty(DB 수)×usage(시간, 예 730).
+//   절약 플랜(1년)·예약(1·3년)도 표시: per-vCore Consumption 항목의 savingsPlan과 같은 productName의
+//     Reservation(skuName='vCore') 항목을 시간당 단가로 환산해 × N(예약은 vCore 기준). Provisioned GP/BC는
+//     예약 제공(Serverless·일부 조합은 미제공이라 자연히 빈칸). 절약은 현재 1년만 노출(API에 3년 없음).
+//   범위 외(매칭 실패 정상): Zone Redundancy(비ZR 기준), 스토리지/백업(PITR·LTR),
 //     DTU 모델(Basic/Standard/Premium), Elastic Pool 전용 미터, 표에 없는 tier/compute/hardware 조합.
 // ================================================================
 
@@ -127,8 +130,21 @@ window['_resolve_Azure_SQL_Database'] = async function(row, cur) {
     skuName: N + ' vCore', meterName: 'vCore', unitOfMeasure: '1 Hour', type: 'Consumption',
     _sqlPerVcore: perVcore, _sqlVcores: N, _sqlBasis: basis,
   };
-  row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
+
+  // ── 절약 플랜 / 예약(RI) ── per-vCore 기준으로 × N (둘 다 시간당 단가로 환산)
+  // 절약: per-vCore Consumption 항목의 savingsPlan을 × N(없으면 N vCore 미터 항목 × 1)
+  var spBase = items.filter(function(it){ return isCons(it) && meterVcore(it) && (String(it.skuName||'').toLowerCase()==='vcore' || String(it.skuName||'').toLowerCase()==='1 vcore'); })[0];
+  var spMult = N, riMult = N;
+  if (!spBase && typeof exact !== 'undefined' && exact) { spBase = exact; spMult = 1; }
+  var sp = spItemsFromBase(spBase, spMult, cur);
+  // 예약: 같은 productName의 Reservation 항목에서 skuName='vCore' 1년/3년 → 시간당 환산 × N
+  var resv = [];
+  try { resv = await apiFetch({ serviceName:'SQL Database', armRegionName:row.region, productName:product, priceType:'Reservation' }, cur, 200, 3, {pageSize:200, expectedSizeKB:60}); } catch(e) { resv = []; }
+  var ri = riItemsFromResv(resv, 'vcore', riMult, cur);
+
+  row.sp1Item = sp.sp1; row.sp3Item = sp.sp3; row.ri1Item = ri.ri1; row.ri3Item = ri.ri3;
+  var tags = ['PAYG']; if(sp.sp1)tags.push('SP1Y'); if(sp.sp3)tags.push('SP3Y'); if(ri.ri1)tags.push('RI1Y'); if(ri.ri3)tags.push('RI3Y');
   var note = (comp === 'Serverless') ? ' · 서버리스는 최대 vCore 기준 상한(실제는 사용 vCore-초 과금)' : '';
-  setStatus('ok', 'Azure SQL Database ' + label + ' 완료 · ' + price.toFixed(4) + ' /1 Hour [' + basis + ']' + note);
+  setStatus('ok', 'Azure SQL Database ' + label + ' 완료 [' + tags.join(', ') + '] · ' + price.toFixed(4) + ' /1 Hour [' + basis + ']' + note);
   updatePriceCells(row); updateTotalsRow();
 };
