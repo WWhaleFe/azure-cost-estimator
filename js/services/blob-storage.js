@@ -8,15 +8,18 @@
 //     - Write Operations : 쓰기 작업 요금. 단위 10K. usage 칸에 "1만 건 수" 입력
 //     - Data Retrieval   : 데이터 검색 요금. 단위 1 GB. usage 칸에 GB 입력
 //       (Hot 계층은 검색 요금 미터가 없어 매칭 실패가 정상입니다)
+//     - List and Create Container Operations / All Other Operations : 작업 요금(10K)
+//       (계정 단위 미터라 API상 Hot skuName에만 태깅 → Hot 계층에서 조회. Cool/Cold는 매칭 실패가 정상)
 //   월 비용 = 단가 × Qty × usage (엔진 기본 계산). 절약/예약은 저장소 단가에 적용 안 됨.
-//   계정 종류는 일반 v2 플랫(General Block Blob v2) 기준입니다.
+//   액세스 계층: Hot/Cool/Cold/Archive(productName='General Block Blob v2') +
+//     Premium(고성능 블록 Blob, productName='Premium Block Blob', LRS/ZRS만 / 액세스 계층 구분 없음).
 // ================================================================
 window._svcDefs['Blob Storage'] = {
   apiServiceName: 'Storage',
   steps: [
-    { key:'blobTier',  label:'액세스 계층', options:['Hot','Cool','Cold','Archive'] },
+    { key:'blobTier',  label:'액세스 계층', options:['Hot','Cool','Cold','Archive','Premium'] },
     { key:'redundancy',label:'중복성',      options:['LRS','ZRS','GRS','RA-GRS','GZRS','RA-GZRS'] },
-    { key:'metric',    label:'청구 항목',   options:['Data Stored','Read Operations','Write Operations','Data Retrieval'] },
+    { key:'metric',    label:'청구 항목',   options:['Data Stored','Read Operations','Write Operations','Data Retrieval','List and Create Container Operations','All Other Operations'] },
   ],
   instanceField: false,
 };
@@ -32,9 +35,13 @@ window['_resolve_Blob_Storage'] = async function(row, cur) {
   const metric = o.metric || 'Data Stored';
   const skuTarget = `${tier} ${red}`.toLowerCase();
 
+  // Premium 블록 Blob은 별도 productName('Premium Block Blob', skuName 'Premium <중복성>', LRS/ZRS만)
+  const isPremium = (tier === 'Premium');
+  const productName = isPremium ? 'Premium Block Blob' : 'General Block Blob v2';
+
   let items = [];
   try {
-    items = await apiFetch({ serviceName:'Storage', armRegionName:row.region, productName:'General Block Blob v2', priceType:'Consumption' }, cur, 500, 5, {pageSize:200, expectedSizeKB:300});
+    items = await apiFetch({ serviceName:'Storage', armRegionName:row.region, productName, priceType:'Consumption' }, cur, 500, 5, {pageSize:200, expectedSizeKB:300});
   } catch (err) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
     setStatus('error', 'Blob 조회 실패: ' + String(err.message).slice(0,80));
@@ -43,7 +50,9 @@ window['_resolve_Blob_Storage'] = async function(row, cur) {
 
   const mkey = metric.toLowerCase();
   const wantStored = mkey.indexOf('stored') >= 0;
-  const wantRead   = mkey.indexOf('read')   >= 0;
+  const wantList   = mkey.indexOf('list and create') >= 0;
+  const wantOther  = mkey.indexOf('all other') >= 0;
+  const wantRead   = !wantList && !wantOther && mkey.indexOf('read')   >= 0;
   const wantWrite  = mkey.indexOf('write')  >= 0;
   const wantRetr   = mkey.indexOf('retrieval') >= 0;
 
@@ -53,6 +62,8 @@ window['_resolve_Blob_Storage'] = async function(row, cur) {
     const m = String(it.meterName||'').toLowerCase();
     if (m.indexOf('priority') >= 0) return false; // Archive Priority Read/Retrieval 제외
     if (wantStored) return m.indexOf('data stored') >= 0;
+    if (wantList)   return m.indexOf('list and create container') >= 0;
+    if (wantOther)  return m.indexOf('all other operations') >= 0;
     if (wantRead)   return m.indexOf('read operations') >= 0;
     if (wantWrite)  return m.indexOf('write operations') >= 0;
     if (wantRetr)   return m.indexOf('data retrieval') >= 0;

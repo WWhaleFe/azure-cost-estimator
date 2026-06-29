@@ -21,18 +21,27 @@
 
 // 계층 → productName 접두(공통 'Azure App Service ' + tier + ' Plan')
 // 계층별 인스턴스(skuName 정확 표기) 옵션
+// 계층별 인스턴스(skuName 정확 표기) 옵션 — 표기 공백차이는 _appsvc_norm이 흡수.
+// koreacentral 라이브 API(serviceName='Azure App Service', Consumption) 기준 전체 계층 망라.
+// 범위 외: Shared(koreacentral 미제공), Premium Windows Container(PC*), ASE 스탬프(ASIP/Stamp/Front End/IDH).
+// 참고: Premium(v1)은 Windows만, Linux 미제공 → Linux 선택 시 매칭 실패가 정상.
 var _APPSVC_SIZES = {
   'Free':        ['F1'],
   'Basic':       ['B1','B2','B3'],
   'Standard':    ['S1','S2','S3'],
+  'Premium':     ['P1','P2','P3','P4'],
+  'Premium v2':  ['P1 v2','P2 v2','P3 v2'],
   'Premium v3':  ['P0v3','P1 v3','P2 v3','P3 v3','P1mv3','P2mv3','P3mv3','P4mv3','P5mv3'],
+  'Premium v4':  ['P0v4','P1v4','P2v4','P3v4','P1mv4','P2mv4','P3mv4','P4mv4','P5mv4'],
+  'Isolated':    ['I1','I2','I3'],
   'Isolated v2': ['I1 v2','I2 v2','I3 v2','I4 v2','I5 v2','I6 v2','I1mv2','I2mv2','I3mv2','I4mv2','I5mv2'],
+  'Isolated v4': ['I1v4','I2v4','I3v4','I4v4','I5v4','I6v4','I1mv4','I2mv4','I3mv4','I4mv4','I5mv4'],
 };
 
 window._svcDefs['App Service'] = {
   apiServiceName: 'Azure App Service',
   steps: [
-    { key:'tier', label:'계층',     options:['Free','Basic','Standard','Premium v3','Isolated v2'] },
+    { key:'tier', label:'계층',     options:['Free','Basic','Standard','Premium','Premium v2','Premium v3','Premium v4','Isolated','Isolated v2','Isolated v4'] },
     { key:'os',   label:'OS',       options:['Windows','Linux'] },
     { key:'size', label:'인스턴스', options:['B1','B2','B3'] },
   ],

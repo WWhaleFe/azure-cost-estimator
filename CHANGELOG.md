@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v82 — 2026-06-29
+- feat: **공식 Azure 가격 계산기와 옵션 정합** (단계적, 핵심 서비스부터). 기준은 Azure Retail Prices API가 노출하는 가격 차원 전체 — 각 옵션이 실제 라이브 API/브라우저에서 매칭(가격 조회)되는지 검증한 것만 추가. 계산기 전용 할인 로직(AHB·Dev/Test·지원 플랜·무료 한도 등)은 Retail API 범위 밖이라 제외
+- **App Service**: 노출 계층 5종 → 10종(Premium v1(Win 전용)·v2·v4, Isolated v1·v4 추가). 계층별 인스턴스(skuName) 전체 등록. koreacentral 라이브 110개 조합 매칭(Premium v1 Linux 4개만 API 미제공=정상)
+- **Azure SQL Database**: 원격 v80(중복성 ZR add-on)을 유지하면서 **① Hyperscale 하드웨어 확대**(Gen5→Gen5·Premium-series·Premium-series MO·DC-series, vCore Provisioned), **② DTU 구매 모델 신설**(구매 모델 vCore/DTU 선택 → Basic(B)·Standard(S0~S12)·Premium(P1~P15), '1/Day'→시간당가÷24). 구매모델·계층에 따라 하위 스텝(compute/hardware/vCore/redundancy ↔ DTU 크기)을 _hidden 전환. DTU는 절약/예약·ZR 미적용
+- **Virtual Machine**: 인스턴스 카탈로그 11시리즈·~60종 → **21시리즈·181종**. 추가: D v3/v4 + Das v5/v6(AMD) + Dd v6, E v3/v4 + Eas v5(AMD) + Ed v6, L v3 + Las v3(AMD), A v2, N(GPU: NC v3·NV v4), FX, M 추가 사이즈. koreacentral 라이브로 전부 Linux 용량제 단가 검증(누락 0). vCPU=SKU명 파싱, RAM=시리즈 표준 사양(M·M v2 일부는 미상이라 생략 → 라벨 vCPU만). HPC HB/HC/HX는 제약 코어 명명(HB176-24rs_v4=실24코어)이라 vCPU 파싱 오류 위험으로 제외. 인스턴스 라벨도 RAM 없을 때 생략하도록 보강
+- **Azure Files**: 중복성 +GZRS, 청구 항목 +Write/Read/List Operations(트랜잭션). 신규 33개 조합 매칭(Premium·일부 GZRS Data Stored 미제공은 graceful 실패=정상)
+- **Blob Storage**: 액세스 계층에 Premium(고성능 블록 Blob, productName 분기) 추가, 청구 항목에 List and Create Container·All Other Operations 추가. Premium 10개·Hot 작업 미터 매칭(작업 미터는 계정 단위라 Hot에 태깅)
+- **Storage Account**: Table 청구 항목에 List/Delete/Scan Operations 추가(Queue엔 없어 매칭 실패=정상)
+- core: ui-and-bootstrap.js `_bindConfigEvents`에 `def.rebuildKeys` 지원 추가(instanceParentKey 외 추가 키 변경 시에도 옵션 패널 재구성 — SQL 구매모델 전환용)
+- 영향 파일: js/services/{app-service,sql-database,vm,azure-files,blob-storage,storage-account}.js, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 실제 브라우저(CORS 프록시 corsproxy.io 경로)에서 전 서비스 신규 옵션 가격 조회 + SQL DTU DOM 스텝 전환·표 채움 확인. node --check 통과
+- 비고: 작업 중 원격에 별도 v80(SQL ZR)·CHANGELOG 복원 커밋이 들어와, 로컬 v80/v81을 rebase 후 v81(Bastion)·v82(옵션 정합)로 재번호. SQL은 양쪽 작업(ZR 중복성 + Hyperscale HW + DTU)을 모두 보존하도록 수동 병합
+
 ## v81 — 2026-06-29
 - fix: **Azure Bastion**의 모든 청구 항목(게이트웨이·추가 게이트웨이·데이터 전송)이 항상 "매칭 실패"로 빠져 비용이 조회되지 않던 문제 수정. `_resolve_Azure_Bastion`이 meterName 비교 시 `it.meterName.toLowerCase()`(전부 소문자)와 target 문자열을 비교하는데, target을 `` `${tier} gateway` ``로 만들면서 tier('Basic'/'Standard'/'Premium', 첫 글자 대문자)를 소문자화하지 않아 `'basic gateway' !== 'Basic gateway'`로 모든 조합이 불일치했음(v62부터 잠재). target에 `tier.toLowerCase()` 적용으로 해결
 - 영향 파일: js/services/bastion.js, CHANGELOG.md

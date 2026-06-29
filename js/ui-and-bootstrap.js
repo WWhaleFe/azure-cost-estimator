@@ -466,7 +466,7 @@ function renderConfigPanel(){
     if(r.serviceCategory==='Virtual Machine'){
       const series=r.options.series;
       if(series&&typeof VM_INSTANCE_CATALOG!=='undefined'&&VM_INSTANCE_CATALOG[series])
-        instanceOptions=VM_INSTANCE_CATALOG[series].map(i=>({value:i.name,label:`${i.name} (vCPU:${i.vCPU} RAM:${i.ram}GB)`}));
+        instanceOptions=VM_INSTANCE_CATALOG[series].map(i=>({value:i.name,label:`${i.name} (vCPU:${i.vCPU}${(i.ram!==undefined&&i.ram!==null)?' RAM:'+i.ram+'GB':''})`}));
     }
     const sel=r.options.instance||r.skuName||'';
     instanceHtml=`<div class="config-field" style="grid-column:1/-1;"><label>인스턴스</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`;
@@ -599,7 +599,7 @@ function _bindConfigEvents(r,def){
   const markDirty=()=>{configDirty=true;if($db)$db.style.display='';};
   const clearDirty=()=>{configDirty=false;if($db)$db.style.display='none';};
   clearDirty();
-  const KEYS_REBUILD=[(def.instanceParentKey||null)].filter(Boolean);
+  const KEYS_REBUILD=[(def.instanceParentKey||null)].concat(def.rebuildKeys||[]).filter(Boolean);
   $configContent.querySelectorAll('select[data-opt-key]').forEach(sel=>{
     sel.addEventListener('change',(e)=>{
       const key=e.target.dataset.optKey;r.options[key]=e.target.value;

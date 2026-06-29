@@ -11,25 +11,38 @@ window._svcDefs['Virtual Machine'] = {
     { key:'swType',  label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
     { key:'tier',    label:'Tier',      options:['Standard','Spot'] },
     { key:'license', label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
-    { key:'series',  label:'인스턴스 시리즈', options:['B-series','D-series v6','D-series v5','D-series v3','Dl-series v6','Ds-series v6','E-series v6','E-series v5','F-series v2','M-series','N-series'] },
+    { key:'series',  label:'인스턴스 시리즈', options:['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series'] },
   ],
   instanceField: true,
   instanceParentKey: 'series',
 };
 
 // 전역 노출 (ui-and-bootstrap.js 에서 접근)
+// koreacentral 라이브 API(serviceName='Virtual Machines', Consumption)로 가격 조회가 검증된 SKU만 수록.
+// vCPU=SKU명 파싱, RAM=시리즈 표준 사양(M/N 일부 사이즈는 사양 미상이라 RAM 생략 → 라벨에 vCPU만 표시).
+// 다른 리전에선 일부 SKU가 없을 수 있음(그 경우 해당 인스턴스는 "매칭 없음"으로 표시).
 var VM_INSTANCE_CATALOG = window.VM_INSTANCE_CATALOG = {
-  'B-series':    [{name:'B1s',vCPU:1,ram:1},{name:'B1ms',vCPU:1,ram:2},{name:'B2s',vCPU:2,ram:4},{name:'B2ms',vCPU:2,ram:8},{name:'B4ms',vCPU:4,ram:16},{name:'B8ms',vCPU:8,ram:32},{name:'B12ms',vCPU:12,ram:48},{name:'B16ms',vCPU:16,ram:64},{name:'B20ms',vCPU:20,ram:80}],
-  'D-series v6': [{name:'D2s_v6',vCPU:2,ram:8},{name:'D4s_v6',vCPU:4,ram:16},{name:'D8s_v6',vCPU:8,ram:32},{name:'D16s_v6',vCPU:16,ram:64},{name:'D32s_v6',vCPU:32,ram:128},{name:'D48s_v6',vCPU:48,ram:192},{name:'D64s_v6',vCPU:64,ram:256},{name:'D96s_v6',vCPU:96,ram:384}],
-  'D-series v5': [{name:'D2s_v5',vCPU:2,ram:8},{name:'D4s_v5',vCPU:4,ram:16},{name:'D8s_v5',vCPU:8,ram:32},{name:'D16s_v5',vCPU:16,ram:64},{name:'D32s_v5',vCPU:32,ram:128},{name:'D64s_v5',vCPU:64,ram:256}],
-  'D-series v3': [{name:'D2s_v3',vCPU:2,ram:8},{name:'D4s_v3',vCPU:4,ram:16},{name:'D8s_v3',vCPU:8,ram:32},{name:'D16s_v3',vCPU:16,ram:64},{name:'D32s_v3',vCPU:32,ram:128},{name:'D64s_v3',vCPU:64,ram:256}],
-  'Dl-series v6':[{name:'D2ls_v6',vCPU:2,ram:4},{name:'D4ls_v6',vCPU:4,ram:8},{name:'D8ls_v6',vCPU:8,ram:16},{name:'D16ls_v6',vCPU:16,ram:32},{name:'D32ls_v6',vCPU:32,ram:64},{name:'D64ls_v6',vCPU:64,ram:128}],
-  'Ds-series v6':[{name:'D2ds_v6',vCPU:2,ram:8},{name:'D4ds_v6',vCPU:4,ram:16},{name:'D8ds_v6',vCPU:8,ram:32},{name:'D16ds_v6',vCPU:16,ram:64},{name:'D32ds_v6',vCPU:32,ram:128},{name:'D64ds_v6',vCPU:64,ram:256}],
-  'E-series v6': [{name:'E2s_v6',vCPU:2,ram:16},{name:'E4s_v6',vCPU:4,ram:32},{name:'E8s_v6',vCPU:8,ram:64},{name:'E16s_v6',vCPU:16,ram:128},{name:'E32s_v6',vCPU:32,ram:256},{name:'E64s_v6',vCPU:64,ram:512}],
-  'E-series v5': [{name:'E2s_v5',vCPU:2,ram:16},{name:'E4s_v5',vCPU:4,ram:32},{name:'E8s_v5',vCPU:8,ram:64},{name:'E16s_v5',vCPU:16,ram:128},{name:'E32s_v5',vCPU:32,ram:256},{name:'E64s_v5',vCPU:64,ram:432}],
-  'F-series v2': [{name:'F2s_v2',vCPU:2,ram:4},{name:'F4s_v2',vCPU:4,ram:8},{name:'F8s_v2',vCPU:8,ram:16},{name:'F16s_v2',vCPU:16,ram:32},{name:'F32s_v2',vCPU:32,ram:64},{name:'F64s_v2',vCPU:64,ram:128}],
-  'M-series':    [{name:'M8ms',vCPU:8,ram:218.75},{name:'M16ms',vCPU:16,ram:437.5},{name:'M32ms',vCPU:32,ram:875},{name:'M64ms',vCPU:64,ram:1750}],
-  'N-series':    [{name:'NC4as_T4_v3',vCPU:4,ram:28},{name:'NC8as_T4_v3',vCPU:8,ram:56},{name:'NC16as_T4_v3',vCPU:16,ram:110},{name:'NC64as_T4_v3',vCPU:64,ram:440}],
+  'B-series': [{name:'B1ls',vCPU:1,ram:0.5},{name:'B1s',vCPU:1,ram:1},{name:'B1ms',vCPU:1,ram:2},{name:'B2s',vCPU:2,ram:4},{name:'B2ms',vCPU:2,ram:8},{name:'B4ms',vCPU:4,ram:16},{name:'B8ms',vCPU:8,ram:32},{name:'B12ms',vCPU:12,ram:48},{name:'B16ms',vCPU:16,ram:64},{name:'B20ms',vCPU:20,ram:80}],
+  'D-series v3': [{name:'D2s_v3',vCPU:2,ram:8},{name:'D4s_v3',vCPU:4,ram:16},{name:'D8s_v3',vCPU:8,ram:32},{name:'D16s_v3',vCPU:16,ram:64},{name:'D32s_v3',vCPU:32,ram:128},{name:'D48s_v3',vCPU:48,ram:192},{name:'D64s_v3',vCPU:64,ram:256}],
+  'D-series v4': [{name:'D2s_v4',vCPU:2,ram:8},{name:'D4s_v4',vCPU:4,ram:16},{name:'D8s_v4',vCPU:8,ram:32},{name:'D16s_v4',vCPU:16,ram:64},{name:'D32s_v4',vCPU:32,ram:128},{name:'D48s_v4',vCPU:48,ram:192},{name:'D64s_v4',vCPU:64,ram:256}],
+  'D-series v5': [{name:'D2s_v5',vCPU:2,ram:8},{name:'D4s_v5',vCPU:4,ram:16},{name:'D8s_v5',vCPU:8,ram:32},{name:'D16s_v5',vCPU:16,ram:64},{name:'D32s_v5',vCPU:32,ram:128},{name:'D48s_v5',vCPU:48,ram:192},{name:'D64s_v5',vCPU:64,ram:256},{name:'D96s_v5',vCPU:96,ram:384}],
+  'D-series v6': [{name:'D2s_v6',vCPU:2,ram:8},{name:'D4s_v6',vCPU:4,ram:16},{name:'D8s_v6',vCPU:8,ram:32},{name:'D16s_v6',vCPU:16,ram:64},{name:'D32s_v6',vCPU:32,ram:128},{name:'D48s_v6',vCPU:48,ram:192},{name:'D64s_v6',vCPU:64,ram:256},{name:'D96s_v6',vCPU:96,ram:384},{name:'D128s_v6',vCPU:128,ram:512},{name:'D192s_v6',vCPU:192,ram:768}],
+  'Dd-series v6': [{name:'D2ds_v6',vCPU:2,ram:8},{name:'D4ds_v6',vCPU:4,ram:16},{name:'D8ds_v6',vCPU:8,ram:32},{name:'D16ds_v6',vCPU:16,ram:64},{name:'D32ds_v6',vCPU:32,ram:128},{name:'D48ds_v6',vCPU:48,ram:192},{name:'D64ds_v6',vCPU:64,ram:256},{name:'D96ds_v6',vCPU:96,ram:384},{name:'D128ds_v6',vCPU:128,ram:512},{name:'D192ds_v6',vCPU:192,ram:768}],
+  'Das-series v5 (AMD)': [{name:'D2as_v5',vCPU:2,ram:8},{name:'D4as_v5',vCPU:4,ram:16},{name:'D8as_v5',vCPU:8,ram:32},{name:'D16as_v5',vCPU:16,ram:64},{name:'D32as_v5',vCPU:32,ram:128},{name:'D48as_v5',vCPU:48,ram:192},{name:'D64as_v5',vCPU:64,ram:256},{name:'D96as_v5',vCPU:96,ram:384}],
+  'Das-series v6 (AMD)': [{name:'D2as_v6',vCPU:2,ram:8},{name:'D4as_v6',vCPU:4,ram:16},{name:'D8as_v6',vCPU:8,ram:32},{name:'D16as_v6',vCPU:16,ram:64},{name:'D32as_v6',vCPU:32,ram:128},{name:'D48as_v6',vCPU:48,ram:192},{name:'D64as_v6',vCPU:64,ram:256},{name:'D96as_v6',vCPU:96,ram:384}],
+  'E-series v3': [{name:'E2s_v3',vCPU:2,ram:16},{name:'E4s_v3',vCPU:4,ram:32},{name:'E8s_v3',vCPU:8,ram:64},{name:'E16s_v3',vCPU:16,ram:128},{name:'E20s_v3',vCPU:20,ram:160},{name:'E32s_v3',vCPU:32,ram:256},{name:'E48s_v3',vCPU:48,ram:384},{name:'E64s_v3',vCPU:64,ram:432}],
+  'E-series v4': [{name:'E2s_v4',vCPU:2,ram:16},{name:'E4s_v4',vCPU:4,ram:32},{name:'E8s_v4',vCPU:8,ram:64},{name:'E16s_v4',vCPU:16,ram:128},{name:'E20s_v4',vCPU:20,ram:160},{name:'E32s_v4',vCPU:32,ram:256},{name:'E48s_v4',vCPU:48,ram:384},{name:'E64s_v4',vCPU:64,ram:504}],
+  'E-series v5': [{name:'E2s_v5',vCPU:2,ram:16},{name:'E4s_v5',vCPU:4,ram:32},{name:'E8s_v5',vCPU:8,ram:64},{name:'E16s_v5',vCPU:16,ram:128},{name:'E20s_v5',vCPU:20,ram:160},{name:'E32s_v5',vCPU:32,ram:256},{name:'E48s_v5',vCPU:48,ram:384},{name:'E64s_v5',vCPU:64,ram:512},{name:'E96s_v5',vCPU:96,ram:672}],
+  'E-series v6': [{name:'E2s_v6',vCPU:2,ram:16},{name:'E4s_v6',vCPU:4,ram:32},{name:'E8s_v6',vCPU:8,ram:64},{name:'E16s_v6',vCPU:16,ram:128},{name:'E20s_v6',vCPU:20,ram:160},{name:'E32s_v6',vCPU:32,ram:256},{name:'E48s_v6',vCPU:48,ram:384},{name:'E64s_v6',vCPU:64,ram:512},{name:'E96s_v6',vCPU:96,ram:768},{name:'E128s_v6',vCPU:128,ram:1024}],
+  'Ed-series v6': [{name:'E2ds_v6',vCPU:2,ram:16},{name:'E4ds_v6',vCPU:4,ram:32},{name:'E8ds_v6',vCPU:8,ram:64},{name:'E16ds_v6',vCPU:16,ram:128},{name:'E20ds_v6',vCPU:20,ram:160},{name:'E32ds_v6',vCPU:32,ram:256},{name:'E48ds_v6',vCPU:48,ram:384},{name:'E64ds_v6',vCPU:64,ram:512},{name:'E96ds_v6',vCPU:96,ram:768},{name:'E128ds_v6',vCPU:128,ram:1024}],
+  'Eas-series v5 (AMD)': [{name:'E2as_v5',vCPU:2,ram:16},{name:'E4as_v5',vCPU:4,ram:32},{name:'E8as_v5',vCPU:8,ram:64},{name:'E16as_v5',vCPU:16,ram:128},{name:'E20as_v5',vCPU:20,ram:160},{name:'E32as_v5',vCPU:32,ram:256},{name:'E48as_v5',vCPU:48,ram:384},{name:'E64as_v5',vCPU:64,ram:512},{name:'E96as_v5',vCPU:96,ram:672}],
+  'F-series v2': [{name:'F2s_v2',vCPU:2,ram:4},{name:'F4s_v2',vCPU:4,ram:8},{name:'F8s_v2',vCPU:8,ram:16},{name:'F16s_v2',vCPU:16,ram:32},{name:'F32s_v2',vCPU:32,ram:64},{name:'F48s_v2',vCPU:48,ram:96},{name:'F64s_v2',vCPU:64,ram:128},{name:'F72s_v2',vCPU:72,ram:144}],
+  'L-series v3': [{name:'L8s_v3',vCPU:8,ram:64},{name:'L16s_v3',vCPU:16,ram:128},{name:'L32s_v3',vCPU:32,ram:256},{name:'L48s_v3',vCPU:48,ram:384},{name:'L64s_v3',vCPU:64,ram:512},{name:'L80s_v3',vCPU:80,ram:640}],
+  'Las-series v3 (AMD)': [{name:'L8as_v3',vCPU:8,ram:64},{name:'L16as_v3',vCPU:16,ram:128},{name:'L32as_v3',vCPU:32,ram:256},{name:'L48as_v3',vCPU:48,ram:384},{name:'L64as_v3',vCPU:64,ram:512},{name:'L80as_v3',vCPU:80,ram:640}],
+  'M-series': [{name:'M8ms',vCPU:8,ram:218.75},{name:'M16ms',vCPU:16,ram:437.5},{name:'M32ms',vCPU:32,ram:875},{name:'M64ms',vCPU:64,ram:1750},{name:'M128ms',vCPU:128,ram:3892},{name:'M16s',vCPU:16},{name:'M32s',vCPU:32},{name:'M64s',vCPU:64},{name:'M128s',vCPU:128},{name:'M32ms_v2',vCPU:32},{name:'M64ms_v2',vCPU:64},{name:'M128ms_v2',vCPU:128},{name:'M208ms_v2',vCPU:208},{name:'M416ms_v2',vCPU:416},{name:'M64ds_v2',vCPU:64},{name:'M128ds_v2',vCPU:128}],
+  'N-series (GPU)': [{name:'NC4as_T4_v3',vCPU:4,ram:28},{name:'NC8as_T4_v3',vCPU:8,ram:56},{name:'NC16as_T4_v3',vCPU:16,ram:110},{name:'NC64as_T4_v3',vCPU:64,ram:440},{name:'NC6s_v3',vCPU:6,ram:112},{name:'NC12s_v3',vCPU:12,ram:224},{name:'NC24s_v3',vCPU:24,ram:448},{name:'NV4as_v4',vCPU:4,ram:14},{name:'NV8as_v4',vCPU:8,ram:28},{name:'NV16as_v4',vCPU:16,ram:56},{name:'NV32as_v4',vCPU:32,ram:112}],
+  'A-series v2': [{name:'A1_v2',vCPU:1,ram:2},{name:'A2_v2',vCPU:2,ram:4},{name:'A4_v2',vCPU:4,ram:8},{name:'A8_v2',vCPU:8,ram:16},{name:'A2m_v2',vCPU:2,ram:16},{name:'A4m_v2',vCPU:4,ram:32},{name:'A8m_v2',vCPU:8,ram:64}],
+  'FX-series': [{name:'FX4mds',vCPU:4,ram:84},{name:'FX12mds',vCPU:12,ram:252},{name:'FX24mds',vCPU:24,ram:504},{name:'FX36mds',vCPU:36,ram:756},{name:'FX48mds',vCPU:48,ram:1008}],
 };
 
 // 유형(소프트웨어) -> Retail Prices API의 productName ('Virtual Machines Licenses')

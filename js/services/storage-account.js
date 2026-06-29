@@ -21,6 +21,10 @@ var _STG_METER = {
   'Data Stored':      { kw:'data stored',      exclude:[] },
   'Write Operations': { table:'write operations', queue:'class 1 operations', exclude:['batch','additional io'] },
   'Read Operations':  { table:'read operations',  queue:'class 2 operations', exclude:['batch','additional io'] },
+  // Table 전용 추가 작업(Queue엔 해당 미터 없음 → Queue 선택 시 매칭 실패가 정상)
+  'List Operations':   { kw:'list operations',   exclude:[] },
+  'Delete Operations': { kw:'delete operations', exclude:[] },
+  'Scan Operations':   { kw:'scan operations',   exclude:[] },
 };
 
 window._svcDefs['Storage Account'] = {
@@ -28,7 +32,7 @@ window._svcDefs['Storage Account'] = {
   steps: [
     { key:'storageType', label:'스토리지 종류', options:['Table','Queue'] },
     { key:'redundancy',  label:'중복성',        options:['LRS','ZRS','GRS','RA-GRS','GZRS','RA-GZRS'] },
-    { key:'metric',      label:'청구 항목',     options:['Data Stored','Write Operations','Read Operations'] },
+    { key:'metric',      label:'청구 항목',     options:['Data Stored','Write Operations','Read Operations','List Operations','Delete Operations','Scan Operations'] },
   ],
   instanceField: false,
 };
