@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v83 — 2026-06-29
+- feat: **Azure SQL Managed Instance** 신규 카테고리 추가(serviceName='SQL Managed Instance'). 계층(General Purpose/Business Critical) × 하드웨어(Gen5/Premium-series/Premium-series MO) × vCore(4~80) × 중복성(로컬/영역 중복 ZR). SQL Database vCore와 동일 패턴(meter 'vCore' + 'Zone Redundancy vCore' add-on, 절약 1년·예약 1·3년). 라이브 브라우저 검증(GP Gen5 8vCore 로컬 2065.31/ZR 3304.50, BC Premium-series 16vCore 11408.34, GP Premium-series MO 8vCore 3992.39). index.html 스크립트 등록 + SERVICE_CATEGORY_ORDER 추가
+- feat: **Virtual Machine HPC 시리즈** 추가 — HB-series v4·HC-series·HX-series. 제약 코어(예 HB176-24rs_v4=실제 24 vCPU)는 카탈로그에 vCPU 명시값으로 등록해 파싱 오류 회피. RAM은 사양 미상이라 생략(라벨 vCPU만). 21→24시리즈
+- fix: VM resolver `skuM`에 정규화(밑줄·공백 제거) 비교 추가 — HB v4는 API의 skuName/meterName이 'HB176-24rsv4'(밑줄 없이 'rsv4' 융합)인데 armSkuName은 'Standard_HB176-24rs_v4'라 기존 비교로는 매칭 실패하던 것 해결(HC/HX는 영향 없음). 라이브 검증 HB176-24rs_v4 14588.75 등 전 HPC SKU 매칭 확인
+- fix: VM 행 detail의 'RAM:undefinedGB' 표기 수정 — RAM 미상 시 생략(HPC·M 일부 사이즈)
+- 영향 파일: js/services/{sql-managed-instance(신규),vm}.js, index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 실제 브라우저(CORS 프록시 경로)에서 MI 4조합·HPC 6 SKU 가격 조회 + MI 카테고리 드롭다운 노출 확인. node --check 통과
+
 ## v82 — 2026-06-29
 - feat: **공식 Azure 가격 계산기와 옵션 정합** (단계적, 핵심 서비스부터). 기준은 Azure Retail Prices API가 노출하는 가격 차원 전체 — 각 옵션이 실제 라이브 API/브라우저에서 매칭(가격 조회)되는지 검증한 것만 추가. 계산기 전용 할인 로직(AHB·Dev/Test·지원 플랜·무료 한도 등)은 Retail API 범위 밖이라 제외
 - **App Service**: 노출 계층 5종 → 10종(Premium v1(Win 전용)·v2·v4, Isolated v1·v4 추가). 계층별 인스턴스(skuName) 전체 등록. koreacentral 라이브 110개 조합 매칭(Premium v1 Linux 4개만 API 미제공=정상)

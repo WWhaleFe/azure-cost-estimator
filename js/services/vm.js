@@ -11,7 +11,7 @@ window._svcDefs['Virtual Machine'] = {
     { key:'swType',  label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
     { key:'tier',    label:'Tier',      options:['Standard','Spot'] },
     { key:'license', label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
-    { key:'series',  label:'인스턴스 시리즈', options:['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series'] },
+    { key:'series',  label:'인스턴스 시리즈', options:['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'] },
   ],
   instanceField: true,
   instanceParentKey: 'series',
@@ -43,6 +43,11 @@ var VM_INSTANCE_CATALOG = window.VM_INSTANCE_CATALOG = {
   'N-series (GPU)': [{name:'NC4as_T4_v3',vCPU:4,ram:28},{name:'NC8as_T4_v3',vCPU:8,ram:56},{name:'NC16as_T4_v3',vCPU:16,ram:110},{name:'NC64as_T4_v3',vCPU:64,ram:440},{name:'NC6s_v3',vCPU:6,ram:112},{name:'NC12s_v3',vCPU:12,ram:224},{name:'NC24s_v3',vCPU:24,ram:448},{name:'NV4as_v4',vCPU:4,ram:14},{name:'NV8as_v4',vCPU:8,ram:28},{name:'NV16as_v4',vCPU:16,ram:56},{name:'NV32as_v4',vCPU:32,ram:112}],
   'A-series v2': [{name:'A1_v2',vCPU:1,ram:2},{name:'A2_v2',vCPU:2,ram:4},{name:'A4_v2',vCPU:4,ram:8},{name:'A8_v2',vCPU:8,ram:16},{name:'A2m_v2',vCPU:2,ram:16},{name:'A4m_v2',vCPU:4,ram:32},{name:'A8m_v2',vCPU:8,ram:64}],
   'FX-series': [{name:'FX4mds',vCPU:4,ram:84},{name:'FX12mds',vCPU:12,ram:252},{name:'FX24mds',vCPU:24,ram:504},{name:'FX36mds',vCPU:36,ram:756},{name:'FX48mds',vCPU:48,ram:1008}],
+  // HPC 시리즈(HB/HC/HX): 'HB176-Nrs_v4'는 제약 코어(실제 사용 vCPU=N) → vCPU를 명시값으로 지정.
+  // RAM은 사양 확정이 까다로워 생략(라벨에 vCPU만 표시). armSkuName='Standard_<name>'으로 가격 조회.
+  'HB-series v4 (HPC)': [{name:'HB176-24rs_v4',vCPU:24},{name:'HB176-48rs_v4',vCPU:48},{name:'HB176-96rs_v4',vCPU:96},{name:'HB176-144rs_v4',vCPU:144},{name:'HB176rs_v4',vCPU:176}],
+  'HC-series (HPC)': [{name:'HC44-16rs',vCPU:16},{name:'HC44-32rs',vCPU:32},{name:'HC44rs',vCPU:44}],
+  'HX-series (HPC)': [{name:'HX176-24rs',vCPU:24},{name:'HX176-48rs',vCPU:48},{name:'HX176-96rs',vCPU:96},{name:'HX176-144rs',vCPU:144},{name:'HX176rs',vCPU:176}],
 };
 
 // 유형(소프트웨어) -> Retail Prices API의 productName ('Virtual Machines Licenses')
@@ -105,7 +110,7 @@ window['_buildDetail_Virtual_Machine'] = function(r) {
   const inst = (VM_INSTANCE_CATALOG[o.series]||[]).find(i=>i.name===o.instance);
   const parts = [];
   if (o.os) parts.push(o.os);
-  if (inst) parts.push(`CPU:${inst.vCPU}core RAM:${inst.ram}GB`);
+  if (inst) parts.push(`CPU:${inst.vCPU}core` + ((inst.ram!==undefined&&inst.ram!==null) ? ` RAM:${inst.ram}GB` : ''));
   if (o.tier && o.tier!=='Standard') parts.push(o.tier);
   if (o.os && o.os!=='Linux' && o.license) parts.push(o.license);
   if (o.swType && o.swType!=='(OS Only)') parts.push(o.swType);
@@ -127,7 +132,7 @@ window['_resolve_Virtual_Machine'] = async function(row, cur) {
     const isLinux=(it)=>!isWin(it)&&!isRHEL(it)&&!isSUSE(it);
     const isSpot=(it)=>{ const s=(it.skuName||'').toLowerCase(),m=(it.meterName||'').toLowerCase(),p=(it.productName||'').toLowerCase(); return s.includes('spot')||m.includes('spot')||s.includes('low priority')||m.includes('low priority')||p.includes('low priority'); };
     const isDev =(it)=>(it.type||'').toLowerCase()==='devtestconsumption';
-    const skuM =(it)=>{ const t1=row.skuName.toLowerCase(),t2=t1.replace(/_/g,' '); const s=(it.skuName||'').toLowerCase(),m=(it.meterName||'').toLowerCase(); return s===t1||s===t2||m===t1||m===t2; };
+    const skuM =(it)=>{ const norm=(x)=>String(x||'').toLowerCase().replace(/[_ ]/g,''); const t1=row.skuName.toLowerCase(),t2=t1.replace(/_/g,' '),t3=norm(row.skuName); const s=(it.skuName||'').toLowerCase(),m=(it.meterName||'').toLowerCase(); return s===t1||s===t2||m===t1||m===t2||norm(s)===t3||norm(m)===t3; };
     const osC=row.options.os||'Linux', tierC=row.options.tier||'Standard';
     const licC=row.options.license||'라이선스 포함', isAHB=licC==='Azure Hybrid Benefit', isPaid=osC!=='Linux';
     const base=(it)=>{ if((it.type||'').toLowerCase()!=='consumption') return false; if(it.armSkuName!==armSku||!skuM(it)||isDev(it)) return false; if(tierC==='Spot'?!isSpot(it):isSpot(it)) return false; if(!(it.unitOfMeasure||'').toLowerCase().includes('hour')) return false; if(Number(it.tierMinimumUnits||0)!==0) return false; return true; };
