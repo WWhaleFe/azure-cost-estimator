@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v90 — 2026-06-29
+- feat: **SQL Managed Instance에도 'SQL 라이선스'(AHB) 적용** — v89(SQL Database)와 동일. MI의 'vCore' 단가도 컴퓨팅 전용(=AHB)이라 라이선스 비용이 빠져 있던 것 정정. 기본값 '라이선스 포함'(컴퓨팅+SQL 코어 라이선스), 'Azure Hybrid Benefit' 선택 시 제외
+- 라이선스 단가 USD 상수(GP=Standard $0.10, BC=Enterprise $0.375 /vCore/h), 통화는 API FX 환산. SP/RI에도 가산. 라이선스는 계층(GP/BC) 기준, 하드웨어 무관
+- 검증(koreacentral 8vCore): GP 라이선스 포함 3266.03/h(라이선스 1200.72=150.09/vCore) vs AHB 2065.31/h, BC 라이선스 포함 8633.32/h(라이선스 562.84/vCore) vs AHB 4130.62/h — SQL Database·계산기 라이선스 단가와 일치
+- 영향 파일: js/services/sql-managed-instance.js, CHANGELOG.md
+- 검증: 브라우저에서 GP/BC × 라이선스 포함/AHB 가격 + 라이선스 스텝 노출 확인. node --check 통과
+
 ## v89 — 2026-06-29
 - feat: **Azure SQL Database에 'SQL 라이선스' 선택 추가**(라이선스 포함 / Azure Hybrid Benefit) — 계산기와 동일. 계산기 검증 결과 Retail API의 'vCore' 단가는 **컴퓨팅 전용(=AHB)** 가격이었고, 우리 앱은 그간 사실상 AHB(라이선스 제외) 가격을 기본으로 보여 SQL 라이선스 비용이 빠져 있었음
 - **가격 정정**: 기본값을 계산기와 동일하게 **'라이선스 포함'**으로 설정 → 컴퓨팅 + SQL Server 코어 라이선스. 'Azure Hybrid Benefit' 선택 시 라이선스 제외(기존 가격). 예) koreacentral GP Gen5 2vCore: 라이선스 포함 816.50/h vs AHB 516.32/h
