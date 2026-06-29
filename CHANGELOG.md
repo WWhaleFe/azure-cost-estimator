@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v87 — 2026-06-29
+- feat: **가격 계산기와 선택 항목 완전 동일화** 작업 시작(라벨·드롭다운·옵션까지 일치). 1차 대상 **Virtual Machine**: 계산기의 **범주(Category)** 차원 추가 → 계산기와 동일한 '범주 → 인스턴스 시리즈 → 인스턴스' 3단계 선택 흐름. 범주 옵션은 계산기 라벨 그대로(전체/일반적인 용도/컴퓨팅 최적화/메모리에 최적화/Storage에 최적화/GPU/고성능 컴퓨팅), 24개 시리즈를 범주별로 분류. tier 라벨 'Tier'→'계층'으로 정렬
+- 구현: `_VM_CATEGORY_SERIES` 매핑 + `_vm_applyStepVisibility`(범주→시리즈 옵션 전환) + `rebuildKeys:['category']`. 가격 로직 무변경(시리즈/인스턴스는 그대로) — 범주는 시리즈 필터일 뿐이라 가격 영향 없음
+- 영향 파일: js/services/vm.js, CHANGELOG.md
+- 검증: 브라우저에서 범주별 시리즈 분배(전체24·일반9·컴퓨팅2·메모리7·Storage2·GPU1·HPC3) 및 DOM 흐름(고성능 컴퓨팅→HPC 3시리즈→HC44rs) 확인, 메모리 최적화 E8s_v5 912.55 조회. node --check 통과
+
 ## v86 — 2026-06-29
 - 작업: 가격 계산기 UI 비교(2차) — AKS·Disk·Storage·MySQL 대조
 - fix: **Azure Database for MySQL** General Purpose vCore 옵션에 **96** 추가(계산기 GP 인스턴스 D2ds~D96ds=최대 96 vCore와 정합. GP는 per-vCore×N 모델이라 선형, 64vCore 11334.80→96vCore 17002.20 KRW/h 확인). Business Critical은 이미 96·104 포함, Burstable B1MS~B20MS 정합

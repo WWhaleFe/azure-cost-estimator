@@ -3,18 +3,48 @@
 // 수정 대상: VM 시리즈/인스턴스 목록, OS/유형(SW)/라이선스 옵션, 가격 매칭 로직
 // ================================================================
 
+// 전체 시리즈 목록(범주=전체에서 사용)
+var _VM_ALL_SERIES = ['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'];
+// 범주(계산기 'Category')별 시리즈 — 계산기 라벨과 동일
+var _VM_CATEGORY_SERIES = {
+  '전체':            _VM_ALL_SERIES,
+  '일반적인 용도':    ['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','A-series v2'],
+  '컴퓨팅 최적화':    ['F-series v2','FX-series'],
+  '메모리에 최적화':  ['E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','M-series'],
+  'Storage에 최적화': ['L-series v3','Las-series v3 (AMD)'],
+  'GPU':             ['N-series (GPU)'],
+  '고성능 컴퓨팅':    ['HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'],
+};
+
 // 카테고리 정의 등록
 window._svcDefs['Virtual Machine'] = {
   apiServiceName: 'Virtual Machines',
   steps: [
-    { key:'os',      label:'운영 체제', options:['Linux','Windows','Red Hat Enterprise Linux','SUSE'] },
-    { key:'swType',  label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
-    { key:'tier',    label:'Tier',      options:['Standard','Spot'] },
-    { key:'license', label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
-    { key:'series',  label:'인스턴스 시리즈', options:['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'] },
+    { key:'os',       label:'운영 체제', options:['Linux','Windows','Red Hat Enterprise Linux','SUSE'] },
+    { key:'swType',   label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
+    { key:'tier',     label:'계층',      options:['Standard','Spot'] },
+    { key:'license',  label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
+    { key:'category', label:'범주',      options:['전체','일반적인 용도','컴퓨팅 최적화','메모리에 최적화','Storage에 최적화','GPU','고성능 컴퓨팅'] },
+    { key:'series',   label:'인스턴스 시리즈', options:_VM_ALL_SERIES.slice() },
   ],
   instanceField: true,
   instanceParentKey: 'series',
+  // 범주 변경 시 시리즈 옵션을 다시 구성(계산기 범주→시리즈→인스턴스 흐름)
+  rebuildKeys: ['category'],
+  _applyStepVisibility: function(r){ if (window['_vm_applyStepVisibility']) window['_vm_applyStepVisibility'](r); },
+};
+
+window['_vm_applyStepVisibility'] = function(r) {
+  var def = window._svcDefs['Virtual Machine'];
+  if (!def || !def.steps) return;
+  var o = r.options || {};
+  var cat = o.category || '전체';
+  var list = _VM_CATEGORY_SERIES[cat] || _VM_ALL_SERIES;
+  for (var i = 0; i < def.steps.length; i++) {
+    if (def.steps[i].key !== 'series') continue;
+    def.steps[i].options = list;
+    if (list.indexOf(o.series) < 0) { r.options.series = list[0]; r.options.instance = ''; }
+  }
 };
 
 // 전역 노출 (ui-and-bootstrap.js 에서 접근)
@@ -106,6 +136,7 @@ window['_vmSwLicenseHourly'] = async function(productName, vcpu, cur) {
 // detail 빌더
 window['_buildDetail_Virtual_Machine'] = function(r) {
   const o = r.options;
+  if (window['_vm_applyStepVisibility']) window['_vm_applyStepVisibility'](r);
   r.skuName = o.instance || '';
   const inst = (VM_INSTANCE_CATALOG[o.series]||[]).find(i=>i.name===o.instance);
   const parts = [];
