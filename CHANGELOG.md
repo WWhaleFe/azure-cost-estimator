@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v88 — 2026-06-29
+- feat: **필드 라벨을 가격 계산기와 정렬**(표시용 라벨만 변경 — 옵션 값/가격 로직 무변경, 안전). 옵션 값은 Azure 공식 명칭 유지(계산기 한글 번역은 구버전 표기가 섞여 있어 제외)
+  - **SQL Database**: 계층→'서비스 계층', 컴퓨팅→'컴퓨팅 계층', 하드웨어→'하드웨어 종류', vCore 수→'인스턴스(vCore)'
+  - **App Service**: OS→'운영 체제'
+  - **MySQL**: vCore 수→'인스턴스(vCore)'
+  - **SQL Managed Instance**: 계층→'서비스 계층', 하드웨어→'하드웨어 종류', vCore 수→'인스턴스(vCore)'
+- 영향 파일: js/services/{sql-database,app-service,mysql,sql-managed-instance}.js, CHANGELOG.md
+- 검증: 라벨 변경 후 가격 정상 조회 확인(SQL 2065.30, App 271.66, MySQL 1416.85, MI 2065.31). node --check 통과
+
 ## v87 — 2026-06-29
 - feat: **가격 계산기와 선택 항목 완전 동일화** 작업 시작(라벨·드롭다운·옵션까지 일치). 1차 대상 **Virtual Machine**: 계산기의 **범주(Category)** 차원 추가 → 계산기와 동일한 '범주 → 인스턴스 시리즈 → 인스턴스' 3단계 선택 흐름. 범주 옵션은 계산기 라벨 그대로(전체/일반적인 용도/컴퓨팅 최적화/메모리에 최적화/Storage에 최적화/GPU/고성능 컴퓨팅), 24개 시리즈를 범주별로 분류. tier 라벨 'Tier'→'계층'으로 정렬
 - 구현: `_VM_CATEGORY_SERIES` 매핑 + `_vm_applyStepVisibility`(범주→시리즈 옵션 전환) + `rebuildKeys:['category']`. 가격 로직 무변경(시리즈/인스턴스는 그대로) — 범주는 시리즈 필터일 뿐이라 가격 영향 없음

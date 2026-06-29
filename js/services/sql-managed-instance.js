@@ -30,9 +30,9 @@ var _SQLMI_RED_LOCAL = '로컬 중복';
 window._svcDefs['Azure SQL Managed Instance'] = {
   apiServiceName: 'SQL Managed Instance',
   steps: [
-    { key:'tier',       label:'계층',     options:['General Purpose','Business Critical'] },
-    { key:'hardware',   label:'하드웨어', options:['Gen5','Premium-series','Premium-series MO'] },
-    { key:'vCores',     label:'vCore 수', options:['4','8','16','24','32','40','64','80'] },
+    { key:'tier',       label:'서비스 계층', options:['General Purpose','Business Critical'] },
+    { key:'hardware',   label:'하드웨어 종류', options:['Gen5','Premium-series','Premium-series MO'] },
+    { key:'vCores',     label:'인스턴스(vCore)', options:['4','8','16','24','32','40','64','80'] },
     { key:'redundancy', label:'중복성(재해 복구)', options:[_SQLMI_RED_LOCAL, _SQLMI_RED_ZR],
       tooltip:'영역 중복(ZR)은 Zone Redundancy vCore 추가 미터로 과금됩니다(용량제·절약·예약에 add-on). 추가 미터가 없는 조합은 로컬 기준으로 폴백합니다.' },
   ],

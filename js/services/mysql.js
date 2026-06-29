@@ -39,7 +39,7 @@ window._svcDefs['Azure Database for MySQL'] = {
   steps: [
     { key:'tier',     label:'계층',      options:['Burstable','General Purpose','Business Critical'] },
     { key:'instance', label:'인스턴스',  options:['B1MS','B2S','B2MS','B4MS','B8MS','B12MS','B16MS','B20MS'] },
-    { key:'vCores',   label:'vCore 수',  options:['1','2','4','8','16','32','48','64'] },
+    { key:'vCores',   label:'인스턴스(vCore)',  options:['1','2','4','8','16','32','48','64'] },
   ],
   instanceField: false,
   // 계층 변경 시 인스턴스/vCore 필드 노출과 옵션을 다시 구성

@@ -41,9 +41,9 @@ var _APPSVC_SIZES = {
 window._svcDefs['App Service'] = {
   apiServiceName: 'Azure App Service',
   steps: [
-    { key:'tier', label:'계층',     options:['Free','Basic','Standard','Premium','Premium v2','Premium v3','Premium v4','Isolated','Isolated v2','Isolated v4'] },
-    { key:'os',   label:'OS',       options:['Windows','Linux'] },
-    { key:'size', label:'인스턴스', options:['B1','B2','B3'] },
+    { key:'tier', label:'계층',      options:['Free','Basic','Standard','Premium','Premium v2','Premium v3','Premium v4','Isolated','Isolated v2','Isolated v4'] },
+    { key:'os',   label:'운영 체제', options:['Windows','Linux'] },
+    { key:'size', label:'인스턴스',  options:['B1','B2','B3'] },
   ],
   instanceField: false,
   // 계층 변경 시 인스턴스 옵션을 다시 구성
