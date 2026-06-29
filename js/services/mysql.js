@@ -20,7 +20,7 @@
 // ================================================================
 
 var _MYSQL_BURST_INSTANCES = ['B1MS','B2S','B2MS','B4MS','B8MS','B12MS','B16MS','B20MS'];
-var _MYSQL_GP_VCORES = ['1','2','4','8','16','32','48','64'];
+var _MYSQL_GP_VCORES = ['1','2','4','8','16','32','48','64','96'];
 var _MYSQL_BC_VCORES = ['2','4','8','16','20','32','48','64','96','104'];
 var _MYSQL_PRODUCT = {
   'Burstable':         'Azure Database for MySQL Flexible Server Burstable BS Series Compute',

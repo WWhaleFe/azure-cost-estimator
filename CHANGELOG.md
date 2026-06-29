@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v86 — 2026-06-29
+- 작업: 가격 계산기 UI 비교(2차) — AKS·Disk·Storage·MySQL 대조
+- fix: **Azure Database for MySQL** General Purpose vCore 옵션에 **96** 추가(계산기 GP 인스턴스 D2ds~D96ds=최대 96 vCore와 정합. GP는 per-vCore×N 모델이라 선형, 64vCore 11334.80→96vCore 17002.20 KRW/h 확인). Business Critical은 이미 96·104 포함, Burstable B1MS~B20MS 정합
+- 비교 메모(정합 확인): **AKS**(계층 표준/Automatic + SLA 3종 = 계산기 동일), **Disk**(HDD/SSD 계층·S4~S60 사이즈 동일), **Storage 중복성**(LRS/ZRS/RA-GRS/RA-GZRS 동일). 계산기의 VM '범주'·'지원 플랜', SQL '재해 복구 대기 복제본'은 필터/계산기 전용(우리 범위 밖)
+- 영향 파일: js/services/mysql.js, CHANGELOG.md
+- 검증: 브라우저에서 GP 96 vCore 가격 조회 확인. node --check 통과
+
 ## v85 — 2026-06-29
 - 작업: 공식 Azure 가격 계산기(calculator) UI와 우리 앱 옵션을 **브라우저로 직접 비교**(계산기 각 서비스 설정 패널의 select·option을 DOM 덤프하여 대조)
 - fix: **Azure SQL Database** vCore 인스턴스 옵션에 **14·18·20 vCore** 추가(계산기 인스턴스 목록과 정합, koreacentral GP·BC Gen5에 실제 존재 확인 — 3614/4647/5163 KRW/h 선형). 기존 1·2·4·6·8·10·12·16·24·32·40·80 → 14·18·20 보강
