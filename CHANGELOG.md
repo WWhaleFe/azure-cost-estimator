@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v89 — 2026-06-29
+- feat: **Azure SQL Database에 'SQL 라이선스' 선택 추가**(라이선스 포함 / Azure Hybrid Benefit) — 계산기와 동일. 계산기 검증 결과 Retail API의 'vCore' 단가는 **컴퓨팅 전용(=AHB)** 가격이었고, 우리 앱은 그간 사실상 AHB(라이선스 제외) 가격을 기본으로 보여 SQL 라이선스 비용이 빠져 있었음
+- **가격 정정**: 기본값을 계산기와 동일하게 **'라이선스 포함'**으로 설정 → 컴퓨팅 + SQL Server 코어 라이선스. 'Azure Hybrid Benefit' 선택 시 라이선스 제외(기존 가격). 예) koreacentral GP Gen5 2vCore: 라이선스 포함 816.50/h vs AHB 516.32/h
+- 라이선스 단가: Retail API 미제공이라 Azure 공시값을 USD 상수로 둠(GP=SQL Standard $0.10, BC=SQL Enterprise $0.375, Hyperscale=라이선스 없음 /vCore/h). 통화 환산은 같은 컴퓨팅 미터의 USD↔선택통화 비율(FX)을 API에서 도출해 적용(상수는 USD만, FX 하드코딩 없음). 계산기 East US 분해값(GP 라이선스 150.04 KRW/vCore/h, BC 562.84)과 일치 검증
+- 라이선스는 컴퓨팅 절약(SP/RI)과 무관하게 동일 단가로 가산. DTU 모델은 라이선스 옵션 숨김(vCore 전용). Hyperscale은 라이선스 0
+- 영향 파일: js/services/sql-database.js, CHANGELOG.md
+- 검증: 브라우저에서 GP/BC/HS × 라이선스 포함/AHB 가격 + DOM 스텝 노출(vCore=표시, DTU=숨김) 확인. node --check 통과
+- 후속: SQL Managed Instance도 동일 라이선스 모델(GP/BC) 적용 가능(미적용 — 요청 시 추가)
+
 ## v88 — 2026-06-29
 - feat: **필드 라벨을 가격 계산기와 정렬**(표시용 라벨만 변경 — 옵션 값/가격 로직 무변경, 안전). 옵션 값은 Azure 공식 명칭 유지(계산기 한글 번역은 구버전 표기가 섞여 있어 제외)
   - **SQL Database**: 계층→'서비스 계층', 컴퓨팅→'컴퓨팅 계층', 하드웨어→'하드웨어 종류', vCore 수→'인스턴스(vCore)'
