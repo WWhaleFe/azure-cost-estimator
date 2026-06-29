@@ -22,15 +22,15 @@ window._svcDefs['Virtual Machine'] = {
   steps: [
     { key:'os',       label:'운영 체제', options:['Linux','Windows','Red Hat Enterprise Linux','SUSE'] },
     { key:'swType',   label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
-    { key:'tier',     label:'계층',      options:['Standard','Spot'] },
+    { key:'tier',     label:'계층',      options:['Standard','Basic','Spot'] },
     { key:'license',  label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
     { key:'category', label:'범주',      options:['전체','일반적인 용도','컴퓨팅 최적화','메모리에 최적화','Storage에 최적화','GPU','고성능 컴퓨팅'] },
     { key:'series',   label:'인스턴스 시리즈', options:_VM_ALL_SERIES.slice() },
   ],
   instanceField: true,
   instanceParentKey: 'series',
-  // 범주 변경 시 시리즈 옵션을 다시 구성(계산기 범주→시리즈→인스턴스 흐름)
-  rebuildKeys: ['category'],
+  // 범주·계층 변경 시 시리즈 옵션을 다시 구성(계산기 범주→시리즈→인스턴스 흐름. Basic 계층은 A-series Basic 전용)
+  rebuildKeys: ['category','tier'],
   _applyStepVisibility: function(r){ if (window['_vm_applyStepVisibility']) window['_vm_applyStepVisibility'](r); },
 };
 
@@ -38,11 +38,15 @@ window['_vm_applyStepVisibility'] = function(r) {
   var def = window._svcDefs['Virtual Machine'];
   if (!def || !def.steps) return;
   var o = r.options || {};
+  // Basic 계층은 A-series Basic 전용(범주 무관). 그 외는 범주별 시리즈.
+  var isBasic = (o.tier === 'Basic');
   var cat = o.category || '전체';
-  var list = _VM_CATEGORY_SERIES[cat] || _VM_ALL_SERIES;
+  var list = isBasic ? ['A-series (Basic)'] : (_VM_CATEGORY_SERIES[cat] || _VM_ALL_SERIES);
   for (var i = 0; i < def.steps.length; i++) {
-    if (def.steps[i].key !== 'series') continue;
-    def.steps[i].options = list;
+    var step = def.steps[i];
+    if (step.key === 'category') { step._hidden = isBasic; continue; }  // Basic은 범주 비활성
+    if (step.key !== 'series') continue;
+    step.options = list;
     if (list.indexOf(o.series) < 0) { r.options.series = list[0]; r.options.instance = ''; }
   }
 };
@@ -78,6 +82,8 @@ var VM_INSTANCE_CATALOG = window.VM_INSTANCE_CATALOG = {
   'HB-series v4 (HPC)': [{name:'HB176-24rs_v4',vCPU:24},{name:'HB176-48rs_v4',vCPU:48},{name:'HB176-96rs_v4',vCPU:96},{name:'HB176-144rs_v4',vCPU:144},{name:'HB176rs_v4',vCPU:176}],
   'HC-series (HPC)': [{name:'HC44-16rs',vCPU:16},{name:'HC44-32rs',vCPU:32},{name:'HC44rs',vCPU:44}],
   'HX-series (HPC)': [{name:'HX176-24rs',vCPU:24},{name:'HX176-48rs',vCPU:48},{name:'HX176-96rs',vCPU:96},{name:'HX176-144rs',vCPU:144},{name:'HX176rs',vCPU:176}],
+  // Basic 계층(A0~A4) — armSkuName 접두사가 'Basic_' (Standard_ 아님). 계층=Basic일 때만 노출.
+  'A-series (Basic)': [{name:'A0',vCPU:1,ram:0.75},{name:'A1',vCPU:1,ram:1.75},{name:'A2',vCPU:2,ram:3.5},{name:'A3',vCPU:4,ram:7},{name:'A4',vCPU:8,ram:14}],
 };
 
 // 유형(소프트웨어) -> Retail Prices API의 productName ('Virtual Machines Licenses')
@@ -150,7 +156,8 @@ window['_buildDetail_Virtual_Machine'] = function(r) {
 
 // 가격 조회
 window['_resolve_Virtual_Machine'] = async function(row, cur) {
-  const armSku = `Standard_${row.skuName}`;
+  // Basic 계층(A0~A4)은 armSkuName 접두사가 'Basic_', 그 외는 'Standard_'
+  const armSku = ((row.options && row.options.tier === 'Basic') ? 'Basic_' : 'Standard_') + row.skuName;
   const bf = { serviceName:'Virtual Machines', armRegionName:row.region, armSkuName:armSku };
   try {
     const [cItems, rItems] = await Promise.all([

@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v91 — 2026-06-29
+- feat: **VM 계층에 'Basic' 추가**(계산기 정밀 대조). 계산기 VM 계층=Basic/Standard인데 우리는 Standard/Spot이라 Basic 누락이었음 → 계층 Standard/**Basic**/Spot(Spot은 우리 추가분 유지). Basic은 A0~A4(armSkuName 접두사 'Basic_'), 선택 시 시리즈=A-series Basic 전용·범주 자동 숨김
+- 구현: 카탈로그 'A-series (Basic)'(A0 0.75GB~A4 14GB), `_vm_applyStepVisibility` 계층 인식, resolver armSku 접두사 분기('Basic_'/'Standard_'), rebuildKeys에 'tier' 추가. 라이브 검증(koreacentral Basic A1 48.03/h, A4 673.90/h)
+- 계산기 대조 결과 VM 정합: OS(우리 Linux/Windows+RHEL/SUSE=상위집합), 유형(에디션 인라인=도달가능), 범주 7종 일치, 절약옵션 5종 일치, OS 라이선스(AHB) 일치
+- 영향 파일: js/services/vm.js, CHANGELOG.md
+- 검증: 브라우저에서 Basic A1/A4 가격 + 스텝 전환(Basic→A-series 전용·범주 숨김) + Standard/Spot 회귀 확인. node --check 통과
+
 ## v90 — 2026-06-29
 - feat: **SQL Managed Instance에도 'SQL 라이선스'(AHB) 적용** — v89(SQL Database)와 동일. MI의 'vCore' 단가도 컴퓨팅 전용(=AHB)이라 라이선스 비용이 빠져 있던 것 정정. 기본값 '라이선스 포함'(컴퓨팅+SQL 코어 라이선스), 'Azure Hybrid Benefit' 선택 시 제외
 - 라이선스 단가 USD 상수(GP=Standard $0.10, BC=Enterprise $0.375 /vCore/h), 통화는 API FX 환산. SP/RI에도 가산. 라이선스는 계층(GP/BC) 기준, 하드웨어 무관
