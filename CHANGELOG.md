@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v81 — 2026-06-29
+- fix: **Azure Bastion**의 모든 청구 항목(게이트웨이·추가 게이트웨이·데이터 전송)이 항상 "매칭 실패"로 빠져 비용이 조회되지 않던 문제 수정. `_resolve_Azure_Bastion`이 meterName 비교 시 `it.meterName.toLowerCase()`(전부 소문자)와 target 문자열을 비교하는데, target을 `` `${tier} gateway` ``로 만들면서 tier('Basic'/'Standard'/'Premium', 첫 글자 대문자)를 소문자화하지 않아 `'basic gateway' !== 'Basic gateway'`로 모든 조합이 불일치했음(v62부터 잠재). target에 `tier.toLowerCase()` 적용으로 해결
+- 영향 파일: js/services/bastion.js, CHANGELOG.md
+- 검증: koreacentral 라이브 API(20건)로 5개 조합 재현 — 수정 전 전부 "매칭 실패", 수정 후 Basic Gateway 285.171 / Standard Gateway 435.261 / Premium Gateway 675.405 / Standard Additional Gateway 210.126 / Standard Data Transfer Out 180.108(KRW) 정상 매칭. node --check 통과
+- 비고: 원격 main에 별도 v80(SQL 중복성 ZR)이 먼저 들어와 충돌 방지 규칙대로 v80→v81로 채번
+
 ## v80 — 2026-06-23
 - feat: Azure SQL Database에 **중복성(재해 복구) 옵션** 추가 — '로컬 중복' / '영역 중복(ZR)'. 공식 Azure 가격 계산기의 재해복구·중복성 옵션에 대응하며, 선택이 용량제·절약·예약 가격에 즉시 반영됨(가격 하드코딩 없음, 전부 라이브 API 조회)
 - 무엇을: redundancy 스텝(def.steps) 신설 + _resolve_Azure_SQL_Database가 ZR 선택 시 'Zone Redundancy vCore' 추가 미터를 용량제·절약(1년)·예약(1·3년)에 각각 합산. ZR 추가 미터가 없는 조합(BC/HS/Fsv2)은 로컬 기준으로 폴백하고 상태창에 안내(빈 가격 방지)

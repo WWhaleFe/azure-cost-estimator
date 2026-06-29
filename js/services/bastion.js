@@ -49,9 +49,12 @@ window['_resolve_Azure_Bastion'] = async function(row, cur) {
   // 부분 충돌하지 않도록 정확 일치 사용)
   const isAdditional = metric.indexOf('추가') >= 0;
   const isTransfer   = metric.indexOf('전송') >= 0;
-  const target = isAdditional ? `${tier} additional gateway`
-              : isTransfer    ? `${tier} data transfer out`
-              :                 `${tier} gateway`;
+  // meterName은 아래에서 toLowerCase()로 비교하므로 target도 소문자로 맞춘다
+  // (tier가 'Basic/Standard/Premium' 대문자라 소문자화하지 않으면 'basic gateway' !== 'Basic gateway'로 항상 불일치)
+  const tierLower = tier.toLowerCase();
+  const target = isAdditional ? `${tierLower} additional gateway`
+              : isTransfer    ? `${tierLower} data transfer out`
+              :                 `${tierLower} gateway`;
 
   let cands = items.filter(it => {
     if (String(it.type||'').toLowerCase() !== 'consumption') return false;
