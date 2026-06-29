@@ -44,7 +44,7 @@ const SERVICE_CATEGORY_ORDER = [
   'Virtual Machine','Azure Kubernetes Service','Disk','Azure Files','Blob Storage','Storage Account','Backup',
   'Virtual Network','VPN Gateway','Load Balancer','Application Gateway','Public IP',
   'Azure Firewall','Bandwidth','NAT Gateway',
-  'Azure SQL Database','Azure SQL Managed Instance','Azure Database for MySQL','App Service','Azure Bastion',
+  'Azure SQL Database','Azure SQL Database Elastic Pool','Azure SQL Managed Instance','Azure Database for MySQL','App Service','Azure Bastion',
   'Log Analytics','Microsoft Sentinel','Azure Synapse Analytics',
 ];
 

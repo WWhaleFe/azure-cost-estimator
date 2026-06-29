@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v84 — 2026-06-29
+- feat: **Azure SQL Database 탄력적 풀(Elastic Pool, DTU 모델)** 신규 카테고리. 계층(Basic/Standard/Premium) × eDTU 팩(Basic 50~1600 / Standard 50~3000 / Premium 125~4000). productName='SQL Database Elastic Pool - <계층>', skuName='<N> DTU Pack', meter 'eDTUs' 단위 '1/Day' → 시간당가=÷24로 엔진 합류. 절약/예약 미제공. 라이브 브라우저 검증(Basic 100 eDTU 335.20/h, Standard 200 1006.85/h, Premium 500 6231.86/h, Standard 3000 15102.81/h)
+- 참고: vCore 탄력적 풀은 단일 DB와 동일 productName('Single/Elastic Pool')·단가라 별도 추가 없이 기존 'Azure SQL Database'(vCore) 카테고리에서 동일하게 산출됨(문서에 명시)
+- 영향 파일: js/services/sql-elastic-pool.js(신규), index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 실제 브라우저(CORS 프록시 경로)에서 4개 조합 가격 조회 + 카테고리 드롭다운 노출 확인, 콘솔 오류 0. node --check 통과
+- 마일스톤: 후속 항목(VM HPC·SQL Managed Instance·SQL Elastic Pool) 완료. SQL 계열은 단일 DB(vCore+DTU)·Managed Instance·탄력적 풀(DTU) 망라
+
 ## v83 — 2026-06-29
 - feat: **Azure SQL Managed Instance** 신규 카테고리 추가(serviceName='SQL Managed Instance'). 계층(General Purpose/Business Critical) × 하드웨어(Gen5/Premium-series/Premium-series MO) × vCore(4~80) × 중복성(로컬/영역 중복 ZR). SQL Database vCore와 동일 패턴(meter 'vCore' + 'Zone Redundancy vCore' add-on, 절약 1년·예약 1·3년). 라이브 브라우저 검증(GP Gen5 8vCore 로컬 2065.31/ZR 3304.50, BC Premium-series 16vCore 11408.34, GP Premium-series MO 8vCore 3992.39). index.html 스크립트 등록 + SERVICE_CATEGORY_ORDER 추가
 - feat: **Virtual Machine HPC 시리즈** 추가 — HB-series v4·HC-series·HX-series. 제약 코어(예 HB176-24rs_v4=실제 24 vCPU)는 카탈로그에 vCPU 명시값으로 등록해 파싱 오류 회피. RAM은 사양 미상이라 생략(라벨 vCPU만). 21→24시리즈
