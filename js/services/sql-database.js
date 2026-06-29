@@ -69,7 +69,7 @@ window._svcDefs['Azure SQL Database'] = {
     { key:'tier',       label:'계층',     options:['General Purpose','Business Critical','Hyperscale'] },
     { key:'compute',    label:'컴퓨팅',   options:['Provisioned','Serverless'] },
     { key:'hardware',   label:'하드웨어', options:['Gen5','Fsv2-series'] },
-    { key:'vCores',     label:'vCore 수', options:['1','2','4','6','8','10','12','16','24','32','40','80'] },
+    { key:'vCores',     label:'vCore 수', options:['1','2','4','6','8','10','12','14','16','18','20','24','32','40','80'] },
     { key:'redundancy', label:'중복성(재해 복구)', options:[_SQL_RED_LOCAL, _SQL_RED_ZR],
       tooltip:'영역 중복(ZR)은 Zone Redundancy 추가 미터로 과금됩니다. 라이브 가격상 일반적 용도·프로비저닝됨·Gen5 조합에만 추가요금이 있으며, 그 외 조합은 로컬 기준으로 계산됩니다.' },
     { key:'dtuSize',    label:'DTU 크기', options:['S0','S1','S2','S3','S4','S6','S7','S9','S12'] },

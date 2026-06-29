@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v85 — 2026-06-29
+- 작업: 공식 Azure 가격 계산기(calculator) UI와 우리 앱 옵션을 **브라우저로 직접 비교**(계산기 각 서비스 설정 패널의 select·option을 DOM 덤프하여 대조)
+- fix: **Azure SQL Database** vCore 인스턴스 옵션에 **14·18·20 vCore** 추가(계산기 인스턴스 목록과 정합, koreacentral GP·BC Gen5에 실제 존재 확인 — 3614/4647/5163 KRW/h 선형). 기존 1·2·4·6·8·10·12·16·24·32·40·80 → 14·18·20 보강
+- 비교 메모: 계산기의 'DC 시리즈'(GP 하드웨어)는 koreacentral API 미제공이라 앱이 올바르게 생략(리전별 실데이터 기반). '재해 복구(기본/대기 복제본)'·'지원 플랜'은 Retail API 범위 밖(계산기 전용). 계산기상 SQL '유형'은 단일 DB/탄력적 풀 2종이며 Managed Instance는 계산기에서도 별도 제품 → 우리 카테고리 분리와 정합
+- 영향 파일: js/services/sql-database.js, CHANGELOG.md
+- 검증: 브라우저에서 14/18/20 vCore 가격 조회 확인. node --check 통과
+
 ## v84 — 2026-06-29
 - feat: **Azure SQL Database 탄력적 풀(Elastic Pool, DTU 모델)** 신규 카테고리. 계층(Basic/Standard/Premium) × eDTU 팩(Basic 50~1600 / Standard 50~3000 / Premium 125~4000). productName='SQL Database Elastic Pool - <계층>', skuName='<N> DTU Pack', meter 'eDTUs' 단위 '1/Day' → 시간당가=÷24로 엔진 합류. 절약/예약 미제공. 라이브 브라우저 검증(Basic 100 eDTU 335.20/h, Standard 200 1006.85/h, Premium 500 6231.86/h, Standard 3000 15102.81/h)
 - 참고: vCore 탄력적 풀은 단일 DB와 동일 productName('Single/Elastic Pool')·단가라 별도 추가 없이 기존 'Azure SQL Database'(vCore) 카테고리에서 동일하게 산출됨(문서에 명시)
