@@ -23,10 +23,12 @@
 // 계층별 인스턴스(skuName 정확 표기) 옵션
 // 계층별 인스턴스(skuName 정확 표기) 옵션 — 표기 공백차이는 _appsvc_norm이 흡수.
 // koreacentral 라이브 API(serviceName='Azure App Service', Consumption) 기준 전체 계층 망라.
-// 범위 외: Shared(koreacentral 미제공), Premium Windows Container(PC*), ASE 스탬프(ASIP/Stamp/Front End/IDH).
-// 참고: Premium(v1)은 Windows만, Linux 미제공 → Linux 선택 시 매칭 실패가 정상.
+// 범위 외: Premium Windows Container(PC*), ASE 스탬프(ASIP/Stamp/Front End/IDH).
+// 참고: Premium(v1)·Shared는 Windows만, Linux 미제공 → Linux 선택 시 매칭 실패가 정상.
+//   Shared(D1)는 koreacentral 미제공(다른 리전엔 존재, 예 eastus skuName 'Shared') → 해당 리전선 매칭 실패가 정상.
 var _APPSVC_SIZES = {
   'Free':        ['F1'],
+  'Shared':      ['Shared'],
   'Basic':       ['B1','B2','B3'],
   'Standard':    ['S1','S2','S3'],
   'Premium':     ['P1','P2','P3','P4'],
@@ -41,7 +43,7 @@ var _APPSVC_SIZES = {
 window._svcDefs['App Service'] = {
   apiServiceName: 'Azure App Service',
   steps: [
-    { key:'tier', label:'계층',      options:['Free','Basic','Standard','Premium','Premium v2','Premium v3','Premium v4','Isolated','Isolated v2','Isolated v4'] },
+    { key:'tier', label:'계층',      options:['Free','Shared','Basic','Standard','Premium','Premium v2','Premium v3','Premium v4','Isolated','Isolated v2','Isolated v4'] },
     { key:'os',   label:'운영 체제', options:['Windows','Linux'] },
     { key:'size', label:'인스턴스',  options:['B1','B2','B3'] },
   ],

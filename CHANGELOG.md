@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v92 — 2026-06-30
+- feat: **App Service에 '공유(Shared)' 계층 추가**(계산기 정밀 대조). 계산기 App Service 계층은 무료/공유/기본/표준/프리미엄V2/V3/Premium V4/Isolated V4/격리된V2/격리V2 — 우리에 '공유' 누락이었음. 계층 첫머리 Free 다음에 Shared(skuName 'Shared', Windows 전용) 추가
+- 비고: Shared(D1)는 koreacentral 미제공이라 그 리전선 매칭 실패가 정상(다른 리전엔 존재 — eastus 검증 19.51 KRW/h=$0.013). 레거시 Premium(v1)·Isolated(v1)는 우리가 계산기보다 더 보유(상위집합), Isolated v2의 ASEv3/Dedicated Host 구분은 동일 제품이라 단일 옵션으로 충분
+- 영향 파일: js/services/app-service.js, CHANGELOG.md
+- 검증: 브라우저에서 eastus Shared 19.51/h, koreacentral 매칭 실패(정상), 계층 11종 노출 확인. node --check 통과
+- MI 대조: 계산기의 'Next Generation General Purpose'·'Instance Pool'은 koreacentral·eastus·japaneast Retail API에 미존재(UI/프리뷰)라 생략 유지. MI 핵심 옵션은 일치(라이선스 v90 포함)
+
 ## v91 — 2026-06-29
 - feat: **VM 계층에 'Basic' 추가**(계산기 정밀 대조). 계산기 VM 계층=Basic/Standard인데 우리는 Standard/Spot이라 Basic 누락이었음 → 계층 Standard/**Basic**/Spot(Spot은 우리 추가분 유지). Basic은 A0~A4(armSkuName 접두사 'Basic_'), 선택 시 시리즈=A-series Basic 전용·범주 자동 숨김
 - 구현: 카탈로그 'A-series (Basic)'(A0 0.75GB~A4 14GB), `_vm_applyStepVisibility` 계층 인식, resolver armSku 접두사 분기('Basic_'/'Standard_'), rebuildKeys에 'tier' 추가. 라이브 검증(koreacentral Basic A1 48.03/h, A4 673.90/h)
