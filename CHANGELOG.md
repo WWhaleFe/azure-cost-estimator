@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v98 — 2026-06-30
+- feat: **엑셀 내보내기 시 '열 보기'로 숨긴 열을 제외**. 기존엔 '열 보기'(chkVis-*) 체크 해제는 화면만 숨기고 엑셀 출력엔 영향이 없었음 → `getEnabledGroups()`가 `chk-group-*`(엑셀 출력 선택)뿐 아니라 `chkVis-*`(열 보기)도 함께 확인해, 숨긴 가격 열(절약 1·3년/예약 1·3년)은 엑셀에서도 빠지도록 변경(PAYG는 항상 표시)
+- 영향 파일: js/ui-and-bootstrap.js, index.html(주석)
+- 검증: 브라우저에서 '열 보기'로 예약 1년 숨김 → 내보내기 그룹 [payg,sp1,sp3,ri3]로 ri1 제외 확인. node --check 통과
+- 참고: 직전 작업으로 각 서비스 가격을 계산기(Azure Retail API)와 대조 — SQL Database는 계산기 렌더값까지 센트 일치(GP/BC 컴퓨팅+라이선스), App Service·MySQL·Bastion·LB·Disk·Blob/ADLS·Firewall·VPN·Synapse는 API 단가 일치 확인
+
 ## v97 — 2026-06-30
 - fix: **Load Balancer 비용이 안 나오던 문제 수정**. 원인은 예시 CSV의 Load Balancer 행이 옛 영문 옵션값 `metric=Rules`를 써서, 현재 한글 청구 항목('규칙 (시간당, 5개 포함)')과 불일치 → 매칭 실패였음(resolver 자체는 정상, Standard 37.52/h 등 라이브 확인). 예시값을 `metric=규칙 (시간당, 5개 포함)`로 수정 + 작성 안내문 예시도 갱신
 - chore: **예시 CSV(양식 다운로드)를 현재 상태로 전면 갱신**. 신규 카테고리 예시 행 5개 추가 — Azure Files Provisioned v2, Page Blob, Data Lake Storage Gen2, Azure SQL Database Elastic Pool, Azure SQL Managed Instance. VM에 `category=전체`, SQL Database에 `redundancy`·`license=라이선스 포함`, MySQL에 `series=Ddsv5` 명시. SERVICE_CATEGORY_ORDER 순서로 정렬

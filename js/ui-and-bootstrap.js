@@ -641,7 +641,15 @@ const EXPORT_GROUPS=[
   {key:'ri1', label:'예약 1년',    itemKey:'ri1Item', color:'C55A11',totMKey:'ri1M', totYKey:'ri1Y'},
   {key:'ri3', label:'예약 3년',    itemKey:'ri3Item', color:'843C0C',totMKey:'ri3M', totYKey:'ri3Y'},
 ];
-function getEnabledGroups(){return EXPORT_GROUPS.filter(g=>{const c=document.getElementById(`chk-group-${g.key}`);return !c||c.checked;});}
+function getEnabledGroups(){return EXPORT_GROUPS.filter(g=>{
+  // 엑셀 출력 선택 체크박스(chk-group-*)가 해제된 그룹은 제외
+  const c=document.getElementById(`chk-group-${g.key}`);
+  if(c && !c.checked) return false;
+  // '열 보기'(chkVis-*)로 화면에서 숨긴 열은 엑셀에서도 제외(PAYG는 항상 표시 — chkVis 없음)
+  const vc=document.getElementById(`chkVis-${g.key}`);
+  if(vc && !vc.checked) return false;
+  return true;
+});}
 
 document.getElementById('btnExport').addEventListener('click',async ()=>{
   const cur=document.getElementById('currencySelect').value;
