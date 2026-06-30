@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v95 — 2026-06-30
+- feat: **Microsoft Sentinel 커밋 계층 보강**(계산기/API 정밀 대조). 커밋 계층에 **50 / 25000 / 50000 GB** 누락이었음 → 추가. 이제 PAYG·Basic Logs + 50~50000 GB 커밋 계층 12종 = 14개 과금 모델로 API와 완전 일치
+- 비교 메모: Log Analytics는 일치(Data Ingestion/Retention/Analyzed = API 'Analytics Logs' 미터), VPN Gateway SKU 전체 일치(Basic/VpnGw1-5/AZ)
+- 영향 파일: js/services/sentinel.js, CHANGELOG.md
+- 검증: 브라우저(koreacentral)에서 50 GB 326,727/일, 25000·50000 GB 조회 확인. node --check 통과
+
 ## v94 — 2026-06-30
 - feat: **Data Lake Storage Gen2(ADLS Gen2) 신규 카테고리 추가**(계산기 정밀 대조). 계산기 'Storage Accounts > 유형'은 7종(블록 Blob/Table/Queue/**Data Lake Gen2**/Azure 파일/**페이지 Blob**/Managed Disks)인데, 우리는 ADLS Gen2·페이지 Blob 누락이었음 → ADLS Gen2 추가
 - 구성: 파일 구조(계층 구조/단일 구조 네임스페이스 → productName 분기) × 액세스 계층(Hot/Cool/Cold/Archive) × 중복성(6) × 청구 항목(Data Stored/Iterative Read·Write/Read·Write·Delete Operations). serviceName='Storage', skuName='<계층> <중복성>', meterName 키워드 매칭(Blob Storage와 동일 패턴)

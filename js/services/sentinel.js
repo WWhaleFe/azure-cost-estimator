@@ -16,9 +16,10 @@
 
 var _SENTINEL_MODELS = [
   'Pay-as-you-go', 'Basic Logs',
-  '100 GB Commitment Tier', '200 GB Commitment Tier', '300 GB Commitment Tier',
-  '400 GB Commitment Tier', '500 GB Commitment Tier', '1000 GB Commitment Tier',
-  '2000 GB Commitment Tier', '5000 GB Commitment Tier', '10000 GB Commitment Tier',
+  '50 GB Commitment Tier', '100 GB Commitment Tier', '200 GB Commitment Tier',
+  '300 GB Commitment Tier', '400 GB Commitment Tier', '500 GB Commitment Tier',
+  '1000 GB Commitment Tier', '2000 GB Commitment Tier', '5000 GB Commitment Tier',
+  '10000 GB Commitment Tier', '25000 GB Commitment Tier', '50000 GB Commitment Tier',
 ];
 
 window._svcDefs['Microsoft Sentinel'] = {
