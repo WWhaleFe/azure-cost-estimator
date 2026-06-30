@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v94 — 2026-06-30
+- feat: **Data Lake Storage Gen2(ADLS Gen2) 신규 카테고리 추가**(계산기 정밀 대조). 계산기 'Storage Accounts > 유형'은 7종(블록 Blob/Table/Queue/**Data Lake Gen2**/Azure 파일/**페이지 Blob**/Managed Disks)인데, 우리는 ADLS Gen2·페이지 Blob 누락이었음 → ADLS Gen2 추가
+- 구성: 파일 구조(계층 구조/단일 구조 네임스페이스 → productName 분기) × 액세스 계층(Hot/Cool/Cold/Archive) × 중복성(6) × 청구 항목(Data Stored/Iterative Read·Write/Read·Write·Delete Operations). serviceName='Storage', skuName='<계층> <중복성>', meterName 키워드 매칭(Blob Storage와 동일 패턴)
+- 영향 파일: js/services/adls-gen2.js(신규), index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 브라우저(koreacentral)에서 Hierarchical Hot LRS Data Stored 30.018/GB·Month, Cool ZRS 20.71, Iterative Write 97.56, Flat 네임스페이스 정상 + 카테고리 드롭다운 노출 확인. node --check 통과
+- 후속: 페이지 Blob(Standard/Premium Page Blob — 비관리 디스크용 레거시)은 미추가(요청 시 추가)
+
 ## v93 — 2026-06-30
 - feat: **MySQL에 '인스턴스 시리즈(하드웨어 세대)' 선택 추가**(계산기 정밀 대조). 계산기 MySQL에는 GP/MO에 세대 선택(Ddsv6/Dadsv6 등)이 있는데 우리는 Ddsv5/Edsv5 고정이었음. **세대별 per-vCore 단가가 실제로 달라**(예 GP Ddsv5 $0.118 vs Ddsv6 $0.151, ~28%↑) 가격에 영향 → 세대 선택 필수
 - 추가 세대: GP=Ddsv5/Ddsv6/Dadsv5(AMD)/Dadsv6(AMD), BC(메모리 최적화)=Edsv5/Edsv6/Eadsv5(AMD)/Eadsv6(AMD). productName을 tier+세대로 구성. Burstable은 세대 선택 없음(BS 단일)
