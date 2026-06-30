@@ -745,25 +745,30 @@ var CSV_SKU_DESC = {
 // SERVICE_CATEGORY_ORDER 순서를 따르며, 복합 서비스(Disk/Backup)는 예시를 2개 둔다.
 function _csvBuildExampleRows() {
   return [
-    ['koreacentral', '웹 서버',              'Virtual Machine',            'D4s_v5',       '2', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; series=D-series v5'],
+    ['koreacentral', '웹 서버',              'Virtual Machine',            'D4s_v5',       '2', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5'],
     ['koreacentral', 'AKS 클러스터 관리',     'Azure Kubernetes Service',   '',             '1', '730',  'aksTier=Standard (표준); slaOption=SLA'],
     ['koreacentral', 'DB 디스크(용량형)',     'Disk',                       'P30',          '1', '730',  'diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0'],
     ['koreacentral', '로그 디스크(프로비저닝)', 'Disk',                     '',             '1', '730',  'diskSubType=Ultra Disk; diskSizeGiB=1024; provisionedIOPS=2000; provisionedMBps=200'],
     ['koreacentral', '파일 공유',            'Azure Files',                '',             '1', '100',  'fileTier=Hot; redundancy=LRS; metric=Data Stored'],
+    ['koreacentral', '파일 공유(프로비저닝v2)', 'Azure Files Provisioned v2', '',           '1', '730',  'media=SSD; redundancy=LRS; storageGiB=1024; iops=3000; throughput=125'],
     ['koreacentral', '오브젝트 스토리지',     'Blob Storage',               '',             '1', '1000', 'blobTier=Hot; redundancy=LRS; metric=Data Stored'],
+    ['koreacentral', '페이지 Blob(프리미엄)', 'Page Blob',                  '',             '1', '730',  'performance=Premium; redundancy=LRS; diskSize=P30'],
     ['koreacentral', '테이블 스토리지',       'Storage Account',            '',             '1', '100',  'storageType=Table; redundancy=LRS; metric=Data Stored'],
+    ['koreacentral', 'Data Lake Gen2',     'Data Lake Storage Gen2',     '',             '1', '1000', 'namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored'],
     ['koreacentral', '백업-보호 인스턴스',    'Backup',                     '',             '1', '1',    'metric=보호 인스턴스; workload=Azure VM'],
     ['koreacentral', '백업-저장소',          'Backup',                     '',             '1', '500',  'metric=백업 저장소; storageTier=Standard; redundancy=LRS'],
+    ['koreacentral', 'VNet 글로벌 피어링',    'Virtual Network',            '',             '1', '1000', 'direction=Global Peering - Outbound (Egress)'],
     ['koreacentral', '본사 VPN',            'VPN Gateway',                'VpnGw1',       '1', '730',  'gatewayHours=730; vnetTransferType=VNET 간; vnetGB=0'],
-    ['koreacentral', '부하 분산',            'Load Balancer',              '',             '1', '730',  'tier=Standard; metric=Rules'],
+    ['koreacentral', '부하 분산',            'Load Balancer',              '',             '1', '730',  'tier=Standard; metric=규칙 (시간당, 5개 포함)'],
     ['koreacentral', '앱 게이트웨이',         'Application Gateway',         'Standard_v2',  '1', '730',  'metric=고정 비용 (시간당)'],
     ['koreacentral', '공인 IP',             'Public IP',                  'Standard',     '1', '730',  'ipType=Static'],
     ['koreacentral', '방화벽',              'Azure Firewall',             '',             '1', '730',  'tier=Standard; metric=Deployment (배포, 시간당)'],
-    ['koreacentral', 'VNet 글로벌 피어링',    'Virtual Network',            '',             '1', '1000', 'direction=Global Peering - Outbound (Egress)'],
     ['koreacentral', '아웃바운드 전송',       'Bandwidth',                  '',             '1', '1000', 'direction=Outbound (Internet Egress)'],
     ['koreacentral', 'NAT 게이트웨이',        'NAT Gateway',                '',             '1', '730',  'metric=Resource Hour'],
-    ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2'],
-    ['koreacentral', 'MySQL',              'Azure Database for MySQL',   '',             '1', '730',  'tier=General Purpose; vCores=2'],
+    ['koreacentral', 'SQL Database',        'Azure SQL Database',         '',             '1', '730',  'model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2; redundancy=로컬 중복; license=라이선스 포함'],
+    ['koreacentral', 'SQL 탄력적 풀',        'Azure SQL Database Elastic Pool', '',        '1', '730',  'tier=Standard; poolSize=200'],
+    ['koreacentral', 'SQL Managed Instance', 'Azure SQL Managed Instance', '',            '1', '730',  'tier=General Purpose; hardware=Gen5; vCores=8; redundancy=로컬 중복; license=라이선스 포함'],
+    ['koreacentral', 'MySQL',              'Azure Database for MySQL',   '',             '1', '730',  'tier=General Purpose; series=Ddsv5; vCores=2'],
     ['koreacentral', '앱 서비스',            'App Service',                'P1 v3',        '1', '730',  'tier=Premium v3; os=Linux'],
     ['koreacentral', 'Bastion',            'Azure Bastion',              '',             '1', '730',  'tier=Basic; metric=게이트웨이(시간당)'],
     ['koreacentral', '로그 분석',           'Log Analytics',              '',             '1', '100',  'metric=Data Ingestion'],
@@ -777,7 +782,7 @@ function _csvBuildOptionGuide() {
   lines.push('# ────────────────────────────────────────────────────────────');
   lines.push('# [작성 안내] 아래 # 줄은 업로드 시 모두 무시됩니다(설명/사전 전용).');
   lines.push('# 열 구성: Region, 분류(메모), ServiceCategory, SKU, Qty, Hours, Options');
-  lines.push('#   · Options : "키=값"을 세미콜론(;)으로 구분. 예) tier=Standard; metric=Rules');
+  lines.push('#   · Options : "키=값"을 세미콜론(;)으로 구분. 예) tier=Standard; metric=규칙 (시간당, 5개 포함)');
   lines.push('#   · Qty     : 수량(인스턴스/리소스 개수)');
   lines.push('#   · Hours   : 시간제 서비스=월 사용시간(예 730) / 저장·전송 서비스=사용량(GB 등) / 인스턴스 과금=1');
   lines.push('#   · SKU     : 인스턴스·단일 SKU가 있는 서비스만 사용. 그 외 서비스는 비우고 Options로만 지정');

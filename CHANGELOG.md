@@ -2,6 +2,12 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v97 — 2026-06-30
+- fix: **Load Balancer 비용이 안 나오던 문제 수정**. 원인은 예시 CSV의 Load Balancer 행이 옛 영문 옵션값 `metric=Rules`를 써서, 현재 한글 청구 항목('규칙 (시간당, 5개 포함)')과 불일치 → 매칭 실패였음(resolver 자체는 정상, Standard 37.52/h 등 라이브 확인). 예시값을 `metric=규칙 (시간당, 5개 포함)`로 수정 + 작성 안내문 예시도 갱신
+- chore: **예시 CSV(양식 다운로드)를 현재 상태로 전면 갱신**. 신규 카테고리 예시 행 5개 추가 — Azure Files Provisioned v2, Page Blob, Data Lake Storage Gen2, Azure SQL Database Elastic Pool, Azure SQL Managed Instance. VM에 `category=전체`, SQL Database에 `redundancy`·`license=라이선스 포함`, MySQL에 `series=Ddsv5` 명시. SERVICE_CATEGORY_ORDER 순서로 정렬
+- 영향 파일: js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 갱신한 예시 행 전체를 resolver로 실행해 모두 가격 산출 확인(LB 37.52, Files v2 381,908/월, Page Blob 202,876/월, ADLS 30.02, Elastic Pool 1006.85, MI 3266.03 등). node --check 통과
+
 ## v96 — 2026-06-30
 - feat: **페이지 Blob + Azure Files Provisioned v2 신규 카테고리 추가** — 이로써 계산기 'Storage Accounts > 유형' 7종(블록 Blob·Table·Queue·ADLS Gen2·Azure 파일·**페이지 Blob**·Managed Disks)을 모두 커버
 - **Page Blob**(serviceName='Storage'): 성능(Standard/Premium) 조건 분기. Standard='Standard Page Blob' × 중복성(LRS/GRS/RA-GRS) × 청구항목(Data Stored/Read·Write Operations). Premium='Premium Page Blob' × 디스크 크기(P10~P80) × 중복성(LRS/ZRS), 디스크당 월정액(_billingMode monthly). 검증: Standard LRS Data Stored 88.85/GB·Month, Premium P30 LRS 202,877/월
