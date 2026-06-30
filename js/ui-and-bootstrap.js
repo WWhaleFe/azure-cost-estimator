@@ -41,7 +41,7 @@ function priceCells(data,hasItem,isManual,groupClass){
 }
 
 const SERVICE_CATEGORY_ORDER = [
-  'Virtual Machine','Azure Kubernetes Service','Disk','Azure Files','Blob Storage','Storage Account','Data Lake Storage Gen2','Backup',
+  'Virtual Machine','Azure Kubernetes Service','Disk','Azure Files','Azure Files Provisioned v2','Blob Storage','Page Blob','Storage Account','Data Lake Storage Gen2','Backup',
   'Virtual Network','VPN Gateway','Load Balancer','Application Gateway','Public IP',
   'Azure Firewall','Bandwidth','NAT Gateway',
   'Azure SQL Database','Azure SQL Database Elastic Pool','Azure SQL Managed Instance','Azure Database for MySQL','App Service','Azure Bastion',

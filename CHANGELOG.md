@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v96 — 2026-06-30
+- feat: **페이지 Blob + Azure Files Provisioned v2 신규 카테고리 추가** — 이로써 계산기 'Storage Accounts > 유형' 7종(블록 Blob·Table·Queue·ADLS Gen2·Azure 파일·**페이지 Blob**·Managed Disks)을 모두 커버
+- **Page Blob**(serviceName='Storage'): 성능(Standard/Premium) 조건 분기. Standard='Standard Page Blob' × 중복성(LRS/GRS/RA-GRS) × 청구항목(Data Stored/Read·Write Operations). Premium='Premium Page Blob' × 디스크 크기(P10~P80) × 중복성(LRS/ZRS), 디스크당 월정액(_billingMode monthly). 검증: Standard LRS Data Stored 88.85/GB·Month, Premium P30 LRS 202,877/월
+- **Azure Files Provisioned v2**(productName='Azure Files Provisioned v2'): 미디어(SSD/HDD) × 중복성 × 프로비저닝(스토리지 GiB + IOPS + 처리량 MiB/s 합산). 프로비저닝 디스크 모델(_billingMode monthly). 검증: SSD LRS 1024GiB+3000IOPS+125MiB/s 381,908/월, HDD GRS 1024GiB 29,170/월. (SSD 무료 IOPS/처리량 미차감 — 보수적 상향)
+- 영향 파일: js/services/{page-blob,files-provisioned-v2}.js(신규), index.html, js/ui-and-bootstrap.js, CHANGELOG.md
+- 검증: 브라우저(koreacentral)에서 4개 조합 가격 조회 + 카테고리 드롭다운 노출 확인. node --check 통과
+
 ## v95 — 2026-06-30
 - feat: **Microsoft Sentinel 커밋 계층 보강**(계산기/API 정밀 대조). 커밋 계층에 **50 / 25000 / 50000 GB** 누락이었음 → 추가. 이제 PAYG·Basic Logs + 50~50000 GB 커밋 계층 12종 = 14개 과금 모델로 API와 완전 일치
 - 비교 메모: Log Analytics는 일치(Data Ingestion/Retention/Analyzed = API 'Analytics Logs' 미터), VPN Gateway SKU 전체 일치(Basic/VpnGw1-5/AZ)
