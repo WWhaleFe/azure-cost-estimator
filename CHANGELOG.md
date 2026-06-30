@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v93 — 2026-06-30
+- feat: **MySQL에 '인스턴스 시리즈(하드웨어 세대)' 선택 추가**(계산기 정밀 대조). 계산기 MySQL에는 GP/MO에 세대 선택(Ddsv6/Dadsv6 등)이 있는데 우리는 Ddsv5/Edsv5 고정이었음. **세대별 per-vCore 단가가 실제로 달라**(예 GP Ddsv5 $0.118 vs Ddsv6 $0.151, ~28%↑) 가격에 영향 → 세대 선택 필수
+- 추가 세대: GP=Ddsv5/Ddsv6/Dadsv5(AMD)/Dadsv6(AMD), BC(메모리 최적화)=Edsv5/Edsv6/Eadsv5(AMD)/Eadsv6(AMD). productName을 tier+세대로 구성. Burstable은 세대 선택 없음(BS 단일)
+- resolver 통합 매칭: 세대별 가격 구조가 달라(per-vCore vs '<N> vCore') per-vCore(skuName 'vCore'/'1 vCore')×N 우선, 없으면 '<N> vCore' 정확 일치 fallback. 절약/예약은 세대 무관 generic 제품에서 조회(기존과 동일)
+- 영향 파일: js/services/mysql.js, CHANGELOG.md
+- 검증(koreacentral 8vCore): GP Ddsv5 1416.85 vs Ddsv6 1813.09(=×1.28 정합), BC Edsv5 1702.02(SP/RI 정상), Burstable 세대 숨김. node --check 통과
+
 ## v92 — 2026-06-30
 - feat: **App Service에 '공유(Shared)' 계층 추가**(계산기 정밀 대조). 계산기 App Service 계층은 무료/공유/기본/표준/프리미엄V2/V3/Premium V4/Isolated V4/격리된V2/격리V2 — 우리에 '공유' 누락이었음. 계층 첫머리 Free 다음에 Shared(skuName 'Shared', Windows 전용) 추가
 - 비고: Shared(D1)는 koreacentral 미제공이라 그 리전선 매칭 실패가 정상(다른 리전엔 존재 — eastus 검증 19.51 KRW/h=$0.013). 레거시 Premium(v1)·Isolated(v1)는 우리가 계산기보다 더 보유(상위집합), Isolated v2의 ASEv3/Dedicated Host 구분은 동일 제품이라 단일 옵션으로 충분

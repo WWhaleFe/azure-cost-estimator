@@ -33,12 +33,22 @@ var _MYSQL_RESV_PRODUCT = {
   'General Purpose':   'Azure Database for MySQL Flexible Server General Purpose Series Compute',
   'Business Critical': 'Azure Database for MySQL Flexible Server Memory Optimized Series Compute',
 };
+// 하드웨어 세대(계산기 '인스턴스 시리즈') — 세대별 per-vCore 단가가 다름(예 GP Ddsv5 $0.118 vs Ddsv6 $0.151).
+//   표시 라벨 → productName 시리즈 토큰. Burstable은 세대 선택 없음(BS 단일).
+var _MYSQL_GP_GEN = { 'Ddsv5':'Ddsv5', 'Ddsv6':'Ddsv6', 'Dadsv5 (AMD)':'Dadsv5', 'Dadsv6 (AMD)':'Dadsv6' };
+var _MYSQL_BC_GEN = { 'Edsv5':'Edsv5', 'Edsv6':'Edsv6', 'Eadsv5 (AMD)':'Eadsv5', 'Eadsv6 (AMD)':'Eadsv6' };
+function _mysqlProduct(tier, gen){
+  if (tier === 'Burstable') return _MYSQL_PRODUCT['Burstable'];
+  if (tier === 'General Purpose') return 'Azure Database for MySQL Flexible Server General Purpose ' + (_MYSQL_GP_GEN[gen] || 'Ddsv5') + ' Series Compute';
+  return 'Azure Database for MySQL Flexible Server Memory Optimized ' + (_MYSQL_BC_GEN[gen] || 'Edsv5') + ' Series Compute';
+}
 
 window._svcDefs['Azure Database for MySQL'] = {
   apiServiceName: 'Azure Database for MySQL',
   steps: [
     { key:'tier',     label:'계층',      options:['Burstable','General Purpose','Business Critical'] },
     { key:'instance', label:'인스턴스',  options:['B1MS','B2S','B2MS','B4MS','B8MS','B12MS','B16MS','B20MS'] },
+    { key:'series',   label:'인스턴스 시리즈', options:['Ddsv5','Ddsv6','Dadsv5 (AMD)','Dadsv6 (AMD)'] },
     { key:'vCores',   label:'인스턴스(vCore)',  options:['1','2','4','8','16','32','48','64'] },
   ],
   instanceField: false,
@@ -54,12 +64,18 @@ window['_mysql_applyStepVisibility'] = function(r) {
   var tier = o.tier || 'Burstable';
   var isBurst = (tier === 'Burstable');
   var vcoreOpts = (tier === 'Business Critical') ? _MYSQL_BC_VCORES : _MYSQL_GP_VCORES;
+  var genOpts = (tier === 'Business Critical') ? Object.keys(_MYSQL_BC_GEN) : Object.keys(_MYSQL_GP_GEN);
   for (var i = 0; i < def.steps.length; i++) {
     var k = def.steps[i].key;
     if (k === 'instance') {
       def.steps[i]._hidden = !isBurst;
       def.steps[i].options = _MYSQL_BURST_INSTANCES;
       if (isBurst && _MYSQL_BURST_INSTANCES.indexOf(o.instance) < 0) r.options.instance = _MYSQL_BURST_INSTANCES[0];
+    }
+    if (k === 'series') {
+      def.steps[i]._hidden = isBurst;       // Burstable은 세대 선택 없음
+      def.steps[i].options = genOpts;
+      if (!isBurst && genOpts.indexOf(o.series) < 0) r.options.series = genOpts[0];
     }
     if (k === 'vCores') {
       def.steps[i]._hidden = isBurst;
@@ -77,7 +93,7 @@ window['_buildDetail_Azure_Database_for_MySQL'] = function(r) {
     r.detail = ['Burstable', o.instance].filter(Boolean).join(' - ');
   } else {
     r.skuName = (o.vCores ? o.vCores + 'vCore' : '');
-    r.detail = [o.tier, (o.vCores ? o.vCores + ' vCore' : '')].filter(Boolean).join(' - ');
+    r.detail = [o.tier, o.series, (o.vCores ? o.vCores + ' vCore' : '')].filter(Boolean).join(' - ');
   }
 };
 
@@ -85,7 +101,7 @@ window['_buildDetail_Azure_Database_for_MySQL'] = function(r) {
 window['_resolve_Azure_Database_for_MySQL'] = async function(row, cur) {
   var o = row.options || {};
   var tier = o.tier || 'Burstable';
-  var product = _MYSQL_PRODUCT[tier];
+  var product = _mysqlProduct(tier, o.series);   // 세대(인스턴스 시리즈) 반영
   if (!product) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
     setStatus('error', 'Azure Database for MySQL: 지원하지 않는 계층입니다.');
@@ -112,14 +128,12 @@ window['_resolve_Azure_Database_for_MySQL'] = async function(row, cur) {
     if (chosen) price = Number(chosen.unitPrice);
   } else {
     N = parseInt(o.vCores, 10); if (!(N > 0)) N = 2;
-    label = tier + ' / ' + N + ' vCore';
-    if (tier === 'General Purpose') {
-      // per-vCore 단가 × N
-      var base = items.filter(function(it){ return isCons(it) && String(it.meterName||'').toLowerCase() === 'vcore' && String(it.skuName||'').toLowerCase() === 'vcore'; })[0]
-              || items.filter(function(it){ return isCons(it) && String(it.meterName||'').toLowerCase() === 'vcore'; })[0];
-      if (base) { perVcore = Number(base.unitPrice); price = perVcore * N; chosen = base; }
-    } else {
-      // Business Critical: meterName='<N> vCore' 정확 일치(전체 인스턴스 시간당가)
+    label = tier + ' / ' + (o.series || '') + ' / ' + N + ' vCore';
+    // 세대별 가격 구조가 달라 통합 매칭: per-vCore(skuName 'vCore'/'1 vCore') × N 우선, 없으면 '<N> vCore' 정확 일치
+    var base = items.filter(function(it){ return isCons(it) && String(it.meterName||'').toLowerCase() === 'vcore' && (String(it.skuName||'').toLowerCase() === 'vcore' || String(it.skuName||'').toLowerCase() === '1 vcore'); })[0];
+    if (base) { perVcore = Number(base.unitPrice); price = perVcore * N; chosen = base; }
+    else {
+      // 정확 일치 fallback(예 Edsv5 세대는 '<N> vCore' 미터)
       chosen = items.filter(function(it){ return isCons(it) && String(it.meterName||'').toLowerCase() === (N + ' vcore'); })
                     .sort(function(a,b){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); })[0] || null;
       if (chosen) price = Number(chosen.unitPrice);
