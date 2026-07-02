@@ -39,12 +39,29 @@ var _LB_METRICS = {
   'Basic':    [],
 };
 
+// 구버전 CSV(v96 이전 양식)의 영문 metric 값 → 현재 한글 라벨.
+//   과거 양식은 'metric=Rules' 식의 영문 값을 썼는데, 정규화 없이 목록 불일치로
+//   조용히 지워져 '청구 항목을 선택하세요' 오류(가격 미조회)가 났음(v101에서 수정).
+var _LB_METRIC_ALIAS = {
+  'rules':            '규칙 (시간당, 5개 포함)',
+  'included rules':   '규칙 (시간당, 5개 포함)',
+  'overage rules':    '초과 규칙 (시간당)',
+  'data processed':   '데이터 처리 (GB)',
+  'gateway':          '게이트웨이 (시간당)',
+  'gateway chain':    '게이트웨이 체인 (시간당)',
+};
+
 // 계층에 따라 청구 항목 옵션을 교체하고, 현재 값이 새 목록에 없으면 비운다(Basic은 항목 숨김)
 window['_lb_applyStepVisibility'] = function(r) {
   var def = window._svcDefs['Load Balancer'];
   if (!def || !def.steps) return;
   var tier = (r.options && r.options.tier) || 'Standard';
   var opts = _LB_METRICS[tier] || [];
+  // 구버전 영문 값이면 현재 라벨로 정규화한 뒤 목록 검사
+  if (r.options && r.options.metric && opts.indexOf(r.options.metric) < 0) {
+    var alias = _LB_METRIC_ALIAS[String(r.options.metric).trim().toLowerCase()];
+    if (alias && opts.indexOf(alias) >= 0) r.options.metric = alias;
+  }
   for (var i = 0; i < def.steps.length; i++) {
     if (def.steps[i].key !== 'metric') continue;
     def.steps[i].options = opts;

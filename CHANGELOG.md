@@ -2,6 +2,14 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v101 — 2026-07-02
+- fix: **Load Balancer·MySQL 가격 미조회 수정**(구버전 CSV/부분 입력 호환)
+- Load Balancer: 구버전 양식의 영문 청구 항목 값(`metric=Rules`/`Overage Rules`/`Data Processed`/`Gateway`/`Gateway Chain`)이 현재 한글 라벨 목록과 불일치해 조용히 지워지고 "청구 항목을 선택하세요" 오류로 가격이 안 나오던 것 → `_LB_METRIC_ALIAS`로 현재 라벨에 정규화 후 조회
+- Azure Database for MySQL: ① tier 미선택 상태에서 인스턴스만 고르면(또는 구버전 CSV가 tier 없이 오면) buildDetail이 비Burstable 분기로 빠져 skuName이 비고 엔진이 조회를 **조용히 생략**하던 것 → tier 기본값(Burstable)을 resolver와 일치시켜 수정 ② vCores가 숫자로 오면 문자열 옵션 목록과 불일치해 1 vCore로 몰래 리셋되던 것 → 문자열 강제 변환 ③ 구버전 SKU 열 키(`compute=B2S`)를 인스턴스로 수용
+- feat: **예시 CSV(양식 다운로드) 서비스당 2~3개 샘플로 전면 확장** — 35개 카테고리 × 서로 다른 구성 83행(VM Linux/Windows/B시리즈, Disk 프리미엄/표준SSD/Ultra, SQL DB GP/BC/서버리스, MySQL Burstable/GP/BC, Cosmos 수동/Autoscale/저장소, Redis Standard/Basic/Premium, DNS 영역/쿼리/프라이빗 등). 루트 샘플 파일 `azure-quote-template_file.csv`도 동일 내용으로 재생성(기존 파일은 v97 이전 옵션값이 섞여 있어 이번 오류의 원인이었음)
+- 영향 파일: js/services/load-balancer.js, js/services/mysql.js, js/ui-and-bootstrap.js(_csvBuildExampleRows), azure-quote-template_file.csv(재생성), CHANGELOG.md
+- 검증(실제 브라우저 Chrome + 라이브 KRW): 새 양식 83행 CSV 업로드 → **83/83 가격 조회 성공**(실패 0). 레거시 값 회귀 확인 — LB `metric=Rules` 38.365/h·`Data Processed` 7.673/GB·Gateway 정규화 ✓, MySQL vCores=2(숫자) → per-vCore×2 ✓, `compute=B2S`/`instance=B2MS`만 있어도 Burstable로 조회 ✓. 저장된 샘플 파일 자체도 Node 하니스 라운드트립 83/83 통과. node --check 통과
+
 ## v100 — 2026-07-02
 - feat: **신규 카테고리 8종 추가** — Azure Cosmos DB, Azure Cache for Redis, API Management, Azure Private Link, Azure Container Registry, Azure DNS, Azure DevOps, Azure OpenAI (고객 견적서에서 미지원이던 서비스 전부). 총 27 → 35개 카테고리
 - **Azure Cosmos DB**(serviceName='Azure Cosmos DB'): 과금 모델 4종 — Provisioned 수동(sku 'RUs', meter '100 RU/s' × RU/100, usage=시간) / Autoscale(productName '... autoscale', meter 'AP* 100 RUs' — 수동의 1.5배 단가, 최대 RU 기준) / Serverless(meter '1M RUs', usage=백만 RU) / 저장소(meter 'Data Stored', usage=GB). 다중 리전 쓰기(mRUs)·Dedicated Gateway·백업·DocumentDB(vCore)는 범위 외

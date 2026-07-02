@@ -61,6 +61,11 @@ window['_mysql_applyStepVisibility'] = function(r) {
   var def = window._svcDefs['Azure Database for MySQL'];
   if (!def || !def.steps) return;
   var o = r.options || {};
+  // 구버전 CSV 호환(v101): vCores가 숫자로 오면 문자열 옵션 목록과 불일치해
+  //   조용히 1 vCore로 리셋되던 것 방지. 옛 SKU 열 키(compute)는 인스턴스로 수용.
+  if (o.vCores !== undefined && o.vCores !== '' && typeof o.vCores !== 'string') r.options.vCores = String(o.vCores);
+  if (!o.instance && o.compute) r.options.instance = String(o.compute);
+  o = r.options;
   var tier = o.tier || 'Burstable';
   var isBurst = (tier === 'Burstable');
   var vcoreOpts = (tier === 'Business Critical') ? _MYSQL_BC_VCORES : _MYSQL_GP_VCORES;
@@ -88,7 +93,9 @@ window['_mysql_applyStepVisibility'] = function(r) {
 window['_buildDetail_Azure_Database_for_MySQL'] = function(r) {
   var o = r.options || {};
   window['_mysql_applyStepVisibility'](r);
-  if (o.tier === 'Burstable') {
+  // tier 미선택 시 resolver와 동일하게 Burstable로 간주(v101) — 기존엔 인스턴스만 고르면
+  // else 분기로 빠져 skuName이 비고, 엔진이 조회를 조용히 생략(가격 미표시)했음
+  if ((o.tier || 'Burstable') === 'Burstable') {
     r.skuName = o.instance || '';
     r.detail = ['Burstable', o.instance].filter(Boolean).join(' - ');
   } else {
