@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v99 — 2026-06-30
+- feat: **Azure SQL Database에 '스토리지(GB)' 옵션 추가**(계산기 정밀 대조). 그간 컴퓨팅(vCore)만 계산하고 계산기의 '스토리지' 슬라이더에 해당하는 프로비저닝 데이터 스토리지 비용이 빠져 있던 것 보강. vCore 모델에 `storageGB` 입력 추가(기본 32GB, 0이면 제외)
+- 구현: tier별 `... - Storage` 제품의 'Data Stored' 미터(단위 '1 GB/Month', 선택 통화로 반환)를 GB만큼 곱해 월비용 산출 → 시간당으로 환산(÷usage)해 **라이선스 가산과 동일 패턴**으로 컴퓨팅·절약(SP)·예약(RI)에 동일 가산. 스토리지는 약정 할인 대상이 아니라 전 가격대에 정가로 더함. usage=730에서 정확(그 외 시간 비례 근사). GP는 영역 중복(ZR) 선택 시 ZR 전용 스토리지 단가, BC/HS는 ZR 미터 없어 base 폴백
+- 범위: 데이터 스토리지만(요청 범위). 백업(PITR/LTR) 스토리지·IO Rate Operations는 별도이며 미포함. DTU 모델은 storageGB 숨김
+- fix(부수): 설정 패널 렌더 시 **number 스텝의 default를 옵션에 시드**하도록 보강 — 기존엔 number 입력이 화면엔 기본값을 보여주면서도 사용자가 건드리기 전까진 옵션에 저장되지 않아 resolver가 0으로 계산하던 불일치가 있었음(Files Provisioned v2의 storageGiB/IOPS/처리량 등 공통). 이제 '보이는 기본값=계산값' 일치
+- 영향 파일: js/services/sql-database.js, js/ui-and-bootstrap.js(number default 시드 + 예시 CSV `storageGB=32`), CHANGELOG.md
+- 검증(Node 하니스, koreacentral 라이브 KRW): GP 2vCore 32GB 스토리지월 6517.51(=32×203.67) · PAYG/h 816.50→825.43 · 0GB는 기존값 유지(하위호환). GP ZR 100GB 40674.39(=100×406.74, ZR 단가). BC 256GB·HS 512GB 정상. RI3에도 stoHourly 동일 가산 확인(약정 할인 미적용). node --check 통과
+- 후속: 백업 스토리지(PITR/LTR) 옵션은 요청 시 추가 가능
+
 ## v98 — 2026-06-30
 - feat: **엑셀 내보내기 시 '열 보기'로 숨긴 열을 제외**. 기존엔 '열 보기'(chkVis-*) 체크 해제는 화면만 숨기고 엑셀 출력엔 영향이 없었음 → `getEnabledGroups()`가 `chk-group-*`(엑셀 출력 선택)뿐 아니라 `chkVis-*`(열 보기)도 함께 확인해, 숨긴 가격 열(절약 1·3년/예약 1·3년)은 엑셀에서도 빠지도록 변경(PAYG는 항상 표시)
 - 영향 파일: js/ui-and-bootstrap.js, index.html(주석)

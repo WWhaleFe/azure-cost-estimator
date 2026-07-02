@@ -34,7 +34,10 @@
 //     Reservation(skuName='vCore', ZR이면 'vCore ZR Zone Redundancy')을 시간당 단가로 환산해 × N.
 //     예약 제공 조합 = Provisioned 이면서 하드웨어 ≠ Fsv2-series. (Serverless·Fsv2는 예약 미제공 → 빈칸 정상)
 //     절약은 현재 1년만 노출(API에 SQL 3년 절약 미터 없음).
-//   범위 외(매칭 실패 정상): 스토리지/백업(PITR·LTR), Elastic Pool 전용 미터, 표에 없는 조합.
+//   [v99] 데이터 스토리지(프로비저닝됨): storageGB 입력 → tier별 '... - Storage' 제품의 'Data Stored'
+//     미터(GB/월) × GB를 시간당으로 환산(÷usage)해 컴퓨팅·절약·예약에 동일 가산(라이선스 가산과 동일 패턴).
+//     GP는 ZR 전용 스토리지 단가, BC/HS는 ZR 미터 없어 base 폴백. usage=730에서 정확(그 외 시간 비례 근사).
+//   범위 외(매칭 실패 정상): 백업 스토리지(PITR·LTR), IO Rate Operations, Elastic Pool 전용 미터, 표에 없는 조합.
 // ================================================================
 
 // (tier|compute|hardware) → productName
@@ -72,6 +75,16 @@ var _SQL_LICENSE_USD = { 'General Purpose': 0.10, 'Business Critical': 0.375, 'H
 var _SQL_LIC_INCLUDED = '라이선스 포함';
 var _SQL_LIC_AHB = 'Azure Hybrid Benefit';
 
+// ── 데이터 스토리지(프로비저닝됨) ── 계산기 'SQL Database > 스토리지(GB)' 슬라이더에 대응.
+//   tier별 '... - Storage' 제품의 'Data Stored' 미터(단위 '1 GB/Month', 선택 통화로 반환)를 GB만큼 곱한다.
+//   GP는 영역 중복(ZR) 전용 미터가 따로 있고, BC/HS는 ZR 미터가 없어 base로 폴백한다.
+//   IO Rate Operations·백업(PITR/LTR) 미터는 데이터 스토리지가 아니라 제외한다.
+var _SQL_STORAGE = {
+  'General Purpose':   { product:'SQL Database Single/Elastic Pool General Purpose - Storage',  meter:'general purpose data stored', meterZR:'general purpose zone redundancy data stored' },
+  'Business Critical': { product:'SQL Database Single/Elastic Pool Business Critical - Storage', meter:'business critical data stored' },
+  'Hyperscale':        { product:'SQL Database SingleDB Hyperscale - Storage',                   meter:'hyperscale data stored' },
+};
+
 window._svcDefs['Azure SQL Database'] = {
   apiServiceName: 'SQL Database',
   steps: [
@@ -84,6 +97,8 @@ window._svcDefs['Azure SQL Database'] = {
       tooltip:'영역 중복(ZR)은 Zone Redundancy 추가 미터로 과금됩니다. 라이브 가격상 일반적 용도·프로비저닝됨·Gen5 조합에만 추가요금이 있으며, 그 외 조합은 로컬 기준으로 계산됩니다.' },
     { key:'license',    label:'SQL 라이선스', options:[_SQL_LIC_INCLUDED, _SQL_LIC_AHB],
       tooltip:'라이선스 포함=컴퓨팅+SQL Server 코어 라이선스(계산기 기본값). Azure Hybrid Benefit=보유 라이선스 적용으로 라이선스 비용 제외(컴퓨팅만). Retail API는 컴퓨팅(=AHB) 단가만 제공하여, 라이선스는 Azure 공시 코어 단가를 더함. Hyperscale은 라이선스 없음.' },
+    { key:'storageGB',  label:'스토리지(GB)', type:'number', min:0, step:1, default:32,
+      tooltip:'프로비저닝된 데이터 스토리지(GB). tier별 Data Stored 미터(GB/월)로 과금되며, 영역 중복(ZR) 선택 시 GP는 ZR 전용 스토리지 단가를 적용합니다. 백업(PITR/LTR) 스토리지는 별도이며 여기 포함되지 않습니다. 0이면 스토리지 비용 제외.' },
     { key:'dtuSize',    label:'DTU 크기', options:['S0','S1','S2','S3','S4','S6','S7','S9','S12'] },
   ],
   instanceField: false,
@@ -112,6 +127,7 @@ window['_sql_applyStepVisibility'] = function(r) {
     if (k === 'vCores')     { step._hidden = isDTU; }
     if (k === 'redundancy') { step._hidden = isDTU; }
     if (k === 'license')    { step._hidden = isDTU; }
+    if (k === 'storageGB')  { step._hidden = isDTU; }
     if (k === 'dtuSize')    { step._hidden = !isDTU; step.options = dtu; if (isDTU && dtu.indexOf(o.dtuSize) < 0)    r.options.dtuSize = dtu[0]; }
   }
 };
@@ -125,8 +141,9 @@ window['_buildDetail_Azure_SQL_Database'] = function(r) {
   } else {
     var red = (o.redundancy === _SQL_RED_ZR) ? 'ZR' : '로컬';
     var lic = (o.license === _SQL_LIC_AHB) ? 'AHB' : '라이선스 포함';
+    var sto = (Number(o.storageGB) > 0) ? (o.storageGB + 'GB') : '';
     r.skuName = [o.tier, o.compute, (o.vCores ? o.vCores + 'vCore' : '')].filter(Boolean).join(' ').trim();
-    r.detail  = [o.tier, o.compute, o.hardware, (o.vCores ? o.vCores + ' vCore' : ''), red, lic].filter(Boolean).join(', ');
+    r.detail  = [o.tier, o.compute, o.hardware, (o.vCores ? o.vCores + ' vCore' : ''), red, lic, sto].filter(Boolean).join(', ');
   }
 };
 
@@ -171,6 +188,30 @@ async function _resolve_sql_dtu(row, cur) {
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;  // DTU는 절약/예약 미제공
   setStatus('ok', 'Azure SQL Database ' + label + ' 완료 · ' + hourly.toFixed(4) + ' /1 Hour (일 ' + dayPrice + ')');
   updatePriceCells(row); updateTotalsRow();
+}
+
+// 데이터 스토리지 월비용 — tier별 '... - Storage' 제품의 'Data Stored' 미터(GB/월) × GB.
+//   반환: { monthly:선택통화/월, rate:GB당단가, note:안내 }. 못 찾으면 monthly=0 + note.
+async function _sql_storage_monthly(row, cur, tier, isZR, storageGB) {
+  if (!(storageGB > 0)) return { monthly:0, rate:0, note:null };
+  var sm = _SQL_STORAGE[tier];
+  if (!sm) return { monthly:0, rate:0, note:null };
+  var sItems = [];
+  try {
+    sItems = await apiFetch({ serviceName:'SQL Database', armRegionName:row.region, productName:sm.product, priceType:'Consumption' }, cur, 200, 3, {pageSize:200, expectedSizeKB:40});
+  } catch (e) { return { monthly:0, rate:0, note:'스토리지 조회 실패' }; }
+  var isCons  = function(it){ return String(it.type||'').toLowerCase() === 'consumption'; };
+  var meterEq = function(it,m){ return String(it.meterName||'').toLowerCase() === m; };
+  var target  = (isZR && sm.meterZR) ? sm.meterZR : sm.meter;
+  var pick = function(m){
+    return sItems.filter(function(x){ return isCons(x) && meterEq(x, m); })
+                 .sort(function(a,b){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); })[0] || null;
+  };
+  var it = pick(target);
+  if (!it && isZR && sm.meter) it = pick(sm.meter);   // ZR 전용 미터 없으면 base 폴백(BC/HS)
+  if (!it) return { monthly:0, rate:0, note:'스토리지 미터 없음' };
+  var rate = Number(it.unitPrice);                    // GB/월 (선택 통화)
+  return { monthly: rate * storageGB, rate:rate, note:null };
 }
 
 // 가격 조회 — productName(tier|compute|hardware) 내에서 vCore 단가를 찾아 N vCore로 환산(+ZR add-on)
@@ -266,18 +307,27 @@ window['_resolve_Azure_SQL_Database'] = async function(row, cur) {
     var fx = (perVcoreUSD > 0) ? (perVcoreCur / perVcoreUSD) : 1;
     licAddon = licUSDrate * N * fx;             // N vCore분 라이선스(선택 통화/시간)
   }
-  // 라이선스는 컴퓨팅 절약(SP/RI)과 무관하게 동일 단가로 가산
-  function addLic(it){ if(!it || licAddon<=0) return it; var p=Number(it.unitPrice)+licAddon; return Object.assign({}, it, {unitPrice:p, retailPrice:p, _sqlLicAddon:licAddon}); }
+  // 4) 데이터 스토리지(프로비저닝됨) — 월정액 단가를 시간당으로 환산해 컴퓨팅·절약·예약에 동일 가산.
+  //    usH(시간)로 나눠 더하므로 엔진(월=단가×Qty×usage)에서 storageGB×GB단가(=월)로 정확히 환산된다.
+  var storageGB = Number(o.storageGB || 0);
+  var stoRes = await _sql_storage_monthly(row, cur, tier, isZR, storageGB);
+  var usH = Number(row.usage) || 730;
+  var stoHourly = (usH > 0) ? (stoRes.monthly / usH) : 0;
 
-  var price = computePriceCur + licAddon;
-  var basis = local.basis + (zr ? ' + ZR(' + zr.basis + ')' : '') + (licAddon>0 ? ' + 라이선스' : (licMode===_SQL_LIC_AHB?' (AHB)':''));
+  // 라이선스·스토리지는 컴퓨팅 절약(SP/RI)과 무관하게 동일 단가로 가산
+  var flatAddon = licAddon + stoHourly;
+  function addFlat(it){ if(!it || flatAddon<=0) return it; var p=Number(it.unitPrice)+flatAddon; return Object.assign({}, it, {unitPrice:p, retailPrice:p, _sqlLicAddon:licAddon, _sqlStoHourly:stoHourly}); }
+
+  var price = computePriceCur + flatAddon;
+  var basis = local.basis + (zr ? ' + ZR(' + zr.basis + ')' : '') + (licAddon>0 ? ' + 라이선스' : (licMode===_SQL_LIC_AHB?' (AHB)':'')) + (stoHourly>0 ? ' + 스토리지' + storageGB + 'GB' : '');
 
   // 용량제 항목(시간당). 엔진: 월=단가×Qty×usage. Qty=DB 수, usage=시간.
   row.paygItem = {
     currencyCode: cur, unitPrice: price, retailPrice: price,
     armRegionName: row.region, productName: product,
-    skuName: N + ' vCore' + (isZR ? ' (ZR)' : '') + (licAddon>0?' +Lic':''), meterName: 'vCore', unitOfMeasure: '1 Hour', type: 'Consumption',
+    skuName: N + ' vCore' + (isZR ? ' (ZR)' : '') + (licAddon>0?' +Lic':'') + (stoHourly>0?' +Sto':''), meterName: 'vCore', unitOfMeasure: '1 Hour', type: 'Consumption',
     _sqlVcores: N, _sqlBasis: basis, _sqlZR: isZR, _sqlLicMode: licMode, _sqlLicAddon: licAddon,
+    _sqlStorageGB: storageGB, _sqlStoHourly: stoHourly, _sqlStoMonthly: stoRes.monthly,
   };
 
   // ── 절약 플랜(1년) ── per-vCore Consumption 항목의 savingsPlan을 × N (로컬 + ZR add-on)
@@ -314,13 +364,15 @@ window['_resolve_Azure_SQL_Database'] = async function(row, cur) {
   var ri1 = addItems(riLocal.ri1, (isZR ? riZR.ri1 : null), N + ' vCore RI1Y' + (isZR ? ' (ZR)' : ''));
   var ri3 = addItems(riLocal.ri3, (isZR ? riZR.ri3 : null), N + ' vCore RI3Y' + (isZR ? ' (ZR)' : ''));
 
-  row.sp1Item = addLic(sp1); row.sp3Item = addLic(sp3); row.ri1Item = addLic(ri1); row.ri3Item = addLic(ri3);
+  row.sp1Item = addFlat(sp1); row.sp3Item = addFlat(sp3); row.ri1Item = addFlat(ri1); row.ri3Item = addFlat(ri3);
 
   // 상태 메시지 + 안내
   var tags = ['PAYG']; if(sp1)tags.push('SP1Y'); if(sp3)tags.push('SP3Y'); if(ri1)tags.push('RI1Y'); if(ri3)tags.push('RI3Y');
   var notes = [];
   if (licAddon > 0) notes.push('라이선스 포함(+' + licAddon.toFixed(2) + '/h)');
   else if (licMode === _SQL_LIC_AHB) notes.push('AHB: SQL 라이선스 제외');
+  if (stoHourly > 0) notes.push('스토리지 ' + storageGB + 'GB(+' + stoRes.monthly.toFixed(2) + '/월)');
+  else if (storageGB > 0 && stoRes.note) notes.push('스토리지: ' + stoRes.note);
   if (comp === 'Serverless') notes.push('서버리스는 최대 vCore 기준 상한(실제는 사용 vCore-초 과금)');
   if (zrMissing) notes.push('이 조합은 영역 중복 추가요금 미터 없음 → 로컬 기준');
   if (riExpected && (!resv || resv.length === 0)) notes.push('예약 조회 실패(새로고침 후 재시도 권장)');
