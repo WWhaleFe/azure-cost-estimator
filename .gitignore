@@ -1,0 +1,6 @@
+# macOS 시스템 파일
+.DS_Store
+
+# 로컬 견적 CSV(저장소에 올리지 않음)
+*_quote_*.csv
+*_import.csv
