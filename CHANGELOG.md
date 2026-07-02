@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v100 — 2026-07-02
+- feat: **신규 카테고리 8종 추가** — Azure Cosmos DB, Azure Cache for Redis, API Management, Azure Private Link, Azure Container Registry, Azure DNS, Azure DevOps, Azure OpenAI (고객 견적서에서 미지원이던 서비스 전부). 총 27 → 35개 카테고리
+- **Azure Cosmos DB**(serviceName='Azure Cosmos DB'): 과금 모델 4종 — Provisioned 수동(sku 'RUs', meter '100 RU/s' × RU/100, usage=시간) / Autoscale(productName '... autoscale', meter 'AP* 100 RUs' — 수동의 1.5배 단가, 최대 RU 기준) / Serverless(meter '1M RUs', usage=백만 RU) / 저장소(meter 'Data Stored', usage=GB). 다중 리전 쓰기(mRUs)·Dedicated Gateway·백업·DocumentDB(vCore)는 범위 외
+- **Azure Cache for Redis**(serviceName='Redis Cache'): 계층 9종(Basic/Standard/Premium C0~C6·P1~P5 + Enterprise/Flash + Azure Managed Redis 4개 제품군), 계층 변경 시 캐시 크기 옵션 전환(LB 패턴). meter '<SKU> Cache'(전체 요금, Standard 복제본 포함)를 '<SKU> Cache Instance'(노드당)보다 우선 매칭
+- **API Management**(serviceName='API Management'): 계층 9종(Developer/Basic/Standard/Premium + v2 3종 + Consumption + Self-hosted Gateway). meter '<계층> Unit' 정확 일치, Consumption은 유료 콜 구간(10K 단위, 무료 100만 콜 미반영)
+- **Azure Private Link**(serviceName='Virtual Network', productName='Virtual Network Private Link', armRegionName='Global'): 엔드포인트(시간당 0.01)/데이터 처리 Ingress·Egress(GB, 계단형 첫 구간)
+- **Azure Container Registry**(serviceName='Container Registry'): 계층(Basic/Standard/Premium) × 레지스트리(1/Day)·추가 저장소(GB/월, 포함 용량 초과분)
+- **Azure DNS**(serviceName='Azure DNS', 리전 비종속): Public/Private × 호스팅 영역(월 0.5, Qty=영역 수)·쿼리(1M 0.4). Gov 존 제외, 공통('')→Zone 순 선택, 26개+ 영역 할인 미반영
+- **Azure DevOps**(serviceName='Azure DevOps', 리전 비종속): Basic Plan·Advanced·Test Plans 사용자(월), Artifacts 저장소(GB/월), MS-hosted($40)·Self-hosted($15) 병렬 작업. 무료 한도(Basic 5명, Artifacts 2GB) 미반영
+- **Azure OpenAI**(serviceName='Foundry Models'): 모델 15종 카탈로그(GPT-5/5.1/5.2·GPT-4.1(mini/nano)·GPT-4o(mini)·o1/o3/o3 mini/o4-mini·임베딩 2종) × 토큰 종류(입력/출력/캐시 입력). skuName 정확 일치(Global 배포 기준), 1K 미터는 ×1000으로 1M 토큰 단가 통일(usage=백만 토큰). Batch/Fine-tuning/오디오·이미지·실시간/PTU는 범위 외
+- 영향 파일: js/services/{cosmos-db,redis-cache,api-management,private-link,container-registry,azure-dns,azure-devops,azure-openai}.js(신규 8), index.html, js/ui-and-bootstrap.js(SERVICE_CATEGORY_ORDER·CSV 예시 8행·SKU 열 매핑(Redis)·사용량 단위 안내), docs/service-status.csv, CHANGELOG.md
+- 검증(Node 하니스, koreacentral 라이브 USD): 26개 조합 전부 매칭 통과 — Cosmos 400RU 0.032/h·Autoscale 1000RU 0.12/h·Serverless 0.271/1M·저장소 0.25/GB, APIM Basic 0.2016/h·Standard v2 0.9589/h, Redis Standard C0 0.07/h·Premium P1 0.711/h·AMR B10 0.381/h, Private Link EP 0.01/h, ACR Basic 0.1666/일, DevOps Basic User 6/월, DNS Zone 0.5/월, AOAI GPT-4.1 mini 입력 0.4/1M·GPT-5 출력 20/1M 등. node --check 전 파일 통과
+
 ## v99 — 2026-06-30
 - feat: **Azure SQL Database에 '스토리지(GB)' 옵션 추가**(계산기 정밀 대조). 그간 컴퓨팅(vCore)만 계산하고 계산기의 '스토리지' 슬라이더에 해당하는 프로비저닝 데이터 스토리지 비용이 빠져 있던 것 보강. vCore 모델에 `storageGB` 입력 추가(기본 32GB, 0이면 제외)
 - 구현: tier별 `... - Storage` 제품의 'Data Stored' 미터(단위 '1 GB/Month', 선택 통화로 반환)를 GB만큼 곱해 월비용 산출 → 시간당으로 환산(÷usage)해 **라이선스 가산과 동일 패턴**으로 컴퓨팅·절약(SP)·예약(RI)에 동일 가산. 스토리지는 약정 할인 대상이 아니라 전 가격대에 정가로 더함. usage=730에서 정확(그 외 시간 비례 근사). GP는 영역 중복(ZR) 선택 시 ZR 전용 스토리지 단가, BC/HS는 ZR 미터 없어 base 폴백
