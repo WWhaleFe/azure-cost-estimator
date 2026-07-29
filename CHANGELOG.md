@@ -2,6 +2,17 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v102 — 2026-07-29
+- feat: **리전 2종 추가** — Poland Central(`polandcentral`), Italy North(`italynorth`). 리전 목록은 `REGION_LABEL` 한 곳에서 관리되며(행별 리전 드롭다운·CSV 템플릿 리전 안내가 자동 반영), 상단 '기본 Region' 셀렉트에도 동일 옵션 추가
+- feat: **VM GPU 신규 계열 4종(SKU 8개) 추가** — 고객 견적서에서 요청된 NVIDIA A100/H100 계열. 범주 'GPU' 하위에 시리즈로 편입
+  - **NC A100 v4 (GPU)**(NCads A100 v4, A100 80GB PCIe): NC24ads_A100_v4(24c/220GB)·NC48ads_A100_v4(48c/440GB)·NC96ads_A100_v4(96c/880GB) — koreacentral·polandcentral·italynorth 등 광범위 제공
+  - **NC H100 v5 (GPU)**(NCads H100 v5, H100 NVL 94GB): NC40ads_H100_v5(40c/320GB)·NC80adis_H100_v5(80c/640GB) — skuName이 'NC40adsH100v5'(밑줄 없음)이라 resolver 정규화 매칭에 의존
+  - **ND A100 v4 (GPU)**(NDamsr A100 v4, A100 80GB SXM ×8): ND96amsr_A100_v4(96c/1900GB) — polandcentral·italynorth 등
+  - **ND H100 v5 (GPU)**(NDsr H100 v5, H100 80GB SXM ×8): ND96isr_H100_v5(96c/1900GB) — koreacentral·polandcentral 등
+- 범위: 제외 — ND96asr_v4(A100 40GB)는 API skuName(`ND96asr_A100_v4`)이 armSkuName 별칭(`_NU` 접미사)과 어긋나 resolver의 `skuM`을 통과 못 함(깨진 옵션 방지 위해 미수록). Spot/Low Priority는 기존과 동일하게 계층 선택으로 처리
+- 영향 파일: js/core/config.js(REGION_LABEL), index.html(#defaultRegion 옵션), js/services/vm.js(_VM_ALL_SERIES·_VM_CATEGORY_SERIES['GPU']·VM_INSTANCE_CATALOG), js/ui-and-bootstrap.js(_csvBuildExampleRows에 GPU 예시 2행), CHANGELOG.md
+- 검증(실제 브라우저 Chrome + 라이브 프록시 USD, 앱 resolver end-to-end): NC24ads_A100_v4@polandcentral PAYG 4.775/h·SP1Y 3.975·SP3Y 2.946·RI1Y 3.121·RI3Y 1.772 ✓, NC40ads_H100_v5@koreacentral 9.423·RI3 5.183 ✓, ND96isr_H100_v5@koreacentral 132.732·RI3 58.269 ✓, ND96amsr_A100_v4@italynorth 40.962·RI3 18.023 ✓, NC96ads_A100_v4@italynorth 19.100 ✓. 라벨(vCPU/RAM) 정상 표기. Python 하니스로 base()/skuM() 매칭도 focus 3개 리전 전 조합 통과
+
 ## v101 — 2026-07-02
 - fix: **Load Balancer·MySQL 가격 미조회 수정**(구버전 CSV/부분 입력 호환)
 - Load Balancer: 구버전 양식의 영문 청구 항목 값(`metric=Rules`/`Overage Rules`/`Data Processed`/`Gateway`/`Gateway Chain`)이 현재 한글 라벨 목록과 불일치해 조용히 지워지고 "청구 항목을 선택하세요" 오류로 가격이 안 나오던 것 → `_LB_METRIC_ALIAS`로 현재 라벨에 정규화 후 조회

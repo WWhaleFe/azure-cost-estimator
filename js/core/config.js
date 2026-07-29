@@ -28,6 +28,8 @@ const REGION_LABEL = {
   westus2:       'West US 2',
   westeurope:    'West Europe',
   southeastasia: 'Southeast Asia',
+  polandcentral: 'Poland Central',
+  italynorth:    'Italy North',
 };
 
 // 각 services/*.js 파일이 여기에 자신의 카테고리 정의를 등록

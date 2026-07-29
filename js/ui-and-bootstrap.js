@@ -760,6 +760,8 @@ function _csvBuildExampleRows() {
     ['koreacentral', '웹 서버(Linux)',        'Virtual Machine',            'D4s_v5',       '2', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5'],
     ['koreacentral', '앱 서버(Windows)',      'Virtual Machine',            'D2s_v5',       '1', '730',  'os=Windows; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5'],
     ['koreacentral', '개발 서버(B시리즈)',     'Virtual Machine',            'B2ms',         '1', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series'],
+    ['koreacentral', 'GPU 학습(NC A100 v4)',   'Virtual Machine',            'NC24ads_A100_v4','1','730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=NC A100 v4 (GPU)'],
+    ['polandcentral','GPU 추론(ND A100 v4)',   'Virtual Machine',            'ND96amsr_A100_v4','1','730', 'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)'],
     ['koreacentral', 'AKS 클러스터(SLA)',     'Azure Kubernetes Service',   '',             '1', '730',  'aksTier=Standard (표준); slaOption=SLA'],
     ['koreacentral', 'AKS 클러스터(LTS)',     'Azure Kubernetes Service',   '',             '1', '730',  'aksTier=Standard (표준); slaOption=SLA and Long Term Support'],
     ['koreacentral', '레지스트리 Basic',       'Azure Container Registry',   '',             '1', '30',   'tier=Basic; metric=레지스트리 (일 단위)'],

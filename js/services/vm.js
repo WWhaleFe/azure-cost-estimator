@@ -4,7 +4,7 @@
 // ================================================================
 
 // 전체 시리즈 목록(범주=전체에서 사용)
-var _VM_ALL_SERIES = ['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'];
+var _VM_ALL_SERIES = ['B-series','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','F-series v2','L-series v3','Las-series v3 (AMD)','M-series','N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'];
 // 범주(계산기 'Category')별 시리즈 — 계산기 라벨과 동일
 var _VM_CATEGORY_SERIES = {
   '전체':            _VM_ALL_SERIES,
@@ -12,7 +12,7 @@ var _VM_CATEGORY_SERIES = {
   '컴퓨팅 최적화':    ['F-series v2','FX-series'],
   '메모리에 최적화':  ['E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','M-series'],
   'Storage에 최적화': ['L-series v3','Las-series v3 (AMD)'],
-  'GPU':             ['N-series (GPU)'],
+  'GPU':             ['N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)'],
   '고성능 컴퓨팅':    ['HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'],
 };
 
@@ -75,6 +75,15 @@ var VM_INSTANCE_CATALOG = window.VM_INSTANCE_CATALOG = {
   'Las-series v3 (AMD)': [{name:'L8as_v3',vCPU:8,ram:64},{name:'L16as_v3',vCPU:16,ram:128},{name:'L32as_v3',vCPU:32,ram:256},{name:'L48as_v3',vCPU:48,ram:384},{name:'L64as_v3',vCPU:64,ram:512},{name:'L80as_v3',vCPU:80,ram:640}],
   'M-series': [{name:'M8ms',vCPU:8,ram:218.75},{name:'M16ms',vCPU:16,ram:437.5},{name:'M32ms',vCPU:32,ram:875},{name:'M64ms',vCPU:64,ram:1750},{name:'M128ms',vCPU:128,ram:3892},{name:'M16s',vCPU:16},{name:'M32s',vCPU:32},{name:'M64s',vCPU:64},{name:'M128s',vCPU:128},{name:'M32ms_v2',vCPU:32},{name:'M64ms_v2',vCPU:64},{name:'M128ms_v2',vCPU:128},{name:'M208ms_v2',vCPU:208},{name:'M416ms_v2',vCPU:416},{name:'M64ds_v2',vCPU:64},{name:'M128ds_v2',vCPU:128}],
   'N-series (GPU)': [{name:'NC4as_T4_v3',vCPU:4,ram:28},{name:'NC8as_T4_v3',vCPU:8,ram:56},{name:'NC16as_T4_v3',vCPU:16,ram:110},{name:'NC64as_T4_v3',vCPU:64,ram:440},{name:'NC6s_v3',vCPU:6,ram:112},{name:'NC12s_v3',vCPU:12,ram:224},{name:'NC24s_v3',vCPU:24,ram:448},{name:'NV4as_v4',vCPU:4,ram:14},{name:'NV8as_v4',vCPU:8,ram:28},{name:'NV16as_v4',vCPU:16,ram:56},{name:'NV32as_v4',vCPU:32,ram:112}],
+  // GPU 신규 계열(v101 이후). armSkuName='Standard_<name>'으로 조회. RAM은 시리즈 표준 사양(GiB).
+  // NCads A100 v4: NVIDIA A100 80GB PCIe(1/2/4 GPU). koreacentral·polandcentral·italynorth 등 광범위 제공.
+  'NC A100 v4 (GPU)': [{name:'NC24ads_A100_v4',vCPU:24,ram:220},{name:'NC48ads_A100_v4',vCPU:48,ram:440},{name:'NC96ads_A100_v4',vCPU:96,ram:880}],
+  // NCads H100 v5: NVIDIA H100 NVL 94GB(1/2 GPU). skuName이 'NC40adsH100v5'(밑줄 없음)이라 정규화 매칭에 의존.
+  'NC H100 v5 (GPU)': [{name:'NC40ads_H100_v5',vCPU:40,ram:320},{name:'NC80adis_H100_v5',vCPU:80,ram:640}],
+  // NDamsr A100 v4: NVIDIA A100 80GB SXM ×8(InfiniBand). polandcentral·italynorth 등.
+  'ND A100 v4 (GPU)': [{name:'ND96amsr_A100_v4',vCPU:96,ram:1900}],
+  // NDsr H100 v5: NVIDIA H100 80GB SXM ×8(InfiniBand). koreacentral·polandcentral 등.
+  'ND H100 v5 (GPU)': [{name:'ND96isr_H100_v5',vCPU:96,ram:1900}],
   'A-series v2': [{name:'A1_v2',vCPU:1,ram:2},{name:'A2_v2',vCPU:2,ram:4},{name:'A4_v2',vCPU:4,ram:8},{name:'A8_v2',vCPU:8,ram:16},{name:'A2m_v2',vCPU:2,ram:16},{name:'A4m_v2',vCPU:4,ram:32},{name:'A8m_v2',vCPU:8,ram:64}],
   'FX-series': [{name:'FX4mds',vCPU:4,ram:84},{name:'FX12mds',vCPU:12,ram:252},{name:'FX24mds',vCPU:24,ram:504},{name:'FX36mds',vCPU:36,ram:756},{name:'FX48mds',vCPU:48,ram:1008}],
   // HPC 시리즈(HB/HC/HX): 'HB176-Nrs_v4'는 제약 코어(실제 사용 vCPU=N) → vCPU를 명시값으로 지정.
