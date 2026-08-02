@@ -42,6 +42,7 @@ import './services/azure-openai.js';
 import './services/event-hubs.js';
 import './services/service-bus.js';
 import './services/container-apps.js';
+import './services/front-door.js';
 
 // 2) 엔진/진단/UI (부수효과: 이벤트 바인딩·초기 행 생성·진단 부팅)
 import './core/resolver-engine.js';
