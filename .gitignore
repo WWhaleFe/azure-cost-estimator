@@ -4,3 +4,9 @@
 # 로컬 견적 CSV(저장소에 올리지 않음)
 *_quote_*.csv
 *_import.csv
+
+# Node / Vite 빌드 산출물
+node_modules/
+dist/
+*.local
+.vercel/

@@ -1,0 +1,23 @@
+{
+  "name": "azure-cost-estimator",
+  "version": "1.0.0",
+  "description": "Azure 견적 시뮬레이션 — Retail Prices API 실시간 조회, 용량제/절약/예약 동시 비교",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12",
+    "vitest": "^3.2.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}

@@ -2,6 +2,44 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v105 — 2026-08-02
+- feat: **자동 회귀 방지 (Phase 3) — Vitest 테스트 + 녹화 픽스처 + CI**. 35개 서비스 조회 로직의 회귀를 잡는 안전망
+- **녹화 픽스처**: 실제 `prices.azure.com` 응답을 `test/fixtures/*.json`으로 녹화(VM D4s_v5 koreacentral Consumption 6 + Reservation 2, Public IP 4) → 테스트가 네트워크 없이 결정론적으로 동작
+- **테스트 5파일 / 25 케이스**(+라이브 스모크 2):
+  - `resolver-helpers.test.js` — 정규화 순수 함수(`normalizeReservationPrice`·`makeSpItem`·`spItemsFromBase`·`riItemsFromResv`) 10 케이스
+  - `vm-resolve.test.js` — `REG['_resolve_Virtual_Machine']`를 픽스처+apiFetch 목으로 구동. PAYG Linux 매칭·SP/RI 추출·OS 분기(Windows>Linux) 검증 (REG 디스패치→apiFetch→헬퍼→UI훅 전 경로)
+  - `public-ip-resolve.test.js` — `tryResolveItem` 경로(커스텀 resolve). Standard/Static 매칭(meterName) 7.673 검증
+  - `prices-handler.test.js` — 서버리스 프록시 host 잠금·메서드·프록시 릴레이·502 (fetch 목) 7 케이스
+  - `live-smoke.test.js` — `RUN_LIVE=1`에서만 실제 API 호출(API 계약 변화 감지)
+- **툴체인**: `vitest.config.js`(node env, globals). 서비스 resolve 는 `document` 스텁 + `vi.mock('src/core/network.js')` 로 jsdom 없이 테스트. `.github/workflows/ci.yml` — push/PR 마다 Node 22 `npm ci && build && test`(라이브 스모크는 CI 제외)
+- 영향 파일: vitest.config.js·test/**(신규)·.github/workflows/ci.yml(신규), package.json(vitest devDep·lock), README.md(테스트 안내), CHANGELOG.md
+- 검증: `npm test` **25 pass / 3 skip**, `RUN_LIVE=1 npm test` **27 pass**(라이브 3종 API 통과). `npm ci`→build→test 클린 재현(CI 동등) 확인
+- 범위: Phase 3은 핵심 경로 커버(pure 함수·VM 커스텀·제네릭 dispatch·프록시). 나머지 33개 서비스 개별 픽스처·ui-and-bootstrap.js 분할·TS(Phase 4) 후속
+
+## v104 — 2026-08-02
+- feat: **CORS 프록시 탈피 (Phase 2) — Vercel 단일 오리진 서버리스 프록시**. 공개 무료 프록시(corsproxy.io 등) 의존을 벗어나 API 조회 신뢰성 확보
+- **`api/prices.js` 신설** — Vercel 서버리스 함수. 같은 오리진(`/api/prices?url=...`)에서 `prices.azure.com`을 대신 호출 → Vercel 배포 시 브라우저 CORS 자체가 사라짐. 대상 host를 `prices.azure.com`으로 강제(오픈 프록시 악용 차단), GET/OPTIONS만 허용, 엣지/브라우저 1시간 캐시(`Cache-Control: s-maxage=3600`)
+- **프런트 폴백 유지**: `config.js`의 `CORS_PROXIES` 맨 앞에 `vercel-fn`(같은 오리진) 추가. 함수가 없는 환경(GitHub Pages·로컬 Vite dev)에선 404/비-JSON 응답 → `network.js` 기존 검증이 실패로 처리 → direct→corsproxy.io→... 공개 프록시 체인으로 **자동 폴백**(기존 배포 무손상)
+- **`vercel.json`** — framework=vite, buildCommand/outputDirectory, `api/prices.js` maxDuration=15s
+- 영향 파일: api/prices.js·vercel.json(신규), src/core/config.js(vercel-fn 프록시 추가), README.md(Vercel 배포 안내·CORS 순서), CHANGELOG.md
+- 검증: **서버리스 함수 단위 테스트 8/8 통과**(라이브 prices.azure.com) — url 누락 400·타 host 403·http 403·POST 405·정상 200+Items[]·Cache-Control·CORS. **브라우저 폴백 검증**(Vite dev, 함수 없음): 콘솔에 `vercel-fn 실패(JSON parse) → direct 실패 → corsproxy.io 전환` 확인, VM D4s_v5 라이브 조회 유지(362.17/h). Vercel 실배포는 사용자 계정에서 진행(자동 배포 안 함)
+- 범위: Phase 2는 프록시/배포. 실제 Vercel 배포 시 `vercel-fn`이 1순위로 성공. Vitest 정식 도입(Phase 3)·TS(Phase 4) 후속
+
+## v103 — 2026-08-02
+- refactor: **빌드/모듈 현대화 (Phase 1) — Vite + ES 모듈 전환**. 동작·가격 로직 무변경, 구조만 전환(무빌드 전역 스크립트 → ESM 번들)
+- **디렉토리**: `js/` → `src/`. `index.html`의 40개 `<script>` 나열을 `<script type="module" src="/src/main.js">` 하나로 대체. 로드 순서는 `src/main.js` import 그래프가 결정
+- **전역 스코프 제거**: 파일 간 공유가 전역(`window._svcDefs`, top-level `const`)에 의존하던 것을 명시적 import/export 로 전환
+  - `src/core/registry.js` 신설 — 공유 레지스트리 `REG`(구 window 네임스페이스). 서비스는 `REG._svcDefs`/`REG['_resolve_*']`/`REG['_buildDetail_*']` 에 등록하고 resolver 는 `REG[fnName]` 로 조회(문자열 on-window 디스패치 제거)
+  - `src/core/kernel.js` 신설 — 서비스가 import 하는 단일 파사드(REG·apiFetch·정규화 헬퍼·UI훅). 서비스 파일당 import 1줄 + `window`→`REG` 로만 변환(35개 균일 코드모드)
+  - `src/core/ui-hooks.js` 신설 — 서비스/resolver 가 `setStatus`/`updatePriceCells`/`updateTotalsRow`/`showToast` 를 역호출하던 순환 의존을, UI 가 부팅 시 구현을 등록하는 얇은 간접층으로 차단(호출부 코드 무변경)
+  - `src/core/resolver-helpers.js` 신설 — 순수 정규화 함수(`normalizeReservationPrice`·`makeSpItem`·`spItemsFromBase`·`riItemsFromResv`)를 엔진에서 분리(향후 단위 테스트 대상)
+  - `network-layer.js` → `network.js` 로 rename, 가변 상태(`apiCache`·`activeProxyIndex`)를 네트워크 모듈이 소유(라이브 export)
+  - `service-categories.js` 제거(registry.js 로 대체)
+- **툴체인**: `package.json`(vite/vitest/typescript devDeps), `vite.config.js`(`base:'./'` — GH Pages 서브패스·Vercel 루트 양쪽 호환), `tsconfig.json`(allowJs, TS 점진 도입 준비). XLSX 2종은 CDN 전역 유지(번들 제외)
+- 영향 파일: 전체 `src/**`(rename+ESM화), index.html, package.json/vite.config.js/tsconfig.json(신규), .gitignore(node_modules/dist), README.md, CHANGELOG.md
+- 검증(실제 브라우저 Chrome + Vite dev + 라이브 KRW, 앱 end-to-end): `npm run build` 49개 모듈 번들 성공 · 부팅 3행 생성·35개 카테고리 레지스트리 등록·진단 연결 정상 ✓ · **커스텀 resolve**(VM D4s_v5@koreacentral PAYG 362.17/h, SP1/SP3/RI1/RI3 5군 전부) ✓ · **제네릭 resolve**(Public IP Standard 7.673/h) ✓ · Total 합계(269,982.18=VM+PublicIP) 정확 ✓ · 콘솔 에러 0. 프로덕션 dist 자산 상대경로(`./assets/`) 확인
+- 범위: Phase 1은 구조 전환만. ui-and-bootstrap.js 파일 분할(→ui/*), Vercel 서버리스 프록시(단일 오리진), Vitest 테스트, TS 마이그레이션은 후속 Phase
+
 ## v102 — 2026-07-29
 - feat: **리전 2종 추가** — Poland Central(`polandcentral`), Italy North(`italynorth`). 리전 목록은 `REGION_LABEL` 한 곳에서 관리되며(행별 리전 드롭다운·CSV 템플릿 리전 안내가 자동 반영), 상단 '기본 Region' 셀렉트에도 동일 옵션 추가
 - feat: **VM GPU 신규 계열 4종(SKU 8개) 추가** — 고객 견적서에서 요청된 NVIDIA A100/H100 계열. 범주 'GPU' 하위에 시리즈로 편입
