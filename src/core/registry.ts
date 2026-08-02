@@ -9,8 +9,10 @@
 //   REG.<CATALOG>                     VM/Disk 카탈로그 (ui 가 읽음)
 // resolver-engine 은 REG[fnName] 으로 조회, ui 는 REG.<CATALOG> 로 참조한다.
 // ================================================================
-export const REG = { _svcDefs: {} };
+import type { Registry, ServiceDef } from './types.js';
+
+export const REG: Registry = { _svcDefs: {} };
 
 // SERVICE_CATEGORIES 는 REG._svcDefs 와 같은 객체를 가리킨다(라이브 참조).
 // 서비스들이 REG._svcDefs 에 등록하면 이 참조로도 즉시 보인다.
-export const SERVICE_CATEGORIES = REG._svcDefs;
+export const SERVICE_CATEGORIES: Record<string, ServiceDef> = REG._svcDefs;

@@ -5,11 +5,12 @@
 //      activeProxyIndex 는 라이브 export(diagnostics 가 읽음).
 // ================================================================
 import { API_BASE, API_VERSION, CORS_PROXIES } from './config.js';
+import type { ApiItem, ProxyEntry, PriceFilters } from './types.js';
 
-export const apiCache = new Map();
+export const apiCache = new Map<string, ApiItem[]>();
 export let activeProxyIndex = 0;
 
-function validateApiResponse(data) {
+function validateApiResponse(data: any): { ok: boolean; reason?: string } {
   if (!data || typeof data !== 'object') return { ok:false, reason:'not an object' };
   if (!Array.isArray(data.Items))         return { ok:false, reason:'no Items array' };
   if (typeof data.Count === 'number' && data.Count > data.Items.length*2 && !data.NextPageLink)
@@ -17,7 +18,7 @@ function validateApiResponse(data) {
   return { ok:true };
 }
 
-async function fetchOnce(targetUrl, proxy, timeoutMs=25000) {
+async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs = 25000): Promise<any> {
   const fp = fetch(proxy.url(targetUrl), { method:'GET' }).then(async res => {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
@@ -36,7 +37,7 @@ async function fetchOnce(targetUrl, proxy, timeoutMs=25000) {
   return Promise.race([fp, new Promise((_,rej)=>setTimeout(()=>rej(new Error(`timeout ${timeoutMs}ms`)),timeoutMs))]);
 }
 
-function getProxyOrder(expectedSizeKB) {
+function getProxyOrder(expectedSizeKB: number): number[] {
   if (!expectedSizeKB || expectedSizeKB<=0)
     return CORS_PROXIES.map((_,i)=>(activeProxyIndex+i)%CORS_PROXIES.length);
   const wi = CORS_PROXIES.map((p,i)=>({p,i}));
@@ -46,7 +47,7 @@ function getProxyOrder(expectedSizeKB) {
   ].map(x=>x.i);
 }
 
-export async function fetchWithCorsFallback(targetUrl, expectedSizeKB=0) {
+export async function fetchWithCorsFallback(targetUrl: string, expectedSizeKB = 0): Promise<any> {
   const errors = [];
   for (const idx of getProxyOrder(expectedSizeKB)) {
     const proxy = CORS_PROXIES[idx];
@@ -56,7 +57,7 @@ export async function fetchWithCorsFallback(targetUrl, expectedSizeKB=0) {
         console.log(`✓ 프록시 전환: ${proxy.name}`);
       activeProxyIndex = idx;
       return data;
-    } catch(err) {
+    } catch(err: any) {
       errors.push(`${proxy.name}: ${err.message}`);
       console.warn(`프록시 [${proxy.name}] 실패: ${err.message}`);
     }
@@ -64,7 +65,7 @@ export async function fetchWithCorsFallback(targetUrl, expectedSizeKB=0) {
   throw new Error(`모든 프록시 실패: ${errors.join(' | ')}`);
 }
 
-function buildApiUrl(filters, currencyCode, pageSize) {
+function buildApiUrl(filters: PriceFilters, currencyCode: string, pageSize: number): string {
   const fp = [];
   for (const [k,v] of Object.entries(filters)) {
     if (v===undefined||v===null||v==='') continue;
@@ -82,7 +83,7 @@ function buildApiUrl(filters, currencyCode, pageSize) {
   return `${API_BASE}?${params}`;
 }
 
-export async function apiFetch(filters, currencyCode='KRW', maxItems=1000, maxPages=5, opts={}) {
+export async function apiFetch(filters: PriceFilters, currencyCode = 'KRW', maxItems = 1000, maxPages = 5, opts: { pageSize?: number; expectedSizeKB?: number } = {}): Promise<ApiItem[]> {
   const targetUrl = buildApiUrl(filters, currencyCode, opts.pageSize||0);
   if (apiCache.has(targetUrl)) {
     const c = apiCache.get(targetUrl);
@@ -101,7 +102,7 @@ export async function apiFetch(filters, currencyCode='KRW', maxItems=1000, maxPa
   return items;
 }
 
-export function clearCacheForCurrency(currencyCode) {
+export function clearCacheForCurrency(currencyCode: string): void {
   const kw = `currencyCode=${currencyCode}`;
   let n = 0;
   for (const k of [...apiCache.keys()]) {

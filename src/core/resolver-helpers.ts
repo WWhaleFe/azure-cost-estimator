@@ -1,16 +1,17 @@
 // ================================================================
-// core/resolver-helpers.js — 가격 정규화 순수 함수 모음
-// (구 resolver-engine.js 상단부: 서비스들이 kernel 로부터 import)
+// core/resolver-helpers.ts — 가격 정규화 순수 함수 모음
+// (구 resolver-engine 상단부: 서비스들이 kernel 로부터 import)
 // UI/DOM/네트워크 의존 없음 → 단위 테스트 대상.
 // ================================================================
+import type { ApiItem, SpPair, RiPair } from './types.js';
 
-export function normalizeReservationPrice(item, years) {
+export function normalizeReservationPrice(item: ApiItem, years: number): ApiItem {
   const up=Number(item.unitPrice), rp=Number(item.retailPrice||item.unitPrice), h=years*8760;
   const hp = rp>0 && up/rp>1000 ? rp : up/h;
   return {...item, unitPrice:hp, retailPrice:hp, unitOfMeasure:'1 Hour (normalized)',
           _originalUnitPrice:up, _originalUnitOfMeasure:item.unitOfMeasure, _termYears:years};
 }
-export function makeSpItem(base, sp) {
+export function makeSpItem(base: ApiItem, sp: { term?: string; unitPrice?: number; retailPrice?: number }): ApiItem {
   return { unitPrice:Number(sp.unitPrice), retailPrice:Number(sp.retailPrice||sp.unitPrice),
     currencyCode:base.currencyCode, type:'SavingsPlan',
     armRegionName:base.armRegionName, productName:base.productName,
@@ -21,8 +22,8 @@ export function makeSpItem(base, sp) {
 // ── per-단가(× mult) 컴퓨팅 모델 공용 절약/예약 추출 (SQL·MySQL·Synapse) ──
 // base(용량제 Consumption 항목)의 savingsPlan에서 1년/3년 항목을 mult배해 시간당 단가로 생성.
 // 엔진 기본 계산(월=단가×Qty×usage)에 맞춰 unitOfMeasure='1 Hour'로 통일.
-export function spItemsFromBase(base, mult, cur) {
-  var out = { sp1:null, sp3:null };
+export function spItemsFromBase(base: ApiItem | null | undefined, mult: number, cur: string): SpPair {
+  var out: SpPair = { sp1:null, sp3:null };
   if (!base || !Array.isArray(base.savingsPlan)) return out;
   for (var i = 0; i < base.savingsPlan.length; i++) {
     var sp = base.savingsPlan[i], t = String(sp.term||'').toLowerCase();
@@ -38,8 +39,8 @@ export function spItemsFromBase(base, mult, cur) {
 }
 // 예약(Reservation priceType 항목 배열)에서 skuName 일치 + 1년/3년을 골라
 // normalizeReservationPrice로 시간당 단가로 환산한 뒤 mult배해 생성.
-export function riItemsFromResv(resvItems, skuLower, mult, cur) {
-  function pick(years, re) {
+export function riItemsFromResv(resvItems: ApiItem[], skuLower: string, mult: number, cur: string): RiPair {
+  function pick(years: number, re: RegExp): ApiItem | null {
     var c = (resvItems||[]).filter(function(it){
       if (String(it.type||'').toLowerCase() !== 'reservation') return false;
       if (skuLower && String(it.skuName||'').toLowerCase() !== skuLower) return false;

@@ -6,7 +6,17 @@
 // 순환 의존이 생기므로, 여기 얇은 간접층을 두고 UI 가 부팅 시 구현을 등록한다.
 // (호출부 코드는 setStatus(...) 그대로 — import 대상만 이 파일이 됨)
 // ================================================================
-const impl = {
+import type { Row } from './types.js';
+
+export type StatusKind = 'ok' | 'error' | 'loading';
+export interface UIHooks {
+  setStatus: (kind: StatusKind, msg: string) => void;
+  updatePriceCells: (row: Row) => void;
+  updateTotalsRow: () => void;
+  showToast: (msg: string, kind?: string) => void;
+}
+
+const impl: UIHooks = {
   setStatus: () => {},
   updatePriceCells: () => {},
   updateTotalsRow: () => {},
@@ -14,11 +24,11 @@ const impl = {
 };
 
 // UI 가 부팅 시 실제 구현을 등록
-export function registerUIHooks(hooks) {
+export function registerUIHooks(hooks: Partial<UIHooks>): void {
   Object.assign(impl, hooks);
 }
 
-export function setStatus(kind, msg) { return impl.setStatus(kind, msg); }
-export function updatePriceCells(row) { return impl.updatePriceCells(row); }
-export function updateTotalsRow() { return impl.updateTotalsRow(); }
-export function showToast(msg, kind) { return impl.showToast(msg, kind); }
+export function setStatus(kind: StatusKind, msg: string): void { impl.setStatus(kind, msg); }
+export function updatePriceCells(row: Row): void { impl.updatePriceCells(row); }
+export function updateTotalsRow(): void { impl.updateTotalsRow(); }
+export function showToast(msg: string, kind?: string): void { impl.showToast(msg, kind); }

@@ -15,3 +15,4 @@ export {
 export {
   setStatus, updatePriceCells, updateTotalsRow, showToast,
 } from './ui-hooks.js';
+export type { ApiItem, Row, ServiceDef, Step, SpPair, RiPair } from './types.js';
