@@ -1,0 +1,136 @@
+{
+  "consumption": [
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Ingress Events",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1M",
+      "unitPrice": 0.028,
+      "retailPrice": 0.028,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Basic",
+      "meterName": "Basic Ingress Events",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1M",
+      "unitPrice": 0.028,
+      "retailPrice": 0.028,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Kafka Endpoint",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.09,
+      "retailPrice": 0.09,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Geo Replication Zone 2",
+      "meterName": "Geo Replication Zone 2 Data Transfer",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 GB",
+      "unitPrice": 0.12,
+      "retailPrice": 0.12,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Premium",
+      "meterName": "Premium Processing Unit",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1.387,
+      "retailPrice": 1.387,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Throughput Unit",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.03,
+      "retailPrice": 0.03,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated Capacity Unit",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 8.193,
+      "retailPrice": 8.193,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Capture",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.1,
+      "retailPrice": 0.1,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Basic",
+      "meterName": "Basic Throughput Unit",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.015,
+      "retailPrice": 0.015,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Premium",
+      "meterName": "Premium Extended Retention",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 GB/Month",
+      "unitPrice": 0.135,
+      "retailPrice": 0.135,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated Extended Retention",
+      "productName": "Event Hubs",
+      "unitOfMeasure": "1 GB/Month",
+      "unitPrice": 0.135,
+      "retailPrice": 0.135,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    }
+  ]
+}

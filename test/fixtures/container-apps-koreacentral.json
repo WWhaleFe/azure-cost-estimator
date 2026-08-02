@@ -1,0 +1,160 @@
+{
+  "consumption": [
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated Plan Management",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.1,
+      "retailPrice": 0.1,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated vCPU Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.057077,
+      "retailPrice": 0.057077,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Memory Idle Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 GiB Second",
+      "unitPrice": 0.000003,
+      "retailPrice": 0.000003,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated Memory Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.004978,
+      "retailPrice": 0.004978,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dynamic Sessions",
+      "meterName": "Dynamic Sessions",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.03,
+      "retailPrice": 0.03,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Memory Active Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 GiB Second",
+      "unitPrice": 0.000003,
+      "retailPrice": 0.000003,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Hybrid",
+      "meterName": "Hybrid vCPU Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.243,
+      "retailPrice": 0.243,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Dedicated",
+      "meterName": "Dedicated GPU Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 5.95026,
+      "retailPrice": 5.95026,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard vCPU Idle Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Second",
+      "unitPrice": 0.000003,
+      "retailPrice": 0.000003,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard NC A100 v4 GPU Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Second",
+      "unitPrice": 0.000714,
+      "retailPrice": 0.000714,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard vCPU Active Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Second",
+      "unitPrice": 0.000024,
+      "retailPrice": 0.000024,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard Requests",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1M",
+      "unitPrice": 0.4,
+      "retailPrice": 0.4,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    },
+    {
+      "skuName": "Standard",
+      "meterName": "Standard NC T4 v3 GPU Usage",
+      "productName": "Azure Container Apps",
+      "unitOfMeasure": "1 Second",
+      "unitPrice": 0.000099,
+      "retailPrice": 0.000099,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD"
+    }
+  ]
+}
