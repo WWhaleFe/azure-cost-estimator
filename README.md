@@ -172,10 +172,25 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 ## 기술 정보
 
 - **API**: `https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview`
-- **CORS**: 직접 호출(direct)을 우선 시도하고, 실패 시 corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 순으로 폴백
+- **CORS**: **Vercel 서버리스 프록시(`/api/prices`, 같은 오리진)** 를 1순위로 시도. Vercel 배포에선 CORS 자체가 없음. 함수가 없는 환경(GitHub Pages·로컬 Vite dev)에선 자동으로 direct → corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 공개 프록시 체인으로 폴백
 - **외부 라이브러리**: SheetJS (xlsx), xlsx-js-style (모두 CDN 로드 — 번들 제외, 런타임 전역)
 - **빌드**: Vite (ES 모듈 번들) · **프레임워크 의존성 없음** (Vanilla JavaScript)
 - **테스트/타입**: Vitest, TypeScript(allowJs, 점진 도입) — devDependencies
+
+---
+
+## Vercel 배포 (권장 — CORS 프록시 불필요)
+
+앱을 Vercel로 배포하면 같은 오리진의 서버리스 함수(`api/prices.js`)가 Azure API를 대신 호출하므로 공개 CORS 프록시에 의존하지 않습니다.
+
+1. [vercel.com](https://vercel.com)에서 이 저장소를 Import
+2. Framework Preset은 **Vite**로 자동 인식됨 (`vercel.json`에 명시)
+   - Build Command: `npm run build` · Output: `dist` · Functions: `api/prices.js`
+3. **Deploy** — 배포 후 상단 배너에 `✓ 연결 정상 (프록시: vercel-fn)` 표시되면 서버리스 프록시로 동작 중
+
+CLI로 배포하려면: `npm i -g vercel && vercel` (최초 로그인 필요).
+
+`api/prices.js`는 대상 host를 `prices.azure.com`으로 강제해 오픈 프록시 악용을 차단합니다.
 
 ---
 

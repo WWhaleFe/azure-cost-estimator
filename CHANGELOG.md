@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v104 — 2026-08-02
+- feat: **CORS 프록시 탈피 (Phase 2) — Vercel 단일 오리진 서버리스 프록시**. 공개 무료 프록시(corsproxy.io 등) 의존을 벗어나 API 조회 신뢰성 확보
+- **`api/prices.js` 신설** — Vercel 서버리스 함수. 같은 오리진(`/api/prices?url=...`)에서 `prices.azure.com`을 대신 호출 → Vercel 배포 시 브라우저 CORS 자체가 사라짐. 대상 host를 `prices.azure.com`으로 강제(오픈 프록시 악용 차단), GET/OPTIONS만 허용, 엣지/브라우저 1시간 캐시(`Cache-Control: s-maxage=3600`)
+- **프런트 폴백 유지**: `config.js`의 `CORS_PROXIES` 맨 앞에 `vercel-fn`(같은 오리진) 추가. 함수가 없는 환경(GitHub Pages·로컬 Vite dev)에선 404/비-JSON 응답 → `network.js` 기존 검증이 실패로 처리 → direct→corsproxy.io→... 공개 프록시 체인으로 **자동 폴백**(기존 배포 무손상)
+- **`vercel.json`** — framework=vite, buildCommand/outputDirectory, `api/prices.js` maxDuration=15s
+- 영향 파일: api/prices.js·vercel.json(신규), src/core/config.js(vercel-fn 프록시 추가), README.md(Vercel 배포 안내·CORS 순서), CHANGELOG.md
+- 검증: **서버리스 함수 단위 테스트 8/8 통과**(라이브 prices.azure.com) — url 누락 400·타 host 403·http 403·POST 405·정상 200+Items[]·Cache-Control·CORS. **브라우저 폴백 검증**(Vite dev, 함수 없음): 콘솔에 `vercel-fn 실패(JSON parse) → direct 실패 → corsproxy.io 전환` 확인, VM D4s_v5 라이브 조회 유지(362.17/h). Vercel 실배포는 사용자 계정에서 진행(자동 배포 안 함)
+- 범위: Phase 2는 프록시/배포. 실제 Vercel 배포 시 `vercel-fn`이 1순위로 성공. Vitest 정식 도입(Phase 3)·TS(Phase 4) 후속
+
 ## v103 — 2026-08-02
 - refactor: **빌드/모듈 현대화 (Phase 1) — Vite + ES 모듈 전환**. 동작·가격 로직 무변경, 구조만 전환(무빌드 전역 스크립트 → ESM 번들)
 - **디렉토리**: `js/` → `src/`. `index.html`의 40개 `<script>` 나열을 `<script type="module" src="/src/main.js">` 하나로 대체. 로드 순서는 `src/main.js` import 그래프가 결정

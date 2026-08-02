@@ -8,6 +8,9 @@ export const API_BASE    = 'https://prices.azure.com/api/retail/prices';
 export const API_VERSION = '2023-01-01-preview';
 
 export const CORS_PROXIES = [
+  // 1순위: 같은 오리진 Vercel 서버리스 프록시(api/prices.js). Vercel 배포에선 CORS 없이 동작.
+  // 함수가 없는 환경(GitHub Pages·Vite dev)에선 404/비-JSON → network.js 검증 실패 → 아래 공개 프록시로 자동 폴백.
+  { name:'vercel-fn',      wrap:false, sizeKB:Infinity, url:t=>`/api/prices?url=${encodeURIComponent(t)}` },
   { name:'direct',         wrap:false, sizeKB:Infinity, url:t=>t },
   { name:'corsproxy.io',   wrap:false, sizeKB:1024,     url:t=>`https://corsproxy.io/?url=${encodeURIComponent(t)}` },
   { name:'allorigins-raw', wrap:false, sizeKB:Infinity, url:t=>`https://api.allorigins.win/raw?url=${encodeURIComponent(t)}` },
