@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v105 — 2026-08-02
+- feat: **자동 회귀 방지 (Phase 3) — Vitest 테스트 + 녹화 픽스처 + CI**. 35개 서비스 조회 로직의 회귀를 잡는 안전망
+- **녹화 픽스처**: 실제 `prices.azure.com` 응답을 `test/fixtures/*.json`으로 녹화(VM D4s_v5 koreacentral Consumption 6 + Reservation 2, Public IP 4) → 테스트가 네트워크 없이 결정론적으로 동작
+- **테스트 5파일 / 25 케이스**(+라이브 스모크 2):
+  - `resolver-helpers.test.js` — 정규화 순수 함수(`normalizeReservationPrice`·`makeSpItem`·`spItemsFromBase`·`riItemsFromResv`) 10 케이스
+  - `vm-resolve.test.js` — `REG['_resolve_Virtual_Machine']`를 픽스처+apiFetch 목으로 구동. PAYG Linux 매칭·SP/RI 추출·OS 분기(Windows>Linux) 검증 (REG 디스패치→apiFetch→헬퍼→UI훅 전 경로)
+  - `public-ip-resolve.test.js` — `tryResolveItem` 경로(커스텀 resolve). Standard/Static 매칭(meterName) 7.673 검증
+  - `prices-handler.test.js` — 서버리스 프록시 host 잠금·메서드·프록시 릴레이·502 (fetch 목) 7 케이스
+  - `live-smoke.test.js` — `RUN_LIVE=1`에서만 실제 API 호출(API 계약 변화 감지)
+- **툴체인**: `vitest.config.js`(node env, globals). 서비스 resolve 는 `document` 스텁 + `vi.mock('src/core/network.js')` 로 jsdom 없이 테스트. `.github/workflows/ci.yml` — push/PR 마다 Node 22 `npm ci && build && test`(라이브 스모크는 CI 제외)
+- 영향 파일: vitest.config.js·test/**(신규)·.github/workflows/ci.yml(신규), package.json(vitest devDep·lock), README.md(테스트 안내), CHANGELOG.md
+- 검증: `npm test` **25 pass / 3 skip**, `RUN_LIVE=1 npm test` **27 pass**(라이브 3종 API 통과). `npm ci`→build→test 클린 재현(CI 동등) 확인
+- 범위: Phase 3은 핵심 경로 커버(pure 함수·VM 커스텀·제네릭 dispatch·프록시). 나머지 33개 서비스 개별 픽스처·ui-and-bootstrap.js 분할·TS(Phase 4) 후속
+
 ## v104 — 2026-08-02
 - feat: **CORS 프록시 탈피 (Phase 2) — Vercel 단일 오리진 서버리스 프록시**. 공개 무료 프록시(corsproxy.io 등) 의존을 벗어나 API 조회 신뢰성 확보
 - **`api/prices.js` 신설** — Vercel 서버리스 함수. 같은 오리진(`/api/prices?url=...`)에서 `prices.azure.com`을 대신 호출 → Vercel 배포 시 브라우저 CORS 자체가 사라짐. 대상 host를 `prices.azure.com`으로 강제(오픈 프록시 악용 차단), GET/OPTIONS만 허용, 엣지/브라우저 1시간 캐시(`Cache-Control: s-maxage=3600`)

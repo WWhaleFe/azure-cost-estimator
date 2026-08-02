@@ -46,6 +46,15 @@ npm run build     # dist/ 생성
 npm run preview   # 빌드 결과 미리보기
 ```
 
+테스트:
+
+```bash
+npm test              # Vitest (녹화 픽스처 기반, 네트워크 불필요)
+RUN_LIVE=1 npm test   # 라이브 스모크 포함 (실제 prices.azure.com 호출)
+```
+
+가격 정규화 순수 함수·서비스 조회 매칭(VM 커스텀·Public IP)·서버리스 프록시 핸들러를 검증합니다. 실제 API 응답은 `test/fixtures/*.json`에 녹화되어 결정론적으로 돌아가며, GitHub Actions(`.github/workflows/ci.yml`)가 push/PR마다 build + test를 실행합니다.
+
 #### 접속
 
 개발 서버 실행 후 브라우저 주소창에:
