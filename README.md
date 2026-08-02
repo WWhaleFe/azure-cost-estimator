@@ -24,37 +24,34 @@ https://<사용자명>.github.io/<저장소명>/
 
 ### 방법 2. 로컬에서 실행
 
-소스 코드를 다운로드 받아 직접 실행하려면 **로컬 웹서버**가 필요합니다. HTML 파일을 더블클릭하여 `file://` 로 여는 방식은 작동하지 않습니다 (브라우저가 외부 API 호출을 차단함).
+v103부터 **Vite** 기반으로 빌드/실행합니다. **Node.js**가 필요합니다 (HTML 더블클릭 `file://` 방식은 여전히 불가).
 
 #### 사전 준비
 
-다음 중 하나만 설치되어 있으면 됩니다.
-
-- Python 3.x — [python.org/downloads](https://www.python.org/downloads/)
-- Node.js — [nodejs.org](https://nodejs.org/)
+- Node.js 18+ — [nodejs.org](https://nodejs.org/)
 
 #### 실행 명령
 
-저장소를 클론하거나 zip으로 받은 후, 압축 해제한 디렉토리에서 터미널/명령 프롬프트를 엽니다.
-
-**Python 사용 시**
+저장소를 클론한 뒤 디렉토리에서:
 
 ```bash
-python -m http.server 8000
+npm install       # 최초 1회 (의존성 설치)
+npm run dev       # 개발 서버 (http://localhost:5173)
 ```
 
-**Node.js 사용 시**
+배포용 정적 산출물을 만들려면:
 
 ```bash
-npx http-server -p 8000
+npm run build     # dist/ 생성
+npm run preview   # 빌드 결과 미리보기
 ```
 
 #### 접속
 
-브라우저 주소창에 다음을 입력합니다.
+개발 서버 실행 후 브라우저 주소창에:
 
 ```
-http://localhost:8000/
+http://localhost:5173/
 ```
 
 ---
@@ -149,25 +146,26 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 
 ```
 .
-├── index.html                     메인 페이지 (HTML 마크업만)
+├── index.html                     메인 페이지 (Vite 엔트리: <script type=module src=/src/main.js>)
+├── package.json  vite.config.js  tsconfig.json
 ├── css/
-│   └── main.css                   전체 스타일
-└── js/
+│   └── main.css                   전체 스타일 (Vite가 번들)
+└── src/
+    ├── main.js                    엔트리: 모든 모듈을 순서대로 import
     ├── core/
-    │   ├── config.js              상수, 카탈로그, CORS 프록시 목록
-    │   ├── network-layer.js       fetch 폴백, API 호출, 캐시
-    │   ├── service-categories.js  SERVICE_CATEGORIES 병합
-    │   └── resolver-engine.js     가격 조회 엔진
-    ├── services/                  서비스별 정의 + 가격 매칭 (15개)
-    │   ├── vm.js  disk.js  vpn-gateway.js  load-balancer.js
-    │   ├── app-gateway.js  public-ip.js  firewall.js  bandwidth.js
-    │   ├── nat-gateway.js  sql-database.js  mysql.js  app-service.js
-    │   └── bastion.js  azure-files.js  blob-storage.js
+    │   ├── config.js              상수, CORS 프록시 목록, 리전 (순수 export)
+    │   ├── network.js             fetch 폴백, API 호출, 캐시 (apiCache/activeProxyIndex 소유)
+    │   ├── registry.js            REG(서비스 레지스트리) + SERVICE_CATEGORIES
+    │   ├── kernel.js              서비스가 import 하는 단일 파사드(REG·apiFetch·헬퍼·UI훅)
+    │   ├── ui-hooks.js            resolver/서비스 → UI 역호출 간접층(순환 의존 차단)
+    │   ├── resolver-helpers.js    가격 정규화 순수 함수(테스트 대상)
+    │   └── resolver-engine.js     가격 조회 엔진(REG[fnName] 디스패치)
+    ├── services/                  서비스별 정의 + 가격 매칭 (35개, REG 에 등록)
     ├── diagnostics.js             연결 진단, 환경별 안내 모달
-    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/CSV/부트스트랩
+    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/CSV/부트스트랩 + UI훅 등록
 ```
 
-로드 순서: `js/core/config.js` → `js/core/network-layer.js` → `js/services/*.js`(15개, 순서 무관) → `js/core/service-categories.js`(병합) → `js/core/resolver-engine.js` → `js/diagnostics.js` → `js/ui-and-bootstrap.js`. 모두 `index.html`에서 일반 `<script>` 태그로 로드되며, 빌드 도구는 사용하지 않습니다.
+로드 순서는 `src/main.js`의 import 그래프가 결정합니다: 서비스(REG 등록) → resolver-engine → diagnostics → ui-and-bootstrap → remark. 각 파일은 ES 모듈이며 전역 스코프 대신 명시적 import/export 로 연결됩니다. 서비스는 문자열 디스패치(`window['_resolve_*']`) 대신 공유 레지스트리 `REG` 에 등록됩니다. 빌드/번들은 Vite가 담당합니다.
 
 ---
 
@@ -175,8 +173,9 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 
 - **API**: `https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview`
 - **CORS**: 직접 호출(direct)을 우선 시도하고, 실패 시 corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 순으로 폴백
-- **외부 라이브러리**: SheetJS (xlsx), xlsx-js-style (모두 CDN 로드)
-- **프레임워크 의존성 없음** (Vanilla JavaScript)
+- **외부 라이브러리**: SheetJS (xlsx), xlsx-js-style (모두 CDN 로드 — 번들 제외, 런타임 전역)
+- **빌드**: Vite (ES 모듈 번들) · **프레임워크 의존성 없음** (Vanilla JavaScript)
+- **테스트/타입**: Vitest, TypeScript(allowJs, 점진 도입) — devDependencies
 
 ---
 

@@ -2,6 +2,21 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v103 — 2026-08-02
+- refactor: **빌드/모듈 현대화 (Phase 1) — Vite + ES 모듈 전환**. 동작·가격 로직 무변경, 구조만 전환(무빌드 전역 스크립트 → ESM 번들)
+- **디렉토리**: `js/` → `src/`. `index.html`의 40개 `<script>` 나열을 `<script type="module" src="/src/main.js">` 하나로 대체. 로드 순서는 `src/main.js` import 그래프가 결정
+- **전역 스코프 제거**: 파일 간 공유가 전역(`window._svcDefs`, top-level `const`)에 의존하던 것을 명시적 import/export 로 전환
+  - `src/core/registry.js` 신설 — 공유 레지스트리 `REG`(구 window 네임스페이스). 서비스는 `REG._svcDefs`/`REG['_resolve_*']`/`REG['_buildDetail_*']` 에 등록하고 resolver 는 `REG[fnName]` 로 조회(문자열 on-window 디스패치 제거)
+  - `src/core/kernel.js` 신설 — 서비스가 import 하는 단일 파사드(REG·apiFetch·정규화 헬퍼·UI훅). 서비스 파일당 import 1줄 + `window`→`REG` 로만 변환(35개 균일 코드모드)
+  - `src/core/ui-hooks.js` 신설 — 서비스/resolver 가 `setStatus`/`updatePriceCells`/`updateTotalsRow`/`showToast` 를 역호출하던 순환 의존을, UI 가 부팅 시 구현을 등록하는 얇은 간접층으로 차단(호출부 코드 무변경)
+  - `src/core/resolver-helpers.js` 신설 — 순수 정규화 함수(`normalizeReservationPrice`·`makeSpItem`·`spItemsFromBase`·`riItemsFromResv`)를 엔진에서 분리(향후 단위 테스트 대상)
+  - `network-layer.js` → `network.js` 로 rename, 가변 상태(`apiCache`·`activeProxyIndex`)를 네트워크 모듈이 소유(라이브 export)
+  - `service-categories.js` 제거(registry.js 로 대체)
+- **툴체인**: `package.json`(vite/vitest/typescript devDeps), `vite.config.js`(`base:'./'` — GH Pages 서브패스·Vercel 루트 양쪽 호환), `tsconfig.json`(allowJs, TS 점진 도입 준비). XLSX 2종은 CDN 전역 유지(번들 제외)
+- 영향 파일: 전체 `src/**`(rename+ESM화), index.html, package.json/vite.config.js/tsconfig.json(신규), .gitignore(node_modules/dist), README.md, CHANGELOG.md
+- 검증(실제 브라우저 Chrome + Vite dev + 라이브 KRW, 앱 end-to-end): `npm run build` 49개 모듈 번들 성공 · 부팅 3행 생성·35개 카테고리 레지스트리 등록·진단 연결 정상 ✓ · **커스텀 resolve**(VM D4s_v5@koreacentral PAYG 362.17/h, SP1/SP3/RI1/RI3 5군 전부) ✓ · **제네릭 resolve**(Public IP Standard 7.673/h) ✓ · Total 합계(269,982.18=VM+PublicIP) 정확 ✓ · 콘솔 에러 0. 프로덕션 dist 자산 상대경로(`./assets/`) 확인
+- 범위: Phase 1은 구조 전환만. ui-and-bootstrap.js 파일 분할(→ui/*), Vercel 서버리스 프록시(단일 오리진), Vitest 테스트, TS 마이그레이션은 후속 Phase
+
 ## v102 — 2026-07-29
 - feat: **리전 2종 추가** — Poland Central(`polandcentral`), Italy North(`italynorth`). 리전 목록은 `REGION_LABEL` 한 곳에서 관리되며(행별 리전 드롭다운·CSV 템플릿 리전 안내가 자동 반영), 상단 '기본 Region' 셀렉트에도 동일 옵션 추가
 - feat: **VM GPU 신규 계열 4종(SKU 8개) 추가** — 고객 견적서에서 요청된 NVIDIA A100/H100 계열. 범주 'GPU' 하위에 시리즈로 편입
