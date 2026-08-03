@@ -8,16 +8,16 @@ Azure Retail Prices API를 호출하여 **용량제(PAYG)·절약 플랜(1Y/3Y)�
 
 ### 방법 1. 배포된 페이지에서 바로 사용 (가장 쉬움)
 
-GitHub Pages가 활성화된 경우, 브라우저에서 다음 주소에 접속하세요.
+브라우저에서 다음 주소에 접속하세요.
 
 ```
-https://<사용자명>.github.io/<저장소명>/
+https://azure-cost-estimator.vercel.app
 ```
 
 페이지가 열리면 화면 상단 배너에 다음 메시지가 표시되어야 정상입니다.
 
 ```
-연결 정상 (프록시: direct)
+✓ 연결 정상 (프록시: vercel-fn)
 ```
 
 만약 빨간 글씨로 실패 메시지가 보이면 그 글씨를 클릭하세요. 정중앙 모달이 열리며 환경별 해결 방법이 안내됩니다.
@@ -181,7 +181,7 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 ## 기술 정보
 
 - **API**: `https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview`
-- **CORS**: **Vercel 서버리스 프록시(`/api/prices`, 같은 오리진)** 를 1순위로 시도. Vercel 배포에선 CORS 자체가 없음. 함수가 없는 환경(GitHub Pages·로컬 Vite dev)에선 자동으로 direct → corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 공개 프록시 체인으로 폴백
+- **CORS**: **Vercel 서버리스 프록시(`/api/prices`, 같은 오리진)** 를 1순위로 시도. Vercel 배포에선 CORS 자체가 없음. 서버리스 함수가 없는 환경(임의의 정적 호스트·로컬 Vite dev)에선 자동으로 direct → corsproxy.io → allorigins-raw → allorigins-get → codetabs.com → cors.x2u.in 공개 프록시 체인으로 폴백
 - **외부 라이브러리**: SheetJS (xlsx), xlsx-js-style (모두 CDN 로드 — 번들 제외, 런타임 전역)
 - **빌드**: Vite (ES 모듈 번들) · **프레임워크 의존성 없음** (Vanilla JavaScript)
 - **테스트/타입**: Vitest, TypeScript(allowJs, 점진 도입) — devDependencies
@@ -200,26 +200,6 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
 CLI로 배포하려면: `npm i -g vercel && vercel` (최초 로그인 필요).
 
 `api/prices.js`는 대상 host를 `prices.azure.com`으로 강제해 오픈 프록시 악용을 차단합니다.
-
----
-
-## GitHub Pages 활성화 방법
-
-처음 저장소를 만든 분을 위한 안내입니다.
-
-1. 저장소 페이지에서 **Settings** 탭 클릭
-2. 왼쪽 메뉴의 **Pages** 클릭
-3. "Build and deployment" 섹션에서:
-   - Source: **Deploy from a branch**
-   - Branch: **main** / **/ (root)**
-4. **Save** 클릭
-5. 1~3분 후 페이지를 새로고침하면 상단에 다음 메시지가 표시됨
-
-   ```
-   Your site is live at https://<사용자명>.github.io/<저장소명>/
-   ```
-
-6. 위 주소를 클릭하여 접속
 
 ---
 
