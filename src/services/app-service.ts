@@ -1,4 +1,5 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, showToast, normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, showToast, normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv, probeRegions, regionHint } from '../core/kernel.js';
+import { REGION_LABEL } from '../core/config.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/app-service.js — App Service (App Service Plan)
@@ -115,7 +116,17 @@ REG['_resolve_App_Service'] = async function(row: Row, cur: string) {
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-    setStatus('error', 'App Service ' + label + ': 매칭 실패 (' + cItems.length + '건 조회). 이 OS/계층에 해당 인스턴스가 없을 수 있습니다.');
+    // 이 사이즈가 다른 리전엔 있는지 확인 → 리전 미제공이면 지원 리전을 안내
+    var availRegions = await probeRegions({ serviceName:'Azure App Service', productName:product }, cur,
+      function(it: ApiItem){ return _appsvc_norm(it.skuName)===sizeNm; });
+    var regHint = regionHint(availRegions, row.region, function(r: string){ return REGION_LABEL[r] || r; });
+    if (regHint.unavailable) {
+      var regMsg = 'App Service ' + label + ': ' + regHint.text;
+      setStatus('error', regMsg);
+      if (typeof showToast === 'function') showToast(regMsg, 'error');
+    } else {
+      setStatus('error', 'App Service ' + label + ': 매칭 실패 (' + cItems.length + '건 조회). 이 OS/계층에 해당 인스턴스가 없을 수 있습니다.');
+    }
     console.warn('[AppSvc] 용량제 매칭 실패', { product:product, size:size, region:row.region, consumptionCount:cons.length, sampleSku:cons.slice(0,10).map(function(x: ApiItem){return x.skuName;}) });
     updatePriceCells(row); updateTotalsRow(); return;
   }

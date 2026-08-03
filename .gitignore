@@ -5,6 +5,13 @@
 *_quote_*.csv
 *_import.csv
 
+# 로컬 검증 산출물(업로드 결과·오류 스크린샷 등, 대용량)
+docs/test/
+azure-quote-*.xlsx
+azure-quote-*.csv
+스크린샷*.png
+Screenshot*.png
+
 # Node / Vite 빌드 산출물
 node_modules/
 dist/

@@ -1,0 +1,978 @@
+﻿Region,분류,ServiceCategory,SKU,Qty,Hours,Options
+koreacentral,API Management/base,API Management,,1,730,tier=Developer
+koreacentral,API Management/tier,API Management,,1,730,tier=Basic
+koreacentral,API Management/tier,API Management,,1,730,tier=Standard
+koreacentral,API Management/tier,API Management,,1,730,tier=Premium
+koreacentral,API Management/tier,API Management,,1,730,tier=Basic v2
+koreacentral,API Management/tier,API Management,,1,730,tier=Standard v2
+koreacentral,API Management/tier,API Management,,1,730,tier=Premium v2
+koreacentral,API Management/tier,API Management,,1,730,tier=Consumption
+koreacentral,API Management/tier,API Management,,1,730,tier=Self-hosted Gateway
+koreacentral,AppSvc/Free/Linux,App Service,F1,1,730,tier=Free; os=Linux
+koreacentral,AppSvc/Free/Windows,App Service,F1,1,730,tier=Free; os=Windows
+koreacentral,AppSvc/Shared/Linux,App Service,Shared,1,730,tier=Shared; os=Linux
+koreacentral,AppSvc/Shared/Windows,App Service,Shared,1,730,tier=Shared; os=Windows
+koreacentral,AppSvc/Basic/Linux,App Service,B1,1,730,tier=Basic; os=Linux
+koreacentral,AppSvc/Basic/Linux,App Service,B2,1,730,tier=Basic; os=Linux
+koreacentral,AppSvc/Basic/Linux,App Service,B3,1,730,tier=Basic; os=Linux
+koreacentral,AppSvc/Basic/Windows,App Service,B1,1,730,tier=Basic; os=Windows
+koreacentral,AppSvc/Basic/Windows,App Service,B2,1,730,tier=Basic; os=Windows
+koreacentral,AppSvc/Basic/Windows,App Service,B3,1,730,tier=Basic; os=Windows
+koreacentral,AppSvc/Standard/Linux,App Service,S1,1,730,tier=Standard; os=Linux
+koreacentral,AppSvc/Standard/Linux,App Service,S2,1,730,tier=Standard; os=Linux
+koreacentral,AppSvc/Standard/Linux,App Service,S3,1,730,tier=Standard; os=Linux
+koreacentral,AppSvc/Standard/Windows,App Service,S1,1,730,tier=Standard; os=Windows
+koreacentral,AppSvc/Standard/Windows,App Service,S2,1,730,tier=Standard; os=Windows
+koreacentral,AppSvc/Standard/Windows,App Service,S3,1,730,tier=Standard; os=Windows
+koreacentral,AppSvc/Premium/Windows,App Service,P1,1,730,tier=Premium; os=Windows
+koreacentral,AppSvc/Premium/Windows,App Service,P2,1,730,tier=Premium; os=Windows
+koreacentral,AppSvc/Premium/Windows,App Service,P3,1,730,tier=Premium; os=Windows
+koreacentral,AppSvc/Premium/Windows,App Service,P4,1,730,tier=Premium; os=Windows
+koreacentral,AppSvc/Premium v2/Linux,App Service,P1 v2,1,730,tier=Premium v2; os=Linux
+koreacentral,AppSvc/Premium v2/Linux,App Service,P2 v2,1,730,tier=Premium v2; os=Linux
+koreacentral,AppSvc/Premium v2/Linux,App Service,P3 v2,1,730,tier=Premium v2; os=Linux
+koreacentral,AppSvc/Premium v2/Windows,App Service,P1 v2,1,730,tier=Premium v2; os=Windows
+koreacentral,AppSvc/Premium v2/Windows,App Service,P2 v2,1,730,tier=Premium v2; os=Windows
+koreacentral,AppSvc/Premium v2/Windows,App Service,P3 v2,1,730,tier=Premium v2; os=Windows
+koreacentral,AppSvc/Premium v3/Linux,App Service,P0v3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P1 v3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P2 v3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P3 v3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P1mv3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P2mv3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P3mv3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P4mv3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Linux,App Service,P5mv3,1,730,tier=Premium v3; os=Linux
+koreacentral,AppSvc/Premium v3/Windows,App Service,P0v3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P1 v3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P2 v3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P3 v3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P1mv3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P2mv3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P3mv3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P4mv3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v3/Windows,App Service,P5mv3,1,730,tier=Premium v3; os=Windows
+koreacentral,AppSvc/Premium v4/Linux,App Service,P0v4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P1v4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P2v4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P3v4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P1mv4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P2mv4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P3mv4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P4mv4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Linux,App Service,P5mv4,1,730,tier=Premium v4; os=Linux
+koreacentral,AppSvc/Premium v4/Windows,App Service,P0v4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P1v4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P2v4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P3v4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P1mv4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P2mv4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P3mv4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P4mv4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Premium v4/Windows,App Service,P5mv4,1,730,tier=Premium v4; os=Windows
+koreacentral,AppSvc/Isolated/Linux,App Service,I1,1,730,tier=Isolated; os=Linux
+koreacentral,AppSvc/Isolated/Linux,App Service,I2,1,730,tier=Isolated; os=Linux
+koreacentral,AppSvc/Isolated/Linux,App Service,I3,1,730,tier=Isolated; os=Linux
+koreacentral,AppSvc/Isolated/Windows,App Service,I1,1,730,tier=Isolated; os=Windows
+koreacentral,AppSvc/Isolated/Windows,App Service,I2,1,730,tier=Isolated; os=Windows
+koreacentral,AppSvc/Isolated/Windows,App Service,I3,1,730,tier=Isolated; os=Windows
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I1 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I2 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I3 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I4 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I5 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I6 v2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I1mv2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I2mv2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I3mv2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I4mv2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Linux,App Service,I5mv2,1,730,tier=Isolated v2; os=Linux
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I1 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I2 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I3 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I4 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I5 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I6 v2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I1mv2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I2mv2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I3mv2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I4mv2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v2/Windows,App Service,I5mv2,1,730,tier=Isolated v2; os=Windows
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I1v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I2v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I3v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I4v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I5v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I6v4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I1mv4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I2mv4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I3mv4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I4mv4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Linux,App Service,I5mv4,1,730,tier=Isolated v4; os=Linux
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I1v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I2v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I3v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I4v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I5v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I6v4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I1mv4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I2mv4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I3mv4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I4mv4,1,730,tier=Isolated v4; os=Windows
+koreacentral,AppSvc/Isolated v4/Windows,App Service,I5mv4,1,730,tier=Isolated v4; os=Windows
+koreacentral,Application Gateway/base,Application Gateway,Standard_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,WAF_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,Basic_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,Standard_Small,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,Standard_Medium,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,Standard_Large,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,WAF_Medium,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/sku,Application Gateway,WAF_Large,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/metric,Application Gateway,Standard_v2,1,730,"metric=용량 단위 (CU, 시간당)"
+koreacentral,Azure Bastion/base,Azure Bastion,,1,730,tier=Basic; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/tier,Azure Bastion,,1,730,tier=Standard; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/tier,Azure Bastion,,1,730,tier=Premium; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/metric,Azure Bastion,,1,500,tier=Basic; metric=데이터 전송 아웃(GB)
+koreacentral,Redis/Basic,Azure Cache for Redis,C0,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C1,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C2,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C3,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C4,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C5,1,730,tier=Basic
+koreacentral,Redis/Basic,Azure Cache for Redis,C6,1,730,tier=Basic
+koreacentral,Redis/Standard,Azure Cache for Redis,C0,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C1,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C2,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C3,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C4,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C5,1,730,tier=Standard
+koreacentral,Redis/Standard,Azure Cache for Redis,C6,1,730,tier=Standard
+koreacentral,Redis/Premium,Azure Cache for Redis,P1,1,730,tier=Premium
+koreacentral,Redis/Premium,Azure Cache for Redis,P2,1,730,tier=Premium
+koreacentral,Redis/Premium,Azure Cache for Redis,P3,1,730,tier=Premium
+koreacentral,Redis/Premium,Azure Cache for Redis,P4,1,730,tier=Premium
+koreacentral,Redis/Premium,Azure Cache for Redis,P5,1,730,tier=Premium
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E1,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E5,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E10,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E20,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E50,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E100,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E200,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise,Azure Cache for Redis,E400,1,730,tier=Enterprise
+koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F300,1,730,tier=Enterprise Flash
+koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F700,1,730,tier=Enterprise Flash
+koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F1500,1,730,tier=Enterprise Flash
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B0,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B1,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B3,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B5,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B10,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B20,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B50,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B100,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B150,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B250,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B350,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B500,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B700,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B1000,1,730,tier=AMR Balanced
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M10,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M20,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M50,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M150,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M250,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M350,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M500,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M700,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M1000,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M1500,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M2000,1,730,tier=AMR Memory Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X3,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X5,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X10,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X20,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X50,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X100,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X150,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X250,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X350,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X500,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X700,1,730,tier=AMR Compute Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A250,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A500,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A700,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A1000,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A1500,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A2000,1,730,tier=AMR Flash Optimized
+koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A4500,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Container Registry/base,Azure Container Registry,,1,30,tier=Basic; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/tier,Azure Container Registry,,1,30,tier=Standard; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/tier,Azure Container Registry,,1,30,tier=Premium; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/metric,Azure Container Registry,,1,100,tier=Basic; metric=추가 저장소 (GB/월)
+koreacentral,Cosmos/수동,Azure Cosmos DB,,1,730,"model=Provisioned (수동, RU/s); rus=400"
+koreacentral,Cosmos/Autoscale,Azure Cosmos DB,,1,730,model=Autoscale (RU/s); rus=1000
+koreacentral,Cosmos/Serverless,Azure Cosmos DB,,1,1,model=Serverless (백만 RU)
+koreacentral,Cosmos/저장소,Azure Cosmos DB,,1,100,"model=저장소 (Data Stored, GB)"
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B1MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B2S
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B2MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B4MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B8MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B12MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B16MS
+koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B20MS
+koreacentral,MySQL/General Purpose,Azure Database for MySQL,,1,730,tier=General Purpose; series=Ddsv5; vCores=2
+koreacentral,MySQL/General Purpose,Azure Database for MySQL,,1,730,tier=General Purpose; series=Ddsv6; vCores=2
+koreacentral,MySQL/General Purpose,Azure Database for MySQL,,1,730,tier=General Purpose; series=Dadsv5 (AMD); vCores=2
+koreacentral,MySQL/General Purpose,Azure Database for MySQL,,1,730,tier=General Purpose; series=Dadsv6 (AMD); vCores=2
+koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Edsv5; vCores=2
+koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Edsv6; vCores=2
+koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Eadsv5 (AMD); vCores=2
+koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Eadsv6 (AMD); vCores=2
+koreacentral,Azure DevOps/base,Azure DevOps,,1,1,plan=Basic Plan 사용자 (월)
+koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Advanced 사용자 (월)
+koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Test Plans 사용자 (월)
+koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Artifacts 저장소 (GB/월)
+koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=MS-hosted 병렬 작업 (월)
+koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Self-hosted 병렬 작업 (월)
+koreacentral,Azure DNS/base,Azure DNS,,2,1,zoneType=Public; metric=호스팅 영역 (월)
+koreacentral,Azure DNS/zoneType,Azure DNS,,2,1,zoneType=Private; metric=호스팅 영역 (월)
+koreacentral,Azure DNS/metric,Azure DNS,,1,10,zoneType=Public; metric=DNS 쿼리 (백만)
+koreacentral,Azure Files/base,Azure Files,,1,100,fileTier=Premium; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Transaction Optimized; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/redundancy,Azure Files,,1,100,fileTier=Premium; redundancy=ZRS; metric=Data Stored
+koreacentral,Azure Files/metric,Azure Files,,1,100,fileTier=Premium; redundancy=LRS; metric=Snapshots
+koreacentral,Azure Files Provisioned v2/base,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=LRS
+koreacentral,Azure Files Provisioned v2/media,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=LRS
+koreacentral,Azure Files Provisioned v2/redundancy,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=ZRS
+koreacentral,Azure Firewall/base,Azure Firewall,,1,730,"tier=Standard; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/tier,Azure Firewall,,1,730,"tier=Premium; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/tier,Azure Firewall,,1,730,"tier=Basic; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/metric,Azure Firewall,,1,1000,"tier=Standard; metric=Data Processed (데이터 처리, GB)"
+koreacentral,Azure Firewall/metric,Azure Firewall,,1,730,"tier=Standard; metric=Capacity Unit (용량 단위, 시간당)"
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Base Fees
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Data Transfer Out
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Data Transfer In
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Requests
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Custom Domain
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Rule
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Policy
+koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Default Ruleset
+koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Base Fees
+koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Data Transfer Out
+koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Data Transfer In
+koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Requests
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 2; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 3; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 4; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 5; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 6; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 7; item=Standard Data Transfer Out
+koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 8; item=Standard Data Transfer Out
+koreacentral,AKS,Azure Kubernetes Service,,1,730,"aksTier=Standard (표준); slaOption=No SLA (free, non-production)"
+koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA
+koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA and Long Term Support
+koreacentral,AKS,Azure Kubernetes Service,,1,730,"aksTier=Automatic; slaOption=No SLA (free, non-production)"
+koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Automatic; slaOption=SLA
+koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Automatic; slaOption=SLA and Long Term Support
+koreacentral,Azure OpenAI/base,Azure OpenAI,,1,10,model=GPT-5; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5 mini; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5.1; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5.2; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1 mini; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1 nano; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4o (1120); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4o mini (0718); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o1 (1217); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o3 (0416); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o3 mini (0131); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o4-mini (0416); metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=text-embedding-3-small; metric=입력 토큰
+koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=text-embedding-3-large; metric=입력 토큰
+koreacentral,Azure OpenAI/metric,Azure OpenAI,,1,10,model=GPT-5; metric=출력 토큰
+koreacentral,Azure OpenAI/metric,Azure OpenAI,,1,10,model=GPT-5; metric=캐시 입력 토큰
+koreacentral,Azure Private Link/base,Azure Private Link,,3,730,metric=프라이빗 엔드포인트 (시간당)
+koreacentral,Azure Private Link/metric,Azure Private Link,,1,1000,metric=데이터 처리 - Inbound (GB)
+koreacentral,Azure Private Link/metric,Azure Private Link,,1,1000,metric=데이터 처리 - Outbound (GB)
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Serverless; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Serverless; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Serverless; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Serverless; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Serverless; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=Hyperscale; compute=Serverless; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
+koreacentral,SQLDB/AHB,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=Azure Hybrid Benefit; storageGB=32
+koreacentral,SQLDB/DTU/Basic,Azure SQL Database,,1,730,model=DTU; tier=Basic; dtuSize=B
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S0
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S1
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S2
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S3
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S4
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S6
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S7
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S9
+koreacentral,SQLDB/DTU/Standard,Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S12
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P1
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P2
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P4
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P6
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P11
+koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P15
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=50
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=100
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=200
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=300
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=400
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=800
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1200
+koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1600
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=50
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=100
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=200
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=300
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=400
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=800
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1200
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1600
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2000
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2500
+koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=3000
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=125
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=250
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=500
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1000
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1500
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2000
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2500
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3000
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3500
+koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=4000
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Gen5; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Gen5; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Premium-series; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Premium-series; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Premium-series MO; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Premium-series MO; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Gen5; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Gen5; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series MO; vCores=8; redundancy=로컬 중복; license=라이선스 포함
+koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series MO; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
+koreacentral,Azure Synapse Analytics/base,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Basic
+koreacentral,Azure Synapse Analytics/component,Azure Synapse Analytics,,1,2,component=Serverless SQL Pool (Data Processed); dwuLevel=DW100c; flowType=Basic
+koreacentral,Azure Synapse Analytics/component,Azure Synapse Analytics,,1,730,component=Data Flow (vCore-Hour); dwuLevel=DW100c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW200c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW300c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW400c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW500c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1500c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2500c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW3000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW5000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW6000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW7500c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW10000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW15000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW30000c; flowType=Basic
+koreacentral,Azure Synapse Analytics/flowType,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Standard
+koreacentral,Azure Synapse Analytics/flowType,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Compute Optimized
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure VM
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=SQL Server in Azure VM
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=SAP HANA on Azure VM
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=SAP ASE on Azure VM
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure Files
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure Files Vaulted
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure Blob
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=ADLS Gen2 Vaulted
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Cross region for ADLS and Blobs
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=PostgreSQL
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Cosmos DB
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure Kubernetes
+koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=On Premises Server
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Standard; redundancy=LRS
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Standard; redundancy=ZRS
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Standard; redundancy=GRS
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Standard; redundancy=RA-GRS
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Archive; redundancy=LRS
+koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Archive; redundancy=GRS
+koreacentral,Bandwidth/base,Bandwidth,,1,1000,direction=Outbound (Internet Egress)
+koreacentral,Bandwidth/direction,Bandwidth,,1,1000,direction=Inter-region
+koreacentral,Bandwidth/direction,Bandwidth,,1,1000,direction=Intra-region
+koreacentral,Blob Storage/base,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Cold; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Archive; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Premium; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=ZRS; metric=Data Stored
+koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=GRS; metric=Data Stored
+koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=GZRS; metric=Data Stored
+koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Read Operations
+koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Write Operations
+koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=List and Create Container Operations
+koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=All Other Operations
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Active Usage
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Idle Usage
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Active Usage
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Idle Usage
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Requests
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC T4 v3 GPU Usage
+koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC A100 v4 GPU Usage
+koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Plan Management
+koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated vCPU Usage
+koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Memory Usage
+koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated GPU Usage
+koreacentral,ACA/Dynamic Sessions,Container Apps,,1,730,plan=Dynamic Sessions; item=Dynamic Sessions
+koreacentral,ACA/Hybrid,Container Apps,,1,730,plan=Hybrid; item=Hybrid vCPU Usage
+koreacentral,Data Lake Storage Gen2/base,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/namespace,Data Lake Storage Gen2,,1,1000,namespace=단일 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cold; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Archive; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=ZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Read Operations
+koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Write Operations
+koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Read Operations
+koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Write Operations
+koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Delete Operations
+koreacentral,Disk/프리미엄 SSD,Disk,P1,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P2,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P3,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P4,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P6,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P10,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P15,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P20,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P30,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P40,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P50,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P60,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P70,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD,Disk,P80,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E1,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E2,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E3,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E4,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E6,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E10,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E15,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E20,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E30,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E40,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E50,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E60,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E70,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 SSD,Disk,E80,1,730,diskSubType=표준 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S4,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S6,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S10,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S15,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S20,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S30,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S40,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S50,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S60,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S70,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk/표준 HDD,Disk,S80,1,730,diskSubType=표준 HDD; redundancy=LRS; snapshotGB=0
+koreacentral,Disk옵션/표준 SSD ZRS,Disk,E4,1,730,diskSubType=표준 SSD; redundancy=ZRS; snapshotGB=0
+koreacentral,Disk/프리미엄 SSD v2,Disk,,1,730,diskSubType=프리미엄 SSD v2; diskSizeGiB=1024; provisionedIOPS=5000; provisionedMBps=200
+koreacentral,Disk/Ultra Disk,Disk,,1,730,diskSubType=Ultra Disk; diskSizeGiB=1024; provisionedIOPS=2000; provisionedMBps=200
+koreacentral,EH/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Throughput Unit
+koreacentral,EH/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Ingress Events
+koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Throughput Unit
+koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Ingress Events
+koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Capture
+koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Kafka Endpoint
+koreacentral,EH/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Processing Unit
+koreacentral,EH/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Extended Retention
+koreacentral,EH/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Capacity Unit
+koreacentral,EH/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Extended Retention
+koreacentral,Load Balancer/base,Load Balancer,,1,730,"tier=Standard; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Gateway; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Global; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Basic; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/metric,Load Balancer,,1,730,tier=Standard; metric=초과 규칙 (시간당)
+koreacentral,Load Balancer/metric,Load Balancer,,1,500,tier=Standard; metric=데이터 처리 (GB)
+koreacentral,Log Analytics/base,Log Analytics,,1,100,metric=Data Ingestion
+koreacentral,Log Analytics/metric,Log Analytics,,1,100,metric=Data Retention
+koreacentral,Log Analytics/metric,Log Analytics,,1,100,metric=Data Analyzed
+koreacentral,Microsoft Sentinel/base,Microsoft Sentinel,,1,100,model=Pay-as-you-go
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=Basic Logs
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=50 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=100 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=200 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=300 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=400 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=500 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=1000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=2000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=5000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=10000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=25000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=50000 GB Commitment Tier
+koreacentral,NAT Gateway/base,NAT Gateway,,1,730,metric=Resource Hour
+koreacentral,NAT Gateway/metric,NAT Gateway,,1,1000,metric=Data Processed
+koreacentral,Page Blob/base,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Data Stored
+koreacentral,Page Blob/performance,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P10; metric=Data Stored
+koreacentral,Page Blob/redundancy,Page Blob,,1,730,performance=Standard; redundancy=GRS; diskSize=P10; metric=Data Stored
+koreacentral,Page Blob/redundancy,Page Blob,,1,730,performance=Standard; redundancy=RA-GRS; diskSize=P10; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P15; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P20; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P30; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P40; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P50; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P60; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P70; metric=Data Stored
+koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P80; metric=Data Stored
+koreacentral,Page Blob/metric,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Read Operations
+koreacentral,Page Blob/metric,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Write Operations
+koreacentral,Public IP/base,Public IP,Standard,1,730,ipType=Static
+koreacentral,Public IP/sku,Public IP,Global,1,730,ipType=Static
+koreacentral,Public IP/sku,Public IP,Basic,1,730,ipType=Static
+koreacentral,Public IP/ipType,Public IP,Standard,1,730,ipType=Dynamic
+koreacentral,SB/Basic,Service Bus,,1,730,tier=Basic; item=Basic Messaging Operations
+koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Base Unit
+koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Messaging Operations
+koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Brokered Connection
+koreacentral,SB/Premium,Service Bus,,1,730,tier=Premium; item=Premium Messaging Unit
+koreacentral,Storage Account/base,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Data Stored
+koreacentral,Storage Account/storageType,Storage Account,,1,100,storageType=Queue; redundancy=LRS; metric=Data Stored
+koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=ZRS; metric=Data Stored
+koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=GRS; metric=Data Stored
+koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=GZRS; metric=Data Stored
+koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Write Operations
+koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Read Operations
+koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=List Operations
+koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Delete Operations
+koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Scan Operations
+koreacentral,VM/B-series,Virtual Machine,B1ls,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B1s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B1ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B2s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B2ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B4ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B8ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B12ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B16ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/B-series,Virtual Machine,B20ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,VM/Bs-series v2,Virtual Machine,B2ts_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B2ls_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B2s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B4ls_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B4s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B8ls_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B8s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B16ls_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B16s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B32ls_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bs-series v2,Virtual Machine,B32s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bs-series v2
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B2ats_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B2als_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B2as_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B4als_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B4as_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B8als_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B8as_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B16als_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B16as_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B32als_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/Bas-series v2 (AMD),Virtual Machine,B32as_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Bas-series v2 (AMD)
+koreacentral,VM/D-series v3,Virtual Machine,D2s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D4s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D8s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D16s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D32s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D48s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v3,Virtual Machine,D64s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v3
+koreacentral,VM/D-series v4,Virtual Machine,D2s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D4s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D8s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D16s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D32s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D48s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v4,Virtual Machine,D64s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v4
+koreacentral,VM/D-series v5,Virtual Machine,D2s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D4s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D8s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D16s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D32s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D48s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D64s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v5,Virtual Machine,D96s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,VM/D-series v6,Virtual Machine,D2s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D4s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D8s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D16s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D32s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D48s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D64s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D96s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D128s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/D-series v6,Virtual Machine,D192s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D2ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D4ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D8ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D16ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D32ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D48ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D64ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D96ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D128ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Dd-series v6,Virtual Machine,D192ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v6
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D2as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D4as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D8as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D16as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D32as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D48as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D64as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v5 (AMD),Virtual Machine,D96as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v5 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D2as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D4as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D8as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D16as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D32as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D48as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D64as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/Das-series v6 (AMD),Virtual Machine,D96as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v6 (AMD)
+koreacentral,VM/D-series v7,Virtual Machine,D2s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D4s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D8s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D16s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D32s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D48s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D64s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D96s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D128s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/D-series v7,Virtual Machine,D192s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D2ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D4ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D8ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D16ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D32ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D48ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D64ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D96ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D128ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Dd-series v7,Virtual Machine,D192ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dd-series v7
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D2as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D4as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D8as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D16as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D32as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D48as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D64as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D96as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D128as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Das-series v7 (AMD),Virtual Machine,D160as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Das-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D2ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D4ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D8ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D16ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D32ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D48ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D64ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D96ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D128ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/Dad-series v7 (AMD),Virtual Machine,D160ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Dad-series v7 (AMD)
+koreacentral,VM/E-series v3,Virtual Machine,E2s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E4s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E8s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E16s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E20s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E32s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E48s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v3,Virtual Machine,E64s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v3
+koreacentral,VM/E-series v4,Virtual Machine,E2s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E4s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E8s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E16s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E20s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E32s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E48s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v4,Virtual Machine,E64s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v4
+koreacentral,VM/E-series v5,Virtual Machine,E2s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E4s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E8s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E16s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E20s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E32s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E48s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E64s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v5,Virtual Machine,E96s_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v5
+koreacentral,VM/E-series v6,Virtual Machine,E2s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E4s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E8s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E16s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E20s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E32s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E48s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E64s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E96s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/E-series v6,Virtual Machine,E128s_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E2ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E4ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E8ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E16ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E20ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E32ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E48ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E64ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E96ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Ed-series v6,Virtual Machine,E128ds_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v6
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E2as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E4as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E8as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E16as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E20as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E32as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E48as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E64as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v5 (AMD),Virtual Machine,E96as_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v5 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E2as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E4as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E8as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E16as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E20as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E32as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E48as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E64as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Eas-series v6 (AMD),Virtual Machine,E96as_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E2ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E4ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E8ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E16ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E20ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E32ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E48ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E64ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/Ead-series v6 (AMD),Virtual Machine,E96ads_v6,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v6 (AMD)
+koreacentral,VM/E-series v7,Virtual Machine,E2s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E4s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E8s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E16s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E20s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E32s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E48s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E64s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E96s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E128s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/E-series v7,Virtual Machine,E192s_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=E-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E2ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E4ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E8ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E16ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E20ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E32ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E48ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E64ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E96ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E128ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Ed-series v7,Virtual Machine,E192ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ed-series v7
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E2as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E4as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E8as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E16as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E32as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E48as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E64as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E96as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E128as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Eas-series v7 (AMD),Virtual Machine,E160as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Eas-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E2ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E4ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E8ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E16ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E32ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E48ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E64ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E96ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/Ead-series v7 (AMD),Virtual Machine,E128ads_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ead-series v7 (AMD)
+koreacentral,VM/F-series v2,Virtual Machine,F2s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F4s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F8s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F16s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F32s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F48s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F64s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/F-series v2,Virtual Machine,F72s_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=F-series v2
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F1as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F2as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F4as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F8as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F16as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F32as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F48as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F64as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fas-series v7 (AMD),Virtual Machine,F80as_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fas-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F1als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F2als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F4als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F8als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F16als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F32als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F48als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F64als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/Fals-series v7 (AMD),Virtual Machine,F80als_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Fals-series v7 (AMD)
+koreacentral,VM/L-series v3,Virtual Machine,L8s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/L-series v3,Virtual Machine,L16s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/L-series v3,Virtual Machine,L32s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/L-series v3,Virtual Machine,L48s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/L-series v3,Virtual Machine,L64s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/L-series v3,Virtual Machine,L80s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v3
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L8as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L16as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L32as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L48as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L64as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/Las-series v3 (AMD),Virtual Machine,L80as_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v3 (AMD)
+koreacentral,VM/L-series v4,Virtual Machine,L2s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L4s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L8s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L16s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L32s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L48s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L64s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L80s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/L-series v4,Virtual Machine,L96s_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=L-series v4
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L2as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L4as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L8as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L16as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L32as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L48as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L64as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L80as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/Las-series v4 (AMD),Virtual Machine,L96as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Las-series v4 (AMD)
+koreacentral,VM/M-series,Virtual Machine,M8ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M16ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M32ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M64ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M128ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M16s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M32s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M64s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M128s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M32ms_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M64ms_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M128ms_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M208ms_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M416ms_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M64ds_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/M-series,Virtual Machine,M128ds_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=M-series
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M12s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M24s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M48s_1_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M96s_1_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M96s_2_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M176s_3_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Ms-series v3 (Medium Memory),Virtual Machine,M176s_4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Ms-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M12ds_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M24ds_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M48ds_1_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M96ds_1_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M96ds_2_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M176ds_3_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/Mds-series v3 (Medium Memory),Virtual Machine,M176ds_4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=Mds-series v3 (Medium Memory)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC4as_T4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC8as_T4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC16as_T4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC64as_T4_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC6s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC12s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NC24s_v3,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NV4as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NV8as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NV16as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/N-series (GPU),Virtual Machine,NV32as_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=N-series (GPU)
+koreacentral,VM/NC A100 v4 (GPU),Virtual Machine,NC24ads_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=NC A100 v4 (GPU)
+koreacentral,VM/NC A100 v4 (GPU),Virtual Machine,NC48ads_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=NC A100 v4 (GPU)
+koreacentral,VM/NC A100 v4 (GPU),Virtual Machine,NC96ads_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=NC A100 v4 (GPU)
+koreacentral,VM/NC H100 v5 (GPU),Virtual Machine,NC40ads_H100_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=NC H100 v5 (GPU)
+koreacentral,VM/NC H100 v5 (GPU),Virtual Machine,NC80adis_H100_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=NC H100 v5 (GPU)
+koreacentral,VM/ND A100 v4 (GPU),Virtual Machine,ND96amsr_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=ND A100 v4 (GPU)
+koreacentral,VM/ND H100 v5 (GPU),Virtual Machine,ND96isr_H100_v5,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=ND H100 v5 (GPU)
+koreacentral,VM/A-series v2,Virtual Machine,A1_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A2_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A4_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A8_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A2m_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A4m_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/A-series v2,Virtual Machine,A8m_v2,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=A-series v2
+koreacentral,VM/FX-series,Virtual Machine,FX4mds,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=FX-series
+koreacentral,VM/FX-series,Virtual Machine,FX12mds,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=FX-series
+koreacentral,VM/FX-series,Virtual Machine,FX24mds,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=FX-series
+koreacentral,VM/FX-series,Virtual Machine,FX36mds,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=FX-series
+koreacentral,VM/FX-series,Virtual Machine,FX48mds,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=FX-series
+koreacentral,VM/HB-series v4 (HPC),Virtual Machine,HB176-24rs_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HB-series v4 (HPC)
+koreacentral,VM/HB-series v4 (HPC),Virtual Machine,HB176-48rs_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HB-series v4 (HPC)
+koreacentral,VM/HB-series v4 (HPC),Virtual Machine,HB176-96rs_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HB-series v4 (HPC)
+koreacentral,VM/HB-series v4 (HPC),Virtual Machine,HB176-144rs_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HB-series v4 (HPC)
+koreacentral,VM/HB-series v4 (HPC),Virtual Machine,HB176rs_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HB-series v4 (HPC)
+koreacentral,VM/HC-series (HPC),Virtual Machine,HC44-16rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HC-series (HPC)
+koreacentral,VM/HC-series (HPC),Virtual Machine,HC44-32rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HC-series (HPC)
+koreacentral,VM/HC-series (HPC),Virtual Machine,HC44rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HC-series (HPC)
+koreacentral,VM/HX-series (HPC),Virtual Machine,HX176-24rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HX-series (HPC)
+koreacentral,VM/HX-series (HPC),Virtual Machine,HX176-48rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HX-series (HPC)
+koreacentral,VM/HX-series (HPC),Virtual Machine,HX176-96rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HX-series (HPC)
+koreacentral,VM/HX-series (HPC),Virtual Machine,HX176-144rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HX-series (HPC)
+koreacentral,VM/HX-series (HPC),Virtual Machine,HX176rs,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=HX-series (HPC)
+koreacentral,VM/A-series (Basic),Virtual Machine,A0,1,730,os=Linux; swType=(OS Only); tier=Basic; license=라이선스 포함; category=전체; series=A-series (Basic)
+koreacentral,VM/A-series (Basic),Virtual Machine,A1,1,730,os=Linux; swType=(OS Only); tier=Basic; license=라이선스 포함; category=전체; series=A-series (Basic)
+koreacentral,VM/A-series (Basic),Virtual Machine,A2,1,730,os=Linux; swType=(OS Only); tier=Basic; license=라이선스 포함; category=전체; series=A-series (Basic)
+koreacentral,VM/A-series (Basic),Virtual Machine,A3,1,730,os=Linux; swType=(OS Only); tier=Basic; license=라이선스 포함; category=전체; series=A-series (Basic)
+koreacentral,VM/A-series (Basic),Virtual Machine,A4,1,730,os=Linux; swType=(OS Only); tier=Basic; license=라이선스 포함; category=전체; series=A-series (Basic)
+koreacentral,VM옵션/Windows,Virtual Machine,D4s_v5,1,730,swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/RHEL,Virtual Machine,D4s_v5,1,730,swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Red Hat Enterprise Linux
+koreacentral,VM옵션/SUSE,Virtual Machine,D4s_v5,1,730,swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=SUSE
+koreacentral,VM옵션/Windows AHB,Virtual Machine,D4s_v5,1,730,swType=(OS Only); tier=Standard; license=Azure Hybrid Benefit; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/Spot,Virtual Machine,D4s_v5,1,730,swType=(OS Only); tier=Spot; license=라이선스 포함; category=전체; series=D-series v5; os=Linux
+koreacentral,VM옵션/SQL Ent,Virtual Machine,D4s_v5,1,730,swType=SQL Server (Enterprise); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/SQL Std,Virtual Machine,D4s_v5,1,730,swType=SQL Server (Standard); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/SQL Web,Virtual Machine,D4s_v5,1,730,swType=SQL Server (Web); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/BizTalk Ent,Virtual Machine,D4s_v5,1,730,swType=BizTalk Server (Enterprise); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,VM옵션/BizTalk Std,Virtual Machine,D4s_v5,1,730,swType=BizTalk Server (Standard); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
+koreacentral,Virtual Network/base,Virtual Network,,1,1000,direction=Global Peering - Outbound (Egress)
+koreacentral,Virtual Network/direction,Virtual Network,,1,1000,direction=Global Peering - Inbound (Ingress)
+koreacentral,VPN Gateway/base,VPN Gateway,Basic,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw1,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw2,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw3,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw4,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw5,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw1AZ,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw2AZ,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw3AZ,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw4AZ,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw5AZ,1,730,vnetTransferType=VNET 간
+koreacentral,VPN Gateway/vnetTransferType,VPN Gateway,Basic,1,730,vnetTransferType=VPN
+
+# Azure 견적 — 전 서비스/전 SKU/전 옵션 브랜치 검증용 (자동 생성)
+# 사용법: 앱에서 [CSV 불러오기]로 이 파일 업로드 → 전 행 가격 조회 → [내보내기]로 결과 저장 후 검토
+# 정렬: ServiceCategory 알파벳순. 총 972행(무효 옵션 조합 20건 정리). Region=koreacentral 고정(필요시 변경).
+# 참고: unit price 검증이 목적이므로 Qty/Hours 는 대표값(가격 정확도는 Unit Price 열로 대조).

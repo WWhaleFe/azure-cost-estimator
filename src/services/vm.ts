@@ -1,4 +1,5 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, showToast, normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, showToast, normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv, probeRegions, regionHint } from '../core/kernel.js';
+import { REGION_LABEL } from '../core/config.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/vm.js — Virtual Machine
@@ -138,10 +139,12 @@ REG['_vmSwLicensePick'] = function(items: ApiItem[], vcpu: number) {
     if ((it.type||'').toLowerCase() !== 'consumption') continue;
     if (!(it.unitOfMeasure||'').toLowerCase().includes('hour')) continue;
     const sk = String(it.skuName||'') + ' ' + String(it.meterName||'');
+    const mPlus  = sk.match(/([0-9]+)[ ]*\+[ ]*vcpu/i);      // 'N+ vCPU' = N 이상 정액(상한 없음) — RHEL/SUSE
     const mRange = sk.match(/([0-9]+)[ ]*-[ ]*([0-9]+)[ ]*vcpu/i);
     const mOne   = sk.match(/([0-9]+)[ ]*vcpu/i);
     let lo=0, hi=0;
-    if (mRange) { lo=Number(mRange[1]); hi=Number(mRange[2]); }
+    if (mPlus) { lo=Number(mPlus[1]); hi=Infinity; }
+    else if (mRange) { lo=Number(mRange[1]); hi=Number(mRange[2]); }
     else if (mOne) { lo=Number(mOne[1]); hi=Number(mOne[1]); }
     else continue;
     const price = Number(it.unitPrice);
@@ -206,8 +209,16 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
     const isLinux=(it: ApiItem)=>!isWin(it)&&!isRHEL(it)&&!isSUSE(it);
     const isSpot=(it: ApiItem)=>{ const s=(it.skuName||'').toLowerCase(),m=(it.meterName||'').toLowerCase(),p=(it.productName||'').toLowerCase(); return s.includes('spot')||m.includes('spot')||s.includes('low priority')||m.includes('low priority')||p.includes('low priority'); };
     const isDev =(it: ApiItem)=>(it.type||'').toLowerCase()==='devtestconsumption';
-    const skuM =(it: ApiItem)=>{ const norm=(x: any)=>String(x||'').toLowerCase().replace(/[_ ]/g,''); const t1=row.skuName.toLowerCase(),t2=t1.replace(/_/g,' '),t3=norm(row.skuName); const s=(it.skuName||'').toLowerCase(),m=(it.meterName||'').toLowerCase(); return s===t1||s===t2||m===t1||m===t2||norm(s)===t3||norm(m)===t3; };
+    // skuName/meterName 정규화 매칭. 신형 시리즈(Dsv7·Msv3 등)는 값이 'Standard_D2s_v7'처럼
+    // 접두사(Standard_/Basic_)와 Spot/Low Priority 토큰을 포함하므로 이를 벗겨내고 비교한다.
+    // (구형은 'D4s v5'처럼 접두사 없음 → 양쪽 스타일 모두 지원)
+    const norm=(x: any)=>String(x||'').toLowerCase()
+      .replace(/\b(spot|low priority)\b/g,'')
+      .replace(/^\s*(standard|basic)[_ ]/,'')
+      .replace(/[_ ]/g,'');
+    const skuM =(it: ApiItem)=>{ const t=norm(row.skuName); if(!t) return false; return norm(it.skuName)===t||norm(it.meterName)===t; };
     const osC=row.options.os||'Linux', tierC=row.options.tier||'Standard';
+    const isRhelSuse = osC.includes('Red Hat') || osC==='SUSE';
     const licC=row.options.license||'라이선스 포함', isAHB=licC==='Azure Hybrid Benefit', isPaid=osC!=='Linux';
     const base=(it: ApiItem)=>{ if((it.type||'').toLowerCase()!=='consumption') return false; if(it.armSkuName!==armSku||!skuM(it)||isDev(it)) return false; if(tierC==='Spot'?!isSpot(it):isSpot(it)) return false; if(!(it.unitOfMeasure||'').toLowerCase().includes('hour')) return false; if(Number(it.tierMinimumUnits||0)!==0) return false; return true; };
     const low=(arr: ApiItem[])=>{ arr.sort((a,b)=>Number(a.unitPrice||0)-Number(b.unitPrice||0)); return arr[0]||null; };
@@ -216,6 +227,9 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
     const rP=low(cItems.filter(it=>base(it)&&isRHEL(it)));
     const sP=low(cItems.filter(it=>base(it)&&isSUSE(it)));
     let osP=osC==='Linux'?lP:osC==='Windows'?wP:osC.includes('Red Hat')?rP:sP;
+    // RHEL/SUSE 는 Retail 피드에 전용 컴퓨팅 미터가 없음(별도 라이선스 미터로 과금).
+    // → base 컴퓨팅은 Linux 요금(lP)을 쓰고, 라이선스는 아래에서 vCPU 밴드로 가산.
+    if(isRhelSuse && !osP) osP = lP;
     let licH=0;
     if(isPaid&&osP&&lP){ const d=Number(osP.unitPrice)-Number(lP.unitPrice); licH=d>0?d:0; }
     let payg=!isPaid?lP:isAHB?(lP?{...lP,_licenseMode:'AHB'}:null):(osP?{...osP,_licenseMode:'License-included'}:null);
@@ -244,16 +258,54 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
       swHourly=Number(sw.hourly)||0; swMatched=swHourly>0;
       if(sw.band) swBandLabel=String(sw.band.skuName||sw.band.meterName||'');
     }
-    const addSw=(it: ApiItem | null)=>{ if(!it||swHourly<=0) return it; const b=Number(it.unitPrice)+swHourly; return {...it,unitPrice:b,retailPrice:b,_swProduct:swProduct,_swHourly:swHourly,_computeHourly:Number(it.unitPrice)}; };
+    // OS 라이선스(RHEL/SUSE): vCPU 밴드 라이선스를 base(Linux 컴퓨팅)에 가산. AHB(BYOS)면 미가산.
+    let osLicHourly=0, osLicMatched=false, osLicBand='';
+    if(isRhelSuse && !isAHB){
+      const osProd = osC.includes('Red Hat') ? 'Red Hat Enterprise Linux' : 'SUSE Linux Enterprise Server Standard';
+      const ol=await REG['_vmSwLicenseHourly'](osProd, vcpu, cur);
+      osLicHourly=Number(ol.hourly)||0; osLicMatched=osLicHourly>0;
+      if(ol.band) osLicBand=String(ol.band.skuName||ol.band.meterName||'');
+    }
+    const extraHourly = swHourly + osLicHourly;
+    const addSw=(it: ApiItem | null)=>{ if(!it||extraHourly<=0) return it; const b=Number(it.unitPrice)+extraHourly; return {...it,unitPrice:b,retailPrice:b,_swProduct:swProduct,_swHourly:swHourly,_osLicHourly:osLicHourly,_computeHourly:Number(it.unitPrice)}; };
 
     row.paygItem=addSw(payg); row.sp1Item=addSw(sp1); row.sp3Item=addSw(sp3); row.ri1Item=addSw(ri1); row.ri3Item=addSw(ri3);
     if(row.paygItem){
       const tags=['PAYG'];if(row.sp1Item)tags.push('SP1Y');if(row.sp3Item)tags.push('SP3Y');if(row.ri1Item)tags.push('RI1Y');if(row.ri3Item)tags.push('RI3Y');
       let swMsg='';
       if(swProduct) swMsg = swMatched ? ` +SW(${swType}${swBandLabel?' / '+swBandLabel:''}):${swHourly.toFixed(4)}/h` : ` +SW(${swType}):미매칭`;
-      setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}`);
+      let osMsg='';
+      if(isRhelSuse && !isAHB) osMsg = osLicMatched ? ` +${osC.includes('Red Hat')?'RHEL':'SUSE'}(${osLicBand}):${osLicHourly.toFixed(4)}/h` : ` +${osC.includes('Red Hat')?'RHEL':'SUSE'}:미매칭`;
+      setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}${osMsg}`);
     }
-    else setStatus('error',`${row.skuName}: 매칭 없음 (${cItems.length}건)`);
+    else {
+      // 매칭 실패 → 이 SKU가 다른 리전엔 있는지 확인해 "리전 미제공" 여부를 구분해 안내
+      await REG['_vmReportUnavailable'](row, armSku, cItems.length, cur);
+    }
   } catch(err: any){ row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; setStatus('error',`API 실패: ${err.message.slice(0,100)}`); console.error('VM:',err); }
   updatePriceCells(row); updateTotalsRow();
+};
+
+// 특정 armSkuName 이 Consumption 시간당 가격을 제공하는 리전 목록(공용 probeRegions 사용)
+REG['_vmSkuRegions'] = async function(armSku: string, cur: string): Promise<string[]> {
+  return probeRegions({ serviceName:'Virtual Machines', armSkuName:armSku }, cur, (it: ApiItem)=>
+    String(it.unitOfMeasure||'').toLowerCase().includes('hour') && Number(it.tierMinimumUnits||0) === 0);
+};
+
+// 매칭 실패 상태 메시지: 리전 미제공이면 지원 리전을 함께 안내
+REG['_vmReportUnavailable'] = async function(row: Row, armSku: string, nFetched: number, cur: string) {
+  const here = String(row.region||'');
+  const hereLabel = REGION_LABEL[here] || here;
+  const regions = await REG['_vmSkuRegions'](armSku, cur);
+  const hint = regionHint(regions, here, (r: string)=> REGION_LABEL[r] || r);
+  if (hint.unavailable) {
+    const msg = `${row.skuName}: ${hint.text}`;
+    setStatus('error', msg);
+    if (typeof showToast === 'function') showToast(msg, 'error');
+  } else if (hint.known) {
+    // 리전엔 존재하나 현재 옵션(OS/계층 등) 조합으로는 못 찾음
+    setStatus('error', `${row.skuName}: 매칭 없음 — '${hereLabel}'에 존재하나 현재 옵션 조합과 불일치 (${nFetched}건)`);
+  } else {
+    setStatus('error', `${row.skuName}: 어느 리전에서도 조회되지 않음(SKU명 확인 필요) (${nFetched}건)`);
+  }
 };

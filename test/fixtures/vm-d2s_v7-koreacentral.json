@@ -1,0 +1,10 @@
+{
+  "_note": "실제 Azure Retail Prices API(koreacentral, Standard_D2s_v7) 녹화. 신형 시리즈는 skuName/meterName 이 'Standard_' 접두사를 포함 → skuM 정규화 매칭 회귀 방지용.",
+  "consumption": [
+    { "armSkuName": "Standard_D2s_v7", "skuName": "Standard_D2s_v7 Spot", "meterName": "Standard_D2s_v7 Spot", "productName": "Virtual Machines Dsv7-series Linux", "armRegionName": "koreacentral", "unitOfMeasure": "1 Hour", "type": "Consumption", "tierMinimumUnits": 0, "unitPrice": 46.2252, "retailPrice": 46.2252, "currencyCode": "KRW", "savingsPlan": [] },
+    { "armSkuName": "Standard_D2s_v7", "skuName": "Standard_D2s_v7", "meterName": "Standard_D2s_v7", "productName": "Virtual Machines Dsv7-series Linux", "armRegionName": "koreacentral", "unitOfMeasure": "1 Hour", "type": "Consumption", "tierMinimumUnits": 0, "unitPrice": 250.1398, "retailPrice": 250.1398, "currencyCode": "KRW", "savingsPlan": [ { "term": "1 Year", "retailPrice": 180.5, "unitPrice": 180.5 }, { "term": "3 Years", "retailPrice": 120.3, "unitPrice": 120.3 } ] },
+    { "armSkuName": "Standard_D2s_v7", "skuName": "Standard_D2s_v7 Spot", "meterName": "Standard_D2s_v7 Spot", "productName": "Virtual Machines Dsv7-series Windows", "armRegionName": "koreacentral", "unitOfMeasure": "1 Hour", "type": "Consumption", "tierMinimumUnits": 0, "unitPrice": 72.3165, "retailPrice": 72.3165, "currencyCode": "KRW", "savingsPlan": [] },
+    { "armSkuName": "Standard_D2s_v7", "skuName": "Standard_D2s_v7", "meterName": "Standard_D2s_v7", "productName": "Virtual Machines Dsv7-series Windows", "armRegionName": "koreacentral", "unitOfMeasure": "1 Hour", "type": "Consumption", "tierMinimumUnits": 0, "unitPrice": 391.323, "retailPrice": 391.323, "currencyCode": "KRW", "savingsPlan": [] }
+  ],
+  "reservation": []
+}

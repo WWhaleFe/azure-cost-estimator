@@ -12,6 +12,7 @@ export { apiFetch, clearCacheForCurrency } from './network.js';
 export {
   normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv,
 } from './resolver-helpers.js';
+export { probeRegions, regionHint } from './region-availability.js';
 export {
   setStatus, updatePriceCells, updateTotalsRow, showToast,
 } from './ui-hooks.js';
