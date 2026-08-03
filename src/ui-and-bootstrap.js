@@ -1,6 +1,6 @@
 // ESM: 코어에서 필요한 심볼 import. XLSX 는 index.html 의 CDN <script> 전역 그대로 사용.
 import { REG, SERVICE_CATEGORIES } from './core/registry.js';
-import { REGION_LABEL } from './core/config.js';
+import { REGION_LABEL, REGION_GROUPS } from './core/config.js';
 import { clearCacheForCurrency } from './core/network.js';
 import { buildSkuAndDetail, tryResolveItem } from './core/resolver-engine.js';
 import { registerUIHooks } from './core/ui-hooks.js';
@@ -42,6 +42,20 @@ const $apiStatus=document.getElementById('apiStatus');
 function fmtMoney(n){if(n===null||n===undefined||isNaN(n))return'-';return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtUnit(n){if(n===null||n===undefined||isNaN(n))return'-';return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function escapeHtml(s){if(s===null||s===undefined)return'';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
+
+// 리전 <select> 옵션을 지역(대륙)별 <optgroup>으로 렌더 (선택 코드 표시)
+function regionOptionsHtml(selected){
+  return REGION_GROUPS.map(g=>{
+    const opts=Object.entries(g.regions)
+      .map(([code,lbl])=>`<option value="${escapeHtml(code)}" ${selected===code?'selected':''}>${escapeHtml(lbl)}</option>`).join('');
+    return `<optgroup label="${escapeHtml(g.label)}">${opts}</optgroup>`;
+  }).join('');
+}
+// 상단 '기본 Region' 셀렉트를 그룹 옵션으로 채운다(정적 HTML 대체, koreacentral 기본 선택)
+(function initDefaultRegionSelect(){
+  const el=document.getElementById('defaultRegion');
+  if(el) el.innerHTML=regionOptionsHtml(el.value||'koreacentral');
+})();
 
 function calcGroup(item,qty,usage){
   if(!item)return null;
@@ -99,9 +113,7 @@ function render(){
     const catOpts = cats.map(c=>`<option value="${escapeHtml(c)}" ${row.serviceCategory===c?'selected':''}>${escapeHtml(c)}</option>`).join('');
     const catCell = `<td><select class="cell-input cell-select" data-act="cat-select" data-id="${row.id}"><option value="">선택...</option>${catOpts}</select></td>`;
 
-    const regionOpts = Object.entries(REGION_LABEL)
-      .map(([code,lbl])=>`<option value="${code}" ${row.region===code?'selected':''}>${escapeHtml(lbl)}</option>`).join('');
-    const regionCell = `<td><select class="cell-input cell-select" data-act="region-select" data-id="${row.id}">${regionOpts}</select></td>`;
+    const regionCell = `<td><select class="cell-input cell-select" data-act="region-select" data-id="${row.id}">${regionOptionsHtml(row.region)}</select></td>`;
 
     const skuCellDisabled = !row.serviceCategory ? 'disabled style="background:#f3f2f1;color:#a19f9d;cursor:not-allowed;"' : '';
     const skuPlaceholder = row.serviceCategory ? '클릭하여 옵션 선택...' : '';

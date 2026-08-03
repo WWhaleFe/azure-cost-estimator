@@ -24,55 +24,63 @@ export const CORS_PROXY_DOMAINS = [
   'prices.azure.com','corsproxy.io','api.allorigins.win','api.codetabs.com','cors.x2u.in',
 ];
 
-// 지원 리전 목록 (추가/제거 시 이 파일만 수정). 지역별 그룹 순서로 정렬.
-export const REGION_LABEL: Record<string, string> = {
-  // 아시아 태평양
-  koreacentral:      'Korea Central',
-  koreasouth:        'Korea South',
-  japaneast:         'Japan East',
-  japanwest:         'Japan West',
-  southeastasia:     'Southeast Asia (Singapore)',
-  eastasia:          'East Asia (Hong Kong)',
-  australiaeast:     'Australia East',
-  australiasoutheast:'Australia Southeast',
-  centralindia:      'Central India',
-  southindia:        'South India',
-  westindia:         'West India',
-  indonesiacentral:  'Indonesia Central',
-  malaysiawest:      'Malaysia West',
-  newzealandnorth:   'New Zealand North',
-  // 미국
-  eastus:            'East US',
-  eastus2:           'East US 2',
-  centralus:         'Central US',
-  northcentralus:    'North Central US',
-  southcentralus:    'South Central US',
-  westus:            'West US',
-  westus2:           'West US 2',
-  westus3:           'West US 3',
-  westcentralus:     'West Central US',
-  mexicocentral:     'Mexico Central',
-  // 캐나다 / 남미
-  canadacentral:     'Canada Central',
-  canadaeast:        'Canada East',
-  brazilsouth:       'Brazil South',
-  // 유럽
-  westeurope:        'West Europe (Netherlands)',
-  northeurope:       'North Europe (Ireland)',
-  uksouth:           'UK South',
-  ukwest:            'UK West',
-  francecentral:     'France Central',
-  germanywestcentral:'Germany West Central',
-  switzerlandnorth:  'Switzerland North',
-  norwayeast:        'Norway East',
-  swedencentral:     'Sweden Central',
-  polandcentral:     'Poland Central',
-  italynorth:        'Italy North',
-  spaincentral:      'Spain Central',
-  austriaeast:       'Austria East',
-  // 중동 / 아프리카
-  uaenorth:          'UAE North',
-  qatarcentral:      'Qatar Central',
-  israelcentral:     'Israel Central',
-  southafricanorth:  'South Africa North',
-};
+// 지원 리전 — 지역(대륙)별 그룹. 드롭다운은 이 그룹으로 <optgroup> 렌더한다.
+// (추가/제거 시 이 배열만 수정하면 REGION_LABEL·드롭다운이 자동 반영)
+export const REGION_GROUPS: { label: string; regions: Record<string, string> }[] = [
+  { label: '아시아 태평양', regions: {
+    koreacentral:      'Korea Central (한국 중부)',
+    koreasouth:        'Korea South (한국 남부)',
+    japaneast:         'Japan East (일본 동부)',
+    japanwest:         'Japan West (일본 서부)',
+    southeastasia:     'Southeast Asia (싱가포르)',
+    eastasia:          'East Asia (홍콩)',
+    australiaeast:     'Australia East',
+    australiasoutheast:'Australia Southeast',
+    centralindia:      'Central India',
+    southindia:        'South India',
+    westindia:         'West India',
+    indonesiacentral:  'Indonesia Central',
+    malaysiawest:      'Malaysia West',
+    newzealandnorth:   'New Zealand North',
+  }},
+  { label: '미주', regions: {
+    eastus:            'East US',
+    eastus2:           'East US 2',
+    centralus:         'Central US',
+    northcentralus:    'North Central US',
+    southcentralus:    'South Central US',
+    westus:            'West US',
+    westus2:           'West US 2',
+    westus3:           'West US 3',
+    westcentralus:     'West Central US',
+    canadacentral:     'Canada Central',
+    canadaeast:        'Canada East',
+    mexicocentral:     'Mexico Central',
+    brazilsouth:       'Brazil South',
+  }},
+  { label: '유럽', regions: {
+    westeurope:        'West Europe (네덜란드)',
+    northeurope:       'North Europe (아일랜드)',
+    uksouth:           'UK South',
+    ukwest:            'UK West',
+    francecentral:     'France Central',
+    germanywestcentral:'Germany West Central',
+    switzerlandnorth:  'Switzerland North',
+    norwayeast:        'Norway East',
+    swedencentral:     'Sweden Central',
+    polandcentral:     'Poland Central',
+    italynorth:        'Italy North',
+    spaincentral:      'Spain Central',
+    austriaeast:       'Austria East',
+  }},
+  { label: '중동 · 아프리카', regions: {
+    uaenorth:          'UAE North',
+    qatarcentral:      'Qatar Central',
+    israelcentral:     'Israel Central',
+    southafricanorth:  'South Africa North',
+  }},
+];
+
+// 코드→표시명 평면 맵(그룹에서 자동 파생). CSV 정규화·상태 메시지 등에서 사용.
+export const REGION_LABEL: Record<string, string> =
+  Object.assign({}, ...REGION_GROUPS.map(g => g.regions));

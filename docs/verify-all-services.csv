@@ -1,13 +1,13 @@
 ﻿Region,분류,ServiceCategory,SKU,Qty,Hours,Options
-koreacentral,API Management/base,API Management,,1,730,tier=Developer
-koreacentral,API Management/tier,API Management,,1,730,tier=Basic
-koreacentral,API Management/tier,API Management,,1,730,tier=Standard
-koreacentral,API Management/tier,API Management,,1,730,tier=Premium
-koreacentral,API Management/tier,API Management,,1,730,tier=Basic v2
-koreacentral,API Management/tier,API Management,,1,730,tier=Standard v2
-koreacentral,API Management/tier,API Management,,1,730,tier=Premium v2
-koreacentral,API Management/tier,API Management,,1,730,tier=Consumption
-koreacentral,API Management/tier,API Management,,1,730,tier=Self-hosted Gateway
+koreacentral,API Management/opt,API Management,,1,730,tier=Developer
+koreacentral,API Management/opt,API Management,,1,730,tier=Basic
+koreacentral,API Management/opt,API Management,,1,730,tier=Standard
+koreacentral,API Management/opt,API Management,,1,730,tier=Premium
+koreacentral,API Management/opt,API Management,,1,730,tier=Basic v2
+koreacentral,API Management/opt,API Management,,1,730,tier=Standard v2
+koreacentral,API Management/opt,API Management,,1,730,tier=Premium v2
+koreacentral,API Management/opt,API Management,,1,730,tier=Consumption
+koreacentral,API Management/opt,API Management,,1,730,tier=Self-hosted Gateway
 koreacentral,AppSvc/Free/Linux,App Service,F1,1,730,tier=Free; os=Linux
 koreacentral,AppSvc/Free/Windows,App Service,F1,1,730,tier=Free; os=Windows
 koreacentral,AppSvc/Shared/Linux,App Service,Shared,1,730,tier=Shared; os=Linux
@@ -120,100 +120,105 @@ koreacentral,AppSvc/Isolated v4/Windows,App Service,I2mv4,1,730,tier=Isolated v4
 koreacentral,AppSvc/Isolated v4/Windows,App Service,I3mv4,1,730,tier=Isolated v4; os=Windows
 koreacentral,AppSvc/Isolated v4/Windows,App Service,I4mv4,1,730,tier=Isolated v4; os=Windows
 koreacentral,AppSvc/Isolated v4/Windows,App Service,I5mv4,1,730,tier=Isolated v4; os=Windows
-koreacentral,Application Gateway/base,Application Gateway,Standard_v2,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,WAF_v2,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,Basic_v2,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,Standard_Small,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,Standard_Medium,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,Standard_Large,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,WAF_Medium,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/sku,Application Gateway,WAF_Large,1,730,metric=고정 비용 (시간당)
-koreacentral,Application Gateway/metric,Application Gateway,Standard_v2,1,730,"metric=용량 단위 (CU, 시간당)"
-koreacentral,Azure Bastion/base,Azure Bastion,,1,730,tier=Basic; metric=게이트웨이(시간당)
-koreacentral,Azure Bastion/tier,Azure Bastion,,1,730,tier=Standard; metric=게이트웨이(시간당)
-koreacentral,Azure Bastion/tier,Azure Bastion,,1,730,tier=Premium; metric=게이트웨이(시간당)
-koreacentral,Azure Bastion/metric,Azure Bastion,,1,500,tier=Basic; metric=데이터 전송 아웃(GB)
-koreacentral,Redis/Basic,Azure Cache for Redis,C0,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C1,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C2,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C3,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C4,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C5,1,730,tier=Basic
-koreacentral,Redis/Basic,Azure Cache for Redis,C6,1,730,tier=Basic
-koreacentral,Redis/Standard,Azure Cache for Redis,C0,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C1,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C2,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C3,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C4,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C5,1,730,tier=Standard
-koreacentral,Redis/Standard,Azure Cache for Redis,C6,1,730,tier=Standard
-koreacentral,Redis/Premium,Azure Cache for Redis,P1,1,730,tier=Premium
-koreacentral,Redis/Premium,Azure Cache for Redis,P2,1,730,tier=Premium
-koreacentral,Redis/Premium,Azure Cache for Redis,P3,1,730,tier=Premium
-koreacentral,Redis/Premium,Azure Cache for Redis,P4,1,730,tier=Premium
-koreacentral,Redis/Premium,Azure Cache for Redis,P5,1,730,tier=Premium
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E1,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E5,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E10,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E20,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E50,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E100,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E200,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise,Azure Cache for Redis,E400,1,730,tier=Enterprise
-koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F300,1,730,tier=Enterprise Flash
-koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F700,1,730,tier=Enterprise Flash
-koreacentral,Redis/Enterprise Flash,Azure Cache for Redis,F1500,1,730,tier=Enterprise Flash
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B0,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B1,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B3,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B5,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B10,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B20,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B50,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B100,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B150,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B250,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B350,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B500,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B700,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Balanced,Azure Cache for Redis,B1000,1,730,tier=AMR Balanced
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M10,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M20,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M50,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M150,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M250,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M350,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M500,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M700,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M1000,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M1500,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Memory Optimized,Azure Cache for Redis,M2000,1,730,tier=AMR Memory Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X3,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X5,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X10,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X20,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X50,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X100,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X150,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X250,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X350,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X500,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Compute Optimized,Azure Cache for Redis,X700,1,730,tier=AMR Compute Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A250,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A500,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A700,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A1000,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A1500,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A2000,1,730,tier=AMR Flash Optimized
-koreacentral,Redis/AMR Flash Optimized,Azure Cache for Redis,A4500,1,730,tier=AMR Flash Optimized
-koreacentral,Azure Container Registry/base,Azure Container Registry,,1,30,tier=Basic; metric=레지스트리 (일 단위)
-koreacentral,Azure Container Registry/tier,Azure Container Registry,,1,30,tier=Standard; metric=레지스트리 (일 단위)
-koreacentral,Azure Container Registry/tier,Azure Container Registry,,1,30,tier=Premium; metric=레지스트리 (일 단위)
-koreacentral,Azure Container Registry/metric,Azure Container Registry,,1,100,tier=Basic; metric=추가 저장소 (GB/월)
-koreacentral,Cosmos/수동,Azure Cosmos DB,,1,730,"model=Provisioned (수동, RU/s); rus=400"
-koreacentral,Cosmos/Autoscale,Azure Cosmos DB,,1,730,model=Autoscale (RU/s); rus=1000
-koreacentral,Cosmos/Serverless,Azure Cosmos DB,,1,1,model=Serverless (백만 RU)
-koreacentral,Cosmos/저장소,Azure Cosmos DB,,1,100,"model=저장소 (Data Stored, GB)"
+koreacentral,Application Gateway/Standard_v2,Application Gateway,Standard_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/Standard_v2,Application Gateway,Standard_v2,1,730,"metric=용량 단위 (CU, 시간당)"
+koreacentral,Application Gateway/WAF_v2,Application Gateway,WAF_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/WAF_v2,Application Gateway,WAF_v2,1,730,"metric=용량 단위 (CU, 시간당)"
+koreacentral,Application Gateway/Basic_v2,Application Gateway,Basic_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Application Gateway/Basic_v2,Application Gateway,Basic_v2,1,730,"metric=용량 단위 (CU, 시간당)"
+koreacentral,Application Gateway/Standard_Small,Application Gateway,Standard_Small,1,730,metric=게이트웨이 (시간당)
+koreacentral,Application Gateway/Standard_Small,Application Gateway,Standard_Small,1,730,metric=데이터 처리 (GB)
+koreacentral,Application Gateway/Standard_Medium,Application Gateway,Standard_Medium,1,730,metric=게이트웨이 (시간당)
+koreacentral,Application Gateway/Standard_Medium,Application Gateway,Standard_Medium,1,730,metric=데이터 처리 (GB)
+koreacentral,Application Gateway/Standard_Large,Application Gateway,Standard_Large,1,730,metric=게이트웨이 (시간당)
+koreacentral,Application Gateway/Standard_Large,Application Gateway,Standard_Large,1,730,metric=데이터 처리 (GB)
+koreacentral,Application Gateway/WAF_Medium,Application Gateway,WAF_Medium,1,730,metric=게이트웨이 (시간당)
+koreacentral,Application Gateway/WAF_Large,Application Gateway,WAF_Large,1,730,metric=게이트웨이 (시간당)
+koreacentral,Azure Bastion/opt,Azure Bastion,,1,730,tier=Basic; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/opt,Azure Bastion,,1,730,tier=Standard; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/opt,Azure Bastion,,1,730,tier=Premium; metric=게이트웨이(시간당)
+koreacentral,Azure Bastion/opt,Azure Bastion,,1,500,tier=Basic; metric=데이터 전송 아웃(GB)
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C0,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C1,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C2,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C3,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C4,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C5,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Basic,Azure Cache for Redis,C6,1,730,tier=Basic
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C0,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C1,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C2,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C3,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C4,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C5,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Standard,Azure Cache for Redis,C6,1,730,tier=Standard
+koreacentral,Azure Cache for Redis/Premium,Azure Cache for Redis,P1,1,730,tier=Premium
+koreacentral,Azure Cache for Redis/Premium,Azure Cache for Redis,P2,1,730,tier=Premium
+koreacentral,Azure Cache for Redis/Premium,Azure Cache for Redis,P3,1,730,tier=Premium
+koreacentral,Azure Cache for Redis/Premium,Azure Cache for Redis,P4,1,730,tier=Premium
+koreacentral,Azure Cache for Redis/Premium,Azure Cache for Redis,P5,1,730,tier=Premium
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E1,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E5,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E10,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E20,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E50,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E100,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E200,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise,Azure Cache for Redis,E400,1,730,tier=Enterprise
+koreacentral,Azure Cache for Redis/Enterprise Flash,Azure Cache for Redis,F300,1,730,tier=Enterprise Flash
+koreacentral,Azure Cache for Redis/Enterprise Flash,Azure Cache for Redis,F700,1,730,tier=Enterprise Flash
+koreacentral,Azure Cache for Redis/Enterprise Flash,Azure Cache for Redis,F1500,1,730,tier=Enterprise Flash
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B0,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B1,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B3,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B5,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B10,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B20,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B50,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B100,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B150,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B250,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B350,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B500,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B700,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Balanced,Azure Cache for Redis,B1000,1,730,tier=AMR Balanced
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M10,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M20,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M50,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M150,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M250,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M350,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M500,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M700,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M1000,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M1500,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Memory Optimized,Azure Cache for Redis,M2000,1,730,tier=AMR Memory Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X3,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X5,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X10,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X20,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X50,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X100,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X150,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X250,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X350,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X500,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Compute Optimized,Azure Cache for Redis,X700,1,730,tier=AMR Compute Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A250,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A500,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A700,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A1000,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A1500,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A2000,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Cache for Redis/AMR Flash Optimized,Azure Cache for Redis,A4500,1,730,tier=AMR Flash Optimized
+koreacentral,Azure Container Registry/opt,Azure Container Registry,,1,30,tier=Basic; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/opt,Azure Container Registry,,1,30,tier=Standard; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/opt,Azure Container Registry,,1,30,tier=Premium; metric=레지스트리 (일 단위)
+koreacentral,Azure Container Registry/opt,Azure Container Registry,,1,100,tier=Basic; metric=추가 저장소 (GB/월)
+koreacentral,"Azure Cosmos DB/Provisioned (수동, RU/s)",Azure Cosmos DB,,1,730,"model=Provisioned (수동, RU/s); rus=400"
+koreacentral,Azure Cosmos DB/Autoscale (RU/s),Azure Cosmos DB,,1,730,model=Autoscale (RU/s); rus=400
+koreacentral,Azure Cosmos DB/Serverless (백만 RU),Azure Cosmos DB,,1,1,model=Serverless (백만 RU)
+koreacentral,"Azure Cosmos DB/저장소 (Data Stored, GB)",Azure Cosmos DB,,1,100,"model=저장소 (Data Stored, GB)"
 koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B1MS
 koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B2S
 koreacentral,MySQL/Burstable,Azure Database for MySQL,,1,730,tier=Burstable; instance=B2MS
@@ -230,74 +235,93 @@ koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Busine
 koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Edsv6; vCores=2
 koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Eadsv5 (AMD); vCores=2
 koreacentral,MySQL/Business Critical,Azure Database for MySQL,,1,730,tier=Business Critical; series=Eadsv6 (AMD); vCores=2
-koreacentral,Azure DevOps/base,Azure DevOps,,1,1,plan=Basic Plan 사용자 (월)
-koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Advanced 사용자 (월)
-koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Test Plans 사용자 (월)
-koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Artifacts 저장소 (GB/월)
-koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=MS-hosted 병렬 작업 (월)
-koreacentral,Azure DevOps/plan,Azure DevOps,,1,1,plan=Self-hosted 병렬 작업 (월)
-koreacentral,Azure DNS/base,Azure DNS,,2,1,zoneType=Public; metric=호스팅 영역 (월)
-koreacentral,Azure DNS/zoneType,Azure DNS,,2,1,zoneType=Private; metric=호스팅 영역 (월)
-koreacentral,Azure DNS/metric,Azure DNS,,1,10,zoneType=Public; metric=DNS 쿼리 (백만)
-koreacentral,Azure Files/base,Azure Files,,1,100,fileTier=Premium; redundancy=LRS; metric=Data Stored
-koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Data Stored
-koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Cool; redundancy=LRS; metric=Data Stored
-koreacentral,Azure Files/fileTier,Azure Files,,1,100,fileTier=Transaction Optimized; redundancy=LRS; metric=Data Stored
-koreacentral,Azure Files/redundancy,Azure Files,,1,100,fileTier=Premium; redundancy=ZRS; metric=Data Stored
-koreacentral,Azure Files/metric,Azure Files,,1,100,fileTier=Premium; redundancy=LRS; metric=Snapshots
-koreacentral,Azure Files Provisioned v2/base,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=LRS
-koreacentral,Azure Files Provisioned v2/media,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=LRS
-koreacentral,Azure Files Provisioned v2/redundancy,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=ZRS
-koreacentral,Azure Firewall/base,Azure Firewall,,1,730,"tier=Standard; metric=Deployment (배포, 시간당)"
-koreacentral,Azure Firewall/tier,Azure Firewall,,1,730,"tier=Premium; metric=Deployment (배포, 시간당)"
-koreacentral,Azure Firewall/tier,Azure Firewall,,1,730,"tier=Basic; metric=Deployment (배포, 시간당)"
-koreacentral,Azure Firewall/metric,Azure Firewall,,1,1000,"tier=Standard; metric=Data Processed (데이터 처리, GB)"
-koreacentral,Azure Firewall/metric,Azure Firewall,,1,730,"tier=Standard; metric=Capacity Unit (용량 단위, 시간당)"
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Base Fees
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Data Transfer Out
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Data Transfer In
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Requests
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Custom Domain
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Rule
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Policy
-koreacentral,FD/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Default Ruleset
-koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Base Fees
-koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Data Transfer Out
-koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Data Transfer In
-koreacentral,FD/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Requests
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 2; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 3; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 4; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 5; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 6; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 7; item=Standard Data Transfer Out
-koreacentral,FD-zone,Azure Front Door,,1,1000,tier=Standard; zone=Zone 8; item=Standard Data Transfer Out
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=Basic Plan 사용자 (월)
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=Advanced 사용자 (월)
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=Test Plans 사용자 (월)
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=Artifacts 저장소 (GB/월)
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=MS-hosted 병렬 작업 (월)
+koreacentral,Azure DevOps/opt,Azure DevOps,,1,1,plan=Self-hosted 병렬 작업 (월)
+koreacentral,Azure DNS/opt,Azure DNS,,2,1,zoneType=Public; metric=호스팅 영역 (월)
+koreacentral,Azure DNS/opt,Azure DNS,,2,1,zoneType=Private; metric=호스팅 영역 (월)
+koreacentral,Azure DNS/opt,Azure DNS,,1,10,zoneType=Public; metric=DNS 쿼리 (백만)
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Premium; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Transaction Optimized; redundancy=LRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=ZRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=GRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=GZRS; metric=Data Stored
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Snapshots
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Metadata
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Write Operations
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=Read Operations
+koreacentral,Azure Files/opt,Azure Files,,1,100,fileTier=Hot; redundancy=LRS; metric=List Operations
+koreacentral,Azure Files Provisioned v2/SSD,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=LRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Files Provisioned v2/SSD,Azure Files Provisioned v2,,1,730,media=SSD; redundancy=ZRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Files Provisioned v2/HDD,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=LRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Files Provisioned v2/HDD,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=ZRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Files Provisioned v2/HDD,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=GRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Files Provisioned v2/HDD,Azure Files Provisioned v2,,1,730,media=HDD; redundancy=GZRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,Azure Firewall/Standard,Azure Firewall,,1,730,"tier=Standard; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/Standard,Azure Firewall,,1,1000,"tier=Standard; metric=Data Processed (데이터 처리, GB)"
+koreacentral,Azure Firewall/Standard,Azure Firewall,,1,730,"tier=Standard; metric=Capacity Unit (용량 단위, 시간당)"
+koreacentral,Azure Firewall/Premium,Azure Firewall,,1,730,"tier=Premium; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/Premium,Azure Firewall,,1,1000,"tier=Premium; metric=Data Processed (데이터 처리, GB)"
+koreacentral,Azure Firewall/Premium,Azure Firewall,,1,730,"tier=Premium; metric=Capacity Unit (용량 단위, 시간당)"
+koreacentral,Azure Firewall/Basic,Azure Firewall,,1,730,"tier=Basic; metric=Deployment (배포, 시간당)"
+koreacentral,Azure Firewall/Basic,Azure Firewall,,1,1000,"tier=Basic; metric=Data Processed (데이터 처리, GB)"
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 2; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 3; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 4; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 5; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 6; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 7; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 8; item=Standard Base Fees
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,1000,tier=Standard; zone=Zone 1; item=Standard Data Transfer Out
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,1000,tier=Standard; zone=Zone 1; item=Standard Data Transfer In
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Requests
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Custom Domain
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Rule
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Policy
+koreacentral,Azure Front Door/Standard,Azure Front Door,,1,730,tier=Standard; zone=Zone 1; item=Standard Default Ruleset
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 2; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 3; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 4; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 5; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 6; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 7; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 8; item=Premium Base Fees
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,1000,tier=Premium; zone=Zone 1; item=Premium Data Transfer Out
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,1000,tier=Premium; zone=Zone 1; item=Premium Data Transfer In
+koreacentral,Azure Front Door/Premium,Azure Front Door,,1,730,tier=Premium; zone=Zone 1; item=Premium Requests
 koreacentral,AKS,Azure Kubernetes Service,,1,730,"aksTier=Standard (표준); slaOption=No SLA (free, non-production)"
 koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA
 koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA and Long Term Support
 koreacentral,AKS,Azure Kubernetes Service,,1,730,"aksTier=Automatic; slaOption=No SLA (free, non-production)"
 koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Automatic; slaOption=SLA
 koreacentral,AKS,Azure Kubernetes Service,,1,730,aksTier=Automatic; slaOption=SLA and Long Term Support
-koreacentral,Azure OpenAI/base,Azure OpenAI,,1,10,model=GPT-5; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5 mini; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5.1; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-5.2; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1 mini; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4.1 nano; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4o (1120); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=GPT-4o mini (0718); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o1 (1217); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o3 (0416); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o3 mini (0131); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=o4-mini (0416); metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=text-embedding-3-small; metric=입력 토큰
-koreacentral,Azure OpenAI/model,Azure OpenAI,,1,10,model=text-embedding-3-large; metric=입력 토큰
-koreacentral,Azure OpenAI/metric,Azure OpenAI,,1,10,model=GPT-5; metric=출력 토큰
-koreacentral,Azure OpenAI/metric,Azure OpenAI,,1,10,model=GPT-5; metric=캐시 입력 토큰
-koreacentral,Azure Private Link/base,Azure Private Link,,3,730,metric=프라이빗 엔드포인트 (시간당)
-koreacentral,Azure Private Link/metric,Azure Private Link,,1,1000,metric=데이터 처리 - Inbound (GB)
-koreacentral,Azure Private Link/metric,Azure Private Link,,1,1000,metric=데이터 처리 - Outbound (GB)
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5 mini; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5.1; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5.2; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-4.1; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-4.1 mini; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-4.1 nano; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-4o (1120); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-4o mini (0718); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=o1 (1217); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=o3 (0416); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=o3 mini (0131); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=o4-mini (0416); metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=text-embedding-3-small; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=text-embedding-3-large; metric=입력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5; metric=출력 토큰
+koreacentral,Azure OpenAI/opt,Azure OpenAI,,1,10,model=GPT-5; metric=캐시 입력 토큰
+koreacentral,Azure Private Link/opt,Azure Private Link,,3,730,metric=프라이빗 엔드포인트 (시간당)
+koreacentral,Azure Private Link/opt,Azure Private Link,,1,1000,metric=데이터 처리 - Inbound (GB)
+koreacentral,Azure Private Link/opt,Azure Private Link,,1,1000,metric=데이터 처리 - Outbound (GB)
 koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
 koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=영역 중복(ZR); license=라이선스 포함; storageGB=32
 koreacentral,SQLDB/vCore,Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Fsv2-series; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
@@ -333,35 +357,35 @@ koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium
 koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P6
 koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P11
 koreacentral,SQLDB/DTU/Premium,Azure SQL Database,,1,730,model=DTU; tier=Premium; dtuSize=P15
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=50
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=100
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=200
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=300
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=400
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=800
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1200
-koreacentral,SQLPool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1600
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=50
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=100
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=200
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=300
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=400
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=800
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1200
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1600
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2000
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2500
-koreacentral,SQLPool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=3000
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=125
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=250
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=500
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1000
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1500
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2000
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2500
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3000
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3500
-koreacentral,SQLPool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=4000
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=50
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=100
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=200
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=300
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=400
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=800
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1200
+koreacentral,Azure SQL Database Elastic Pool/Basic,Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=1600
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=50
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=100
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=200
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=300
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=400
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=800
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1200
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=1600
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2000
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=2500
+koreacentral,Azure SQL Database Elastic Pool/Standard,Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=3000
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=125
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=250
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=500
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1000
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=1500
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2000
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=2500
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3000
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=3500
+koreacentral,Azure SQL Database Elastic Pool/Premium,Azure SQL Database Elastic Pool,,1,730,tier=Premium; poolSize=4000
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Gen5; vCores=8; redundancy=로컬 중복; license=라이선스 포함
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Gen5; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Premium-series; vCores=8; redundancy=로컬 중복; license=라이선스 포함
@@ -374,26 +398,26 @@ koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; har
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series MO; vCores=8; redundancy=로컬 중복; license=라이선스 포함
 koreacentral,SQLMI,Azure SQL Managed Instance,,1,730,tier=Business Critical; hardware=Premium-series MO; vCores=8; redundancy=영역 중복(ZR); license=라이선스 포함
-koreacentral,Azure Synapse Analytics/base,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Basic
-koreacentral,Azure Synapse Analytics/component,Azure Synapse Analytics,,1,2,component=Serverless SQL Pool (Data Processed); dwuLevel=DW100c; flowType=Basic
-koreacentral,Azure Synapse Analytics/component,Azure Synapse Analytics,,1,730,component=Data Flow (vCore-Hour); dwuLevel=DW100c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW200c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW300c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW400c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW500c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1500c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2500c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW3000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW5000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW6000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW7500c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW10000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW15000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/dwuLevel,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW30000c; flowType=Basic
-koreacentral,Azure Synapse Analytics/flowType,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Standard
-koreacentral,Azure Synapse Analytics/flowType,Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c; flowType=Compute Optimized
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW200c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW300c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW400c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW500c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW1500c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW2500c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW3000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW5000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW6000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW7500c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW10000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW15000c
+koreacentral,Azure Synapse Analytics/Dedicated SQL Pool (DWU),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW30000c
+koreacentral,Azure Synapse Analytics/Serverless SQL Pool (Data Processed),Azure Synapse Analytics,,1,2,component=Serverless SQL Pool (Data Processed)
+koreacentral,Azure Synapse Analytics/Data Flow (vCore-Hour),Azure Synapse Analytics,,1,730,component=Data Flow (vCore-Hour); flowType=Basic
+koreacentral,Azure Synapse Analytics/Data Flow (vCore-Hour),Azure Synapse Analytics,,1,730,component=Data Flow (vCore-Hour); flowType=Standard
+koreacentral,Azure Synapse Analytics/Data Flow (vCore-Hour),Azure Synapse Analytics,,1,730,component=Data Flow (vCore-Hour); flowType=Compute Optimized
 koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=Azure VM
 koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=SQL Server in Azure VM
 koreacentral,Backup/보호,Backup,,1,1,metric=보호 인스턴스; workload=SAP HANA on Azure VM
@@ -413,51 +437,52 @@ koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier
 koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Standard; redundancy=RA-GRS
 koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Archive; redundancy=LRS
 koreacentral,Backup/저장소,Backup,,1,500,metric=백업 저장소; storageTier=Archive; redundancy=GRS
-koreacentral,Bandwidth/base,Bandwidth,,1,1000,direction=Outbound (Internet Egress)
-koreacentral,Bandwidth/direction,Bandwidth,,1,1000,direction=Inter-region
-koreacentral,Bandwidth/direction,Bandwidth,,1,1000,direction=Intra-region
-koreacentral,Blob Storage/base,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Data Stored
-koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Data Stored
-koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Cold; redundancy=LRS; metric=Data Stored
-koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Archive; redundancy=LRS; metric=Data Stored
-koreacentral,Blob Storage/blobTier,Blob Storage,,1,1000,blobTier=Premium; redundancy=LRS; metric=Data Stored
-koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=ZRS; metric=Data Stored
-koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=GRS; metric=Data Stored
-koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=RA-GRS; metric=Data Stored
-koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=GZRS; metric=Data Stored
-koreacentral,Blob Storage/redundancy,Blob Storage,,1,1000,blobTier=Hot; redundancy=RA-GZRS; metric=Data Stored
-koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Read Operations
-koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Write Operations
-koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=List and Create Container Operations
-koreacentral,Blob Storage/metric,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=All Other Operations
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Active Usage
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Idle Usage
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Active Usage
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Idle Usage
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard Requests
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC T4 v3 GPU Usage
-koreacentral,ACA/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC A100 v4 GPU Usage
-koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Plan Management
-koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated vCPU Usage
-koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Memory Usage
-koreacentral,ACA/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated GPU Usage
-koreacentral,ACA/Dynamic Sessions,Container Apps,,1,730,plan=Dynamic Sessions; item=Dynamic Sessions
-koreacentral,ACA/Hybrid,Container Apps,,1,730,plan=Hybrid; item=Hybrid vCPU Usage
-koreacentral,Data Lake Storage Gen2/base,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/namespace,Data Lake Storage Gen2,,1,1000,namespace=단일 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cool; redundancy=LRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cold; redundancy=LRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/accessTier,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Archive; redundancy=LRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=ZRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GZRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/redundancy,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GZRS; metric=Data Stored
-koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Read Operations
-koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Write Operations
-koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Read Operations
-koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Write Operations
-koreacentral,Data Lake Storage Gen2/metric,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Delete Operations
+koreacentral,Bandwidth/opt,Bandwidth,,1,1000,direction=Outbound (Internet Egress)
+koreacentral,Bandwidth/opt,Bandwidth,,1,1000,direction=Inter-region
+koreacentral,Bandwidth/opt,Bandwidth,,1,1000,direction=Intra-region
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cold; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Archive; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Premium; redundancy=LRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=ZRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=GRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=GZRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Read Operations
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Write Operations
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=Data Retrieval
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=List and Create Container Operations
+koreacentral,Blob Storage/opt,Blob Storage,,1,1000,blobTier=Cool; redundancy=LRS; metric=All Other Operations
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Active Usage
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard vCPU Idle Usage
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Active Usage
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard Memory Idle Usage
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard Requests
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC T4 v3 GPU Usage
+koreacentral,Container Apps/Standard,Container Apps,,1,730,plan=Standard; item=Standard NC A100 v4 GPU Usage
+koreacentral,Container Apps/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Plan Management
+koreacentral,Container Apps/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated vCPU Usage
+koreacentral,Container Apps/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated Memory Usage
+koreacentral,Container Apps/Dedicated,Container Apps,,1,730,plan=Dedicated; item=Dedicated GPU Usage
+koreacentral,Container Apps/Dynamic Sessions,Container Apps,,1,730,plan=Dynamic Sessions; item=Dynamic Sessions
+koreacentral,Container Apps/Hybrid,Container Apps,,1,730,plan=Hybrid; item=Hybrid vCPU Usage
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=단일 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cool; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Cold; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Archive; redundancy=LRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=ZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=GZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Read Operations
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Iterative Write Operations
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Read Operations
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Write Operations
+koreacentral,Data Lake Storage Gen2/opt,Data Lake Storage Gen2,,1,1000,namespace=계층 구조 네임스페이스; accessTier=Hot; redundancy=LRS; metric=Delete Operations
 koreacentral,Disk/프리미엄 SSD,Disk,P1,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
 koreacentral,Disk/프리미엄 SSD,Disk,P2,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
 koreacentral,Disk/프리미엄 SSD,Disk,P3,1,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
@@ -500,76 +525,81 @@ koreacentral,Disk/표준 HDD,Disk,S80,1,730,diskSubType=표준 HDD; redundancy=L
 koreacentral,Disk옵션/표준 SSD ZRS,Disk,E4,1,730,diskSubType=표준 SSD; redundancy=ZRS; snapshotGB=0
 koreacentral,Disk/프리미엄 SSD v2,Disk,,1,730,diskSubType=프리미엄 SSD v2; diskSizeGiB=1024; provisionedIOPS=5000; provisionedMBps=200
 koreacentral,Disk/Ultra Disk,Disk,,1,730,diskSubType=Ultra Disk; diskSizeGiB=1024; provisionedIOPS=2000; provisionedMBps=200
-koreacentral,EH/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Throughput Unit
-koreacentral,EH/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Ingress Events
-koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Throughput Unit
-koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Ingress Events
-koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Capture
-koreacentral,EH/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Kafka Endpoint
-koreacentral,EH/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Processing Unit
-koreacentral,EH/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Extended Retention
-koreacentral,EH/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Capacity Unit
-koreacentral,EH/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Extended Retention
-koreacentral,Load Balancer/base,Load Balancer,,1,730,"tier=Standard; metric=규칙 (시간당, 5개 포함)"
-koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Gateway; metric=규칙 (시간당, 5개 포함)"
-koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Global; metric=규칙 (시간당, 5개 포함)"
-koreacentral,Load Balancer/tier,Load Balancer,,1,730,"tier=Basic; metric=규칙 (시간당, 5개 포함)"
-koreacentral,Load Balancer/metric,Load Balancer,,1,730,tier=Standard; metric=초과 규칙 (시간당)
-koreacentral,Load Balancer/metric,Load Balancer,,1,500,tier=Standard; metric=데이터 처리 (GB)
-koreacentral,Log Analytics/base,Log Analytics,,1,100,metric=Data Ingestion
-koreacentral,Log Analytics/metric,Log Analytics,,1,100,metric=Data Retention
-koreacentral,Log Analytics/metric,Log Analytics,,1,100,metric=Data Analyzed
-koreacentral,Microsoft Sentinel/base,Microsoft Sentinel,,1,100,model=Pay-as-you-go
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=Basic Logs
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=50 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=100 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=200 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=300 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=400 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=500 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=1000 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=2000 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=5000 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=10000 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=25000 GB Commitment Tier
-koreacentral,Microsoft Sentinel/model,Microsoft Sentinel,,1,100,model=50000 GB Commitment Tier
-koreacentral,NAT Gateway/base,NAT Gateway,,1,730,metric=Resource Hour
-koreacentral,NAT Gateway/metric,NAT Gateway,,1,1000,metric=Data Processed
-koreacentral,Page Blob/base,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Data Stored
-koreacentral,Page Blob/performance,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P10; metric=Data Stored
-koreacentral,Page Blob/redundancy,Page Blob,,1,730,performance=Standard; redundancy=GRS; diskSize=P10; metric=Data Stored
-koreacentral,Page Blob/redundancy,Page Blob,,1,730,performance=Standard; redundancy=RA-GRS; diskSize=P10; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P15; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P20; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P30; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P40; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P50; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P60; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P70; metric=Data Stored
-koreacentral,Page Blob/diskSize,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P80; metric=Data Stored
-koreacentral,Page Blob/metric,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Read Operations
-koreacentral,Page Blob/metric,Page Blob,,1,730,performance=Standard; redundancy=LRS; diskSize=P10; metric=Write Operations
-koreacentral,Public IP/base,Public IP,Standard,1,730,ipType=Static
-koreacentral,Public IP/sku,Public IP,Global,1,730,ipType=Static
-koreacentral,Public IP/sku,Public IP,Basic,1,730,ipType=Static
-koreacentral,Public IP/ipType,Public IP,Standard,1,730,ipType=Dynamic
-koreacentral,SB/Basic,Service Bus,,1,730,tier=Basic; item=Basic Messaging Operations
-koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Base Unit
-koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Messaging Operations
-koreacentral,SB/Standard,Service Bus,,1,730,tier=Standard; item=Standard Brokered Connection
-koreacentral,SB/Premium,Service Bus,,1,730,tier=Premium; item=Premium Messaging Unit
-koreacentral,Storage Account/base,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Data Stored
-koreacentral,Storage Account/storageType,Storage Account,,1,100,storageType=Queue; redundancy=LRS; metric=Data Stored
-koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=ZRS; metric=Data Stored
-koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=GRS; metric=Data Stored
-koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=RA-GRS; metric=Data Stored
-koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=GZRS; metric=Data Stored
-koreacentral,Storage Account/redundancy,Storage Account,,1,100,storageType=Table; redundancy=RA-GZRS; metric=Data Stored
-koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Write Operations
-koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Read Operations
-koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=List Operations
-koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Delete Operations
-koreacentral,Storage Account/metric,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Scan Operations
+koreacentral,Event Hubs/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Throughput Unit
+koreacentral,Event Hubs/Basic,Event Hubs,,1,730,tier=Basic; item=Basic Ingress Events
+koreacentral,Event Hubs/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Throughput Unit
+koreacentral,Event Hubs/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Ingress Events
+koreacentral,Event Hubs/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Capture
+koreacentral,Event Hubs/Standard,Event Hubs,,1,730,tier=Standard; item=Standard Kafka Endpoint
+koreacentral,Event Hubs/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Processing Unit
+koreacentral,Event Hubs/Premium,Event Hubs,,1,730,tier=Premium; item=Premium Extended Retention
+koreacentral,Event Hubs/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Capacity Unit
+koreacentral,Event Hubs/Dedicated,Event Hubs,,1,730,tier=Dedicated; item=Dedicated Extended Retention
+koreacentral,Load Balancer/Standard,Load Balancer,,1,730,"tier=Standard; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/Standard,Load Balancer,,1,730,tier=Standard; metric=초과 규칙 (시간당)
+koreacentral,Load Balancer/Standard,Load Balancer,,1,500,tier=Standard; metric=데이터 처리 (GB)
+koreacentral,Load Balancer/Gateway,Load Balancer,,1,730,tier=Gateway; metric=게이트웨이 (시간당)
+koreacentral,Load Balancer/Gateway,Load Balancer,,1,730,tier=Gateway; metric=게이트웨이 체인 (시간당)
+koreacentral,Load Balancer/Gateway,Load Balancer,,1,500,tier=Gateway; metric=데이터 처리 (GB)
+koreacentral,Load Balancer/Global,Load Balancer,,1,730,"tier=Global; metric=규칙 (시간당, 5개 포함)"
+koreacentral,Load Balancer/Global,Load Balancer,,1,730,tier=Global; metric=초과 규칙 (시간당)
+koreacentral,Load Balancer/Global,Load Balancer,,1,500,tier=Global; metric=데이터 처리 (GB)
+koreacentral,Load Balancer/Basic,Load Balancer,,1,730,tier=Basic
+koreacentral,Log Analytics/opt,Log Analytics,,1,100,metric=Data Ingestion
+koreacentral,Log Analytics/opt,Log Analytics,,1,100,metric=Data Retention
+koreacentral,Log Analytics/opt,Log Analytics,,1,100,metric=Data Analyzed
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=Pay-as-you-go
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=Basic Logs
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=50 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=100 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=200 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=300 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=400 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=500 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=1000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=2000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=5000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=10000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=25000 GB Commitment Tier
+koreacentral,Microsoft Sentinel/opt,Microsoft Sentinel,,1,100,model=50000 GB Commitment Tier
+koreacentral,NAT Gateway/opt,NAT Gateway,,1,730,metric=Resource Hour
+koreacentral,NAT Gateway/opt,NAT Gateway,,1,1000,metric=Data Processed
+koreacentral,Page Blob/Standard,Page Blob,,1,730,performance=Standard; redundancy=LRS; metric=Data Stored
+koreacentral,Page Blob/Standard,Page Blob,,1,730,performance=Standard; redundancy=GRS; metric=Data Stored
+koreacentral,Page Blob/Standard,Page Blob,,1,730,performance=Standard; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Page Blob/Standard,Page Blob,,1,730,performance=Standard; redundancy=LRS; metric=Read Operations
+koreacentral,Page Blob/Standard,Page Blob,,1,730,performance=Standard; redundancy=LRS; metric=Write Operations
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P10
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=ZRS; diskSize=P10
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P15
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P20
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P30
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P40
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P50
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P60
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P70
+koreacentral,Page Blob/Premium,Page Blob,,1,730,performance=Premium; redundancy=LRS; diskSize=P80
+koreacentral,Public IP/Standard,Public IP,Standard,1,730,ipType=Static
+koreacentral,Public IP/Global,Public IP,Global,1,730,ipType=Static
+koreacentral,Public IP/Basic,Public IP,Basic,1,730,ipType=Static
+koreacentral,Public IP/Basic,Public IP,Basic,1,730,ipType=Dynamic
+koreacentral,Service Bus/Basic,Service Bus,,1,730,tier=Basic; item=Basic Messaging Operations
+koreacentral,Service Bus/Standard,Service Bus,,1,730,tier=Standard; item=Standard Base Unit
+koreacentral,Service Bus/Standard,Service Bus,,1,730,tier=Standard; item=Standard Messaging Operations
+koreacentral,Service Bus/Standard,Service Bus,,1,730,tier=Standard; item=Standard Brokered Connection
+koreacentral,Service Bus/Premium,Service Bus,,1,730,tier=Premium; item=Premium Messaging Unit
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Queue; redundancy=LRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=ZRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=GRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=RA-GRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=GZRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=RA-GZRS; metric=Data Stored
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Write Operations
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Read Operations
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=List Operations
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Delete Operations
+koreacentral,Storage Account/opt,Storage Account,,1,100,storageType=Table; redundancy=LRS; metric=Scan Operations
 koreacentral,VM/B-series,Virtual Machine,B1ls,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
 koreacentral,VM/B-series,Virtual Machine,B1s,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
 koreacentral,VM/B-series,Virtual Machine,B1ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
@@ -957,22 +987,23 @@ koreacentral,VM옵션/SQL Std,Virtual Machine,D4s_v5,1,730,swType=SQL Server (St
 koreacentral,VM옵션/SQL Web,Virtual Machine,D4s_v5,1,730,swType=SQL Server (Web); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
 koreacentral,VM옵션/BizTalk Ent,Virtual Machine,D4s_v5,1,730,swType=BizTalk Server (Enterprise); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
 koreacentral,VM옵션/BizTalk Std,Virtual Machine,D4s_v5,1,730,swType=BizTalk Server (Standard); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5; os=Windows
-koreacentral,Virtual Network/base,Virtual Network,,1,1000,direction=Global Peering - Outbound (Egress)
-koreacentral,Virtual Network/direction,Virtual Network,,1,1000,direction=Global Peering - Inbound (Ingress)
-koreacentral,VPN Gateway/base,VPN Gateway,Basic,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw1,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw2,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw3,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw4,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw5,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw1AZ,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw2AZ,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw3AZ,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw4AZ,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/sku,VPN Gateway,VpnGw5AZ,1,730,vnetTransferType=VNET 간
-koreacentral,VPN Gateway/vnetTransferType,VPN Gateway,Basic,1,730,vnetTransferType=VPN
+koreacentral,Virtual Network/opt,Virtual Network,,1,1000,direction=Global Peering - Outbound (Egress)
+koreacentral,Virtual Network/opt,Virtual Network,,1,1000,direction=Global Peering - Inbound (Ingress)
+koreacentral,VPN Gateway/opt,VPN Gateway,Basic,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw1,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw2,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw3,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw4,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw5,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw1AZ,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw2AZ,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw3AZ,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw4AZ,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,VpnGw5AZ,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VNET 간; vnetGB=0
+koreacentral,VPN Gateway/opt,VPN Gateway,Basic,1,730,gatewayHours=730; extraS2sTunnels=0; extraP2sConnections=0; vnetTransferType=VPN; vnetGB=0
 
-# Azure 견적 — 전 서비스/전 SKU/전 옵션 브랜치 검증용 (자동 생성)
-# 사용법: 앱에서 [CSV 불러오기]로 이 파일 업로드 → 전 행 가격 조회 → [내보내기]로 결과 저장 후 검토
-# 정렬: ServiceCategory 알파벳순. 총 972행(무효 옵션 조합 20건 정리). Region=koreacentral 고정(필요시 변경).
+# Azure 견적 — 전 서비스/전 SKU/유효 옵션 조합 검증용 (자동 생성)
+# 사용법: 앱에서 [CSV 불러오기]로 업로드 → 전 행 가격 조회 → [내보내기]로 결과 저장 후 검토
+# 정렬: ServiceCategory 알파벳순. 총 1002행. Region=koreacentral 고정(필요시 변경).
+# 조합: 앱의 _applyStepVisibility(계층→항목 종속)로 유효 조합만 생성 — MS 가격 계산기와 동일 옵션.
 # 참고: unit price 검증이 목적이므로 Qty/Hours 는 대표값(가격 정확도는 Unit Price 열로 대조).
