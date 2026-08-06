@@ -51,7 +51,15 @@ describe('api/prices 프록시(fetch 목)', () => {
     expect(spy).toHaveBeenCalledWith(url, expect.any(Object));
     expect(r.statusCode).toBe(200);
     expect(JSON.parse(r.body).Items).toHaveLength(1);
-    expect(String(r.headers['cache-control'])).toContain('max-age');
+    // s-maxage 가 엣지(Vercel CDN) 캐시를 켜는 핵심 지시자다. max-age 만 검사하면
+    // s-maxage 가 빠져도 통과해 매 조회가 원본까지 가는 회귀를 놓친다.
+    // (배포된 응답의 client 헤더에는 Vercel 이 s-maxage/SWR 를 소비하고 지운 채
+    //  'public, max-age=3600' 만 남으므로, 확인은 x-vercel-cache: HIT 로 한다)
+    const cc = String(r.headers['cache-control']);
+    expect(cc).toContain('public');
+    expect(cc).toContain('max-age=3600');
+    expect(cc).toContain('s-maxage=3600');
+    expect(cc).toContain('stale-while-revalidate=86400');
     expect(r.headers['access-control-allow-origin']).toBe('*');
   });
 
