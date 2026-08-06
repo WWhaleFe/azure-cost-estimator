@@ -25,7 +25,7 @@
 
 ### 재발 방지·구조
 - 양식 본문 생성을 DOM 비의존 모듈 **`src/ui/csv-template.js`** 로 분리하고, **`test/csv-template.test.js`** 가 ① 전 서비스 예시 행 존재 ② 예시 행 값이 실제 부모 조합에서 유효(=대체되지 않음) ③ 저장된 양식 파일이 카탈로그와 일치 ④ 사전 생성이 서비스 정의를 훼손하지 않음 을 검사. 재생성은 `UPDATE_TEMPLATE=1 npx vitest run test/csv-template.test.js`
-- **`src/services/all.js`** 신설 — 41개 서비스 등록 배럴. `main.js` 와 테스트가 같은 목록을 공유(서비스 추가 시 한 곳만 수정)
+- **`src/services/all.js`** 신설 — 39개 서비스 등록 배럴. `main.js` 와 테스트가 같은 목록을 공유(서비스 추가 시 한 곳만 수정)
 - 영향 파일: src/ui/csv-template.js·src/services/all.js·test/csv-template.test.js(신규), src/core/resolver-helpers.ts·kernel.ts(pickTieredMeter·tierNote), src/services/{event-hubs,service-bus,container-apps,front-door}.ts(카탈로그·구간 선택), src/ui/export-csv.js(양식 생성 로직 이관), src/main.js(배럴 사용), test/{resolver-helpers,new-services-resolve}.test.js(케이스 추가), azure-quote-template_file.csv(재생성), README.md, CHANGELOG.md
 - 검증: `npm test` **62 pass / 3 skip**(25→62), `npx tsc --noEmit` 0, `vite build` 성공. **라이브 API 34종 실조회 확인**(KRW) — 양식 신규 행 13종(VM D4s_v7·E8ds_v7, EH/SB/ACA/FD 기본 미터, SQL BC M-series, App Service P0v4, Redis E10) + 신규 카탈로그 21종(EH·SB 지역복제/Hybrid/WCF, FD Standard 9·Premium 4, 무료구간 미터 3) 전부 매칭 및 0원 아님
 
