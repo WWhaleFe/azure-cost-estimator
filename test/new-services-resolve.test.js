@@ -55,6 +55,12 @@ describe('Event Hubs resolve (_resolve_Event_Hubs)', () => {
     expect(r.paygItem).toBeTruthy();
     expect(r.paygItem.unitOfMeasure).toContain('1M');
   });
+  it('Geo Replication Zone 2 계층 → 신규 카탈로그 항목 매칭', async () => {
+    const r = await resolve('Event Hubs', { tier: 'Geo Replication Zone 2', item: 'Geo Replication Zone 2 Data Transfer' });
+    expect(r.paygItem).toBeTruthy();
+    expect(r.paygItem.skuName).toBe('Geo Replication Zone 2');
+    expect(r.paygItem.unitPrice).toBeGreaterThan(0);
+  });
   it('계층에 없는 청구항목 → 첫 유효항목으로 자동 보정 후 매칭', async () => {
     // Basic 계층엔 'Premium Processing Unit' 없음 → _applyStepVisibility 가 Basic 첫 항목으로 교정
     const r = await resolve('Event Hubs', { tier: 'Basic', item: 'Premium Processing Unit' });
@@ -71,10 +77,31 @@ describe('Service Bus resolve (_resolve_Service_Bus)', () => {
     expect(r.paygItem.skuName).toBe('Premium');
     expect(r.paygItem.unitPrice).toBeGreaterThan(0);
   });
-  it('Standard / Base Unit → 구간별 복수 단가 중 tierMinimumUnits=0 최저가', async () => {
+  it('Standard / Base Unit → 첫 구간이 유료이므로 tierMinimumUnits=0 최저가', async () => {
     const r = await resolve('Service Bus', { tier: 'Standard', item: 'Standard Base Unit' });
     expect(r.paygItem).toBeTruthy();
     expect(Number(r.paygItem.tierMinimumUnits || 0)).toBe(0);
+  });
+
+  // v115 — 첫 구간이 0원(무료 허용량)인 미터를 그대로 쓰면 견적이 통째로 0원이 되던 문제
+  it('Standard / Messaging Operations → 무료 구간(첫 13M)을 건너뛰고 유료 구간 단가', async () => {
+    const r = await resolve('Service Bus', { tier: 'Standard', item: 'Standard Messaging Operations' });
+    expect(r.paygItem).toBeTruthy();
+    expect(r.paygItem.unitPrice).toBeGreaterThan(0);
+    expect(Number(r.paygItem.tierMinimumUnits)).toBe(13);
+  });
+
+  it('Hybrid Connections / Data Transfer → 무료 구간(첫 5GB)을 건너뛰고 유료 구간 단가', async () => {
+    const r = await resolve('Service Bus', { tier: 'Hybrid Connections', item: 'Hybrid Connections Data Transfer' });
+    expect(r.paygItem).toBeTruthy();
+    expect(r.paygItem.skuName).toBe('Hybrid Connections');
+    expect(r.paygItem.unitPrice).toBeGreaterThan(0);
+  });
+
+  it('WCF Relay 계층 → 신규 카탈로그 항목 매칭', async () => {
+    const r = await resolve('Service Bus', { tier: 'WCF Relay', item: 'WCF Relay' });
+    expect(r.paygItem).toBeTruthy();
+    expect(r.paygItem.skuName).toBe('WCF Relay');
   });
 });
 

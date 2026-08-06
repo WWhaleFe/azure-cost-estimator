@@ -1,9 +1,16 @@
 ﻿Region,분류,ServiceCategory,SKU,Qty,Hours,Options
 koreacentral,웹 서버(Linux),Virtual Machine,D4s_v5,2,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
 koreacentral,앱 서버(Windows),Virtual Machine,D2s_v5,1,730,os=Windows; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=D-series v5
+koreacentral,웹 서버(신형 v7),Virtual Machine,D4s_v7,2,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=일반적인 용도; series=D-series v7
+koreacentral,DB 서버(메모리 v7),Virtual Machine,E8ds_v7,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=Ed-series v7
 koreacentral,개발 서버(B시리즈),Virtual Machine,B2ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
+koreacentral,GPU 학습(NC A100 v4),Virtual Machine,NC24ads_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=NC A100 v4 (GPU)
+polandcentral,GPU 추론(ND A100 v4),Virtual Machine,ND96amsr_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)
 koreacentral,AKS 클러스터(SLA),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA
 koreacentral,AKS 클러스터(LTS),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA and Long Term Support
+koreacentral,컨테이너 앱(vCPU 활성),Container Apps,,1,2628000,plan=Standard; item=Standard vCPU Active Usage
+koreacentral,컨테이너 앱(요청 5백만),Container Apps,,1,5,plan=Standard; item=Standard Requests
+koreacentral,컨테이너 앱(Dedicated),Container Apps,,1,730,plan=Dedicated; item=Dedicated Plan Management
 koreacentral,레지스트리 Basic,Azure Container Registry,,1,30,tier=Basic; metric=레지스트리 (일 단위)
 koreacentral,레지스트리 Premium,Azure Container Registry,,1,30,tier=Premium; metric=레지스트리 (일 단위)
 koreacentral,ACR 추가 저장소 100GB,Azure Container Registry,,1,100,tier=Standard; metric=추가 저장소 (GB/월)
@@ -34,6 +41,10 @@ koreacentral,부하 분산(데이터 500GB),Load Balancer,,1,500,tier=Standard; 
 koreacentral,게이트웨이 LB,Load Balancer,,1,730,tier=Gateway; metric=게이트웨이 (시간당)
 koreacentral,앱 게이트웨이(v2 고정),Application Gateway,Standard_v2,1,730,metric=고정 비용 (시간당)
 koreacentral,앱 게이트웨이(WAF v2),Application Gateway,WAF_v2,1,730,metric=고정 비용 (시간당)
+koreacentral,Front Door(Std 기본료),Azure Front Door,,1,1,tier=Standard; zone=Zone 2; item=Standard Base Fees
+koreacentral,Front Door(Std 송신 1TB),Azure Front Door,,1,1000,tier=Standard; zone=Zone 2; item=Standard Data Transfer Out
+koreacentral,Front Door(Premium 기본료),Azure Front Door,,1,1,tier=Premium; zone=Zone 2; item=Premium Base Fees
+koreacentral,Front Door(WAF 정책),Azure Front Door,,1,1,tier=Standard; zone=Zone 2; item=Standard Policy
 koreacentral,공인 IP(Standard),Public IP,Standard,1,730,ipType=Static
 koreacentral,공인 IP(Basic),Public IP,Basic,1,730,ipType=Static
 koreacentral,방화벽(Standard 배포),Azure Firewall,,1,730,"tier=Standard; metric=Deployment (배포, 시간당)"
@@ -50,6 +61,7 @@ koreacentral,프라이빗 DNS 영역,Azure DNS,,1,1,zoneType=Private; metric=호
 koreacentral,SQL DB(GP 2vCore),Azure SQL Database,,1,730,model=vCore; tier=General Purpose; compute=Provisioned; hardware=Gen5; vCores=2; redundancy=로컬 중복; license=라이선스 포함; storageGB=32
 koreacentral,SQL DB(BC 4vCore),Azure SQL Database,,1,730,model=vCore; tier=Business Critical; compute=Provisioned; hardware=Gen5; vCores=4; redundancy=로컬 중복; license=라이선스 포함; storageGB=64
 koreacentral,SQL DB(서버리스 2vCore),Azure SQL Database,,1,300,model=vCore; tier=General Purpose; compute=Serverless; hardware=Gen5; vCores=2; redundancy=로컬 중복
+koreacentral,SQL DB(DTU S3),Azure SQL Database,,1,730,model=DTU; tier=Standard; dtuSize=S3
 koreacentral,SQL 풀(Basic 100),Azure SQL Database Elastic Pool,,1,730,tier=Basic; poolSize=100
 koreacentral,SQL 풀(Standard 200),Azure SQL Database Elastic Pool,,1,730,tier=Standard; poolSize=200
 koreacentral,SQL MI(GP 8vCore),Azure SQL Managed Instance,,1,730,tier=General Purpose; hardware=Gen5; vCores=8; redundancy=로컬 중복; license=라이선스 포함
@@ -71,6 +83,15 @@ koreacentral,APIM(Standard v2),API Management,,1,730,tier=Standard v2
 koreacentral,APIM(Consumption 100만 콜),API Management,,1,100,tier=Consumption
 koreacentral,Bastion(Basic),Azure Bastion,,1,730,tier=Basic; metric=게이트웨이(시간당)
 koreacentral,Bastion(Standard),Azure Bastion,,1,730,tier=Standard; metric=게이트웨이(시간당)
+koreacentral,Event Hubs(Std TU),Event Hubs,,1,730,tier=Standard; item=Standard Throughput Unit
+koreacentral,Event Hubs(수신 100M),Event Hubs,,1,100,tier=Standard; item=Standard Ingress Events
+koreacentral,Event Hubs(Premium PU),Event Hubs,,1,730,tier=Premium; item=Premium Processing Unit
+koreacentral,Event Hubs(지역복제 100GB),Event Hubs,,1,100,tier=Geo Replication Zone 2; item=Geo Replication Zone 2 Data Transfer
+koreacentral,Service Bus(Std 기본),Service Bus,,1,730,tier=Standard; item=Standard Base Unit
+koreacentral,Service Bus(작업 50M),Service Bus,,1,50,tier=Standard; item=Standard Messaging Operations
+koreacentral,Service Bus(Premium MU),Service Bus,,1,730,tier=Premium; item=Premium Messaging Unit
+koreacentral,Service Bus(하이브리드 연결),Service Bus,,1,730,tier=Hybrid Connections; item=Hybrid Connections Listener Unit
+koreacentral,Service Bus(WCF Relay),Service Bus,,1,730,tier=WCF Relay; item=WCF Relay
 koreacentral,로그 수집 100GB,Log Analytics,,1,100,metric=Data Ingestion
 koreacentral,로그 보존 500GB,Log Analytics,,1,500,metric=Data Retention
 koreacentral,Sentinel(PAYG 100GB),Microsoft Sentinel,,1,100,model=Pay-as-you-go
@@ -93,43 +114,134 @@ koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 �
 #   · 가격 매칭 정확도는 서비스별 resolver 수준을 따름(일부 제네릭 서비스는 매칭 실패 가능 — docs/service-status.csv 참고)
 # ────────────────────────────────────────────────────────────
 # [서비스별 옵션 사전]
+#   · 서비스 줄의 Options 는 그 서비스에서 쓸 수 있는 값 전체(합집합)입니다.
+#   · "↳" 줄은 부모 옵션에 따라 달라지는 하위 값입니다. 부모와 짝이 맞지 않는 값을 적으면
+#     업로드 시 경고 없이 그 부모의 첫 번째 값으로 바뀌므로(대체) 반드시 짝을 맞추세요.
+#   · "미사용" 은 그 조합에서 무시되는 옵션 키입니다(적어도 계산에 영향 없음).
 # Virtual Machine | SKU=인스턴스(예 D4s_v5, 선택 series에 속해야 함) | Options: os=[Linux|Windows|Red Hat Enterprise Linux|SUSE]; swType=[(OS Only)|SQL Server (Enterprise)|SQL Server (Standard)|SQL Server (Web)|BizTalk Server (Enterprise)|BizTalk Server (Standard)]; tier=[Standard|Basic|Spot]; license=[라이선스 포함|Azure Hybrid Benefit]; category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅]
+#   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
+#   ↳ tier=[Standard|Spot], category=일반적인 용도 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|A-series v2]
+#   ↳ tier=[Standard|Spot], category=컴퓨팅 최적화 → series=[F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|FX-series]
+#   ↳ tier=[Standard|Spot], category=메모리에 최적화 → series=[E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)]
+#   ↳ tier=[Standard|Spot], category=Storage에 최적화 → series=[L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)]
+#   ↳ tier=[Standard|Spot], category=GPU → series=[N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)]
+#   ↳ tier=[Standard|Spot], category=고성능 컴퓨팅 → series=[HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
+#   ↳ tier=Basic, category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅] → series=[A-series (Basic)] | 미사용: category
 # Azure Kubernetes Service | SKU=비움 | Options: aksTier=[Standard (표준)|Automatic]; slaOption=[No SLA (free, non-production)|SLA|SLA and Long Term Support]
+#   ↳ aksTier=Automatic → 미사용: slaOption
+# Container Apps | SKU=비움 | Options: plan=[Standard|Dedicated|Dynamic Sessions|Hybrid]; item=[Standard vCPU Active Usage|Standard vCPU Idle Usage|Standard Memory Active Usage|Standard Memory Idle Usage|Standard Requests|Standard NC T4 v3 GPU Usage|Standard NC A100 v4 GPU Usage|Dedicated Plan Management|Dedicated vCPU Usage|Dedicated Memory Usage|Dedicated GPU Usage|Dynamic Sessions|Hybrid vCPU Usage]
+#   ↳ plan=Standard → item=[Standard vCPU Active Usage|Standard vCPU Idle Usage|Standard Memory Active Usage|Standard Memory Idle Usage|Standard Requests|Standard NC T4 v3 GPU Usage|Standard NC A100 v4 GPU Usage]
+#   ↳ plan=Dedicated → item=[Dedicated Plan Management|Dedicated vCPU Usage|Dedicated Memory Usage|Dedicated GPU Usage]
+#   ↳ plan=Dynamic Sessions → item=[Dynamic Sessions]
+#   ↳ plan=Hybrid → item=[Hybrid vCPU Usage]
 # Azure Container Registry | SKU=비움 | Options: tier=[Basic|Standard|Premium]; metric=[레지스트리 (일 단위)|추가 저장소 (GB/월)]
 # Disk | SKU=디스크 크기 SKU(예 P30; 프로비저닝형은 비움) | Options: diskSubType=[표준 HDD|표준 SSD|프리미엄 SSD|프리미엄 SSD v2|Ultra Disk]
 # Azure Files | SKU=비움 | Options: fileTier=[Premium|Hot|Cool|Transaction Optimized]; redundancy=[LRS|ZRS|GRS|GZRS]; metric=[Data Stored|Snapshots|Metadata|Write Operations|Read Operations|List Operations]
-# Azure Files Provisioned v2 | SKU=비움 | Options: media=[SSD|HDD]; redundancy=[LRS|ZRS]; storageGiB=숫자; iops=숫자; throughput=숫자
+# Azure Files Provisioned v2 | SKU=비움 | Options: media=[SSD|HDD]; redundancy=[LRS|ZRS|GRS|GZRS]; storageGiB=숫자; iops=숫자; throughput=숫자
+#   ↳ media=SSD → redundancy=[LRS|ZRS]
+#   ↳ media=HDD → redundancy=[LRS|ZRS|GRS|GZRS]
 # Blob Storage | SKU=비움 | Options: blobTier=[Hot|Cool|Cold|Archive|Premium]; redundancy=[LRS|ZRS|GRS|RA-GRS|GZRS|RA-GZRS]; metric=[Data Stored|Read Operations|Write Operations|Data Retrieval|List and Create Container Operations|All Other Operations]
-# Page Blob | SKU=비움 | Options: performance=[Standard|Premium]; redundancy=[LRS|GRS|RA-GRS]; diskSize=[P10|P15|P20|P30|P40|P50|P60|P70|P80]; metric=[Data Stored|Read Operations|Write Operations]
+# Page Blob | SKU=비움 | Options: performance=[Standard|Premium]; redundancy=[LRS|GRS|RA-GRS|ZRS]; diskSize=[P10|P15|P20|P30|P40|P50|P60|P70|P80]; metric=[Data Stored|Read Operations|Write Operations]
+#   ↳ performance=Standard → redundancy=[LRS|GRS|RA-GRS] | 미사용: diskSize
+#   ↳ performance=Premium → redundancy=[LRS|ZRS] | 미사용: metric
 # Storage Account | SKU=비움 | Options: storageType=[Table|Queue]; redundancy=[LRS|ZRS|GRS|RA-GRS|GZRS|RA-GZRS]; metric=[Data Stored|Write Operations|Read Operations|List Operations|Delete Operations|Scan Operations]
 # Data Lake Storage Gen2 | SKU=비움 | Options: namespace=[계층 구조 네임스페이스|단일 구조 네임스페이스]; accessTier=[Hot|Cool|Cold|Archive]; redundancy=[LRS|ZRS|GRS|RA-GRS|GZRS|RA-GZRS]; metric=[Data Stored|Iterative Read Operations|Iterative Write Operations|Read Operations|Write Operations|Delete Operations]
 # Backup | SKU=비움 | Options: metric=[보호 인스턴스|백업 저장소]; workload=[Azure VM|SQL Server in Azure VM|SAP HANA on Azure VM|SAP ASE on Azure VM|Azure Files|Azure Files Vaulted|Azure Blob|ADLS Gen2 Vaulted|Cross region for ADLS and Blobs|PostgreSQL|Cosmos DB|Azure Kubernetes|On Premises Server]; storageTier=[Standard|Archive]; redundancy=[LRS|ZRS|GRS|RA-GRS]
+#   ↳ metric=보호 인스턴스 → 미사용: storageTier, redundancy
+#   ↳ metric=백업 저장소 → 미사용: workload
 # Virtual Network | SKU=비움 | Options: direction=[Global Peering - Outbound (Egress)|Global Peering - Inbound (Ingress)]
 # VPN Gateway | SKU=게이트웨이 SKU(예 VpnGw1) | Options: gatewayHours=숫자; extraS2sTunnels=숫자; extraP2sConnections=숫자; vnetTransferType=[VNET 간|VPN]; vnetGB=숫자
-# Load Balancer | SKU=비움 | Options: tier=[Standard|Gateway|Global|Basic]; metric=[규칙 (시간당, 5개 포함)|초과 규칙 (시간당)|데이터 처리 (GB)]
-# Application Gateway | SKU=SKU(예 Standard_v2) | Options: metric=[고정 비용 (시간당)|용량 단위 (CU, 시간당)]
+# Load Balancer | SKU=비움 | Options: tier=[Standard|Gateway|Global|Basic]; metric=[규칙 (시간당, 5개 포함)|초과 규칙 (시간당)|데이터 처리 (GB)|게이트웨이 (시간당)|게이트웨이 체인 (시간당)]
+#   ↳ tier=[Standard|Global] → metric=[규칙 (시간당, 5개 포함)|초과 규칙 (시간당)|데이터 처리 (GB)]
+#   ↳ tier=Gateway → metric=[게이트웨이 (시간당)|게이트웨이 체인 (시간당)|데이터 처리 (GB)]
+#   ↳ tier=Basic → 미사용: metric
+# Application Gateway | SKU=SKU(예 Standard_v2) | Options: metric=[고정 비용 (시간당)|용량 단위 (CU, 시간당)|게이트웨이 (시간당)|데이터 처리 (GB)]
+#   ↳ SKU=[Standard_v2|WAF_v2|Basic_v2] → metric=[고정 비용 (시간당)|용량 단위 (CU, 시간당)]
+#   ↳ SKU=[Standard_Small|Standard_Medium|Standard_Large] → metric=[게이트웨이 (시간당)|데이터 처리 (GB)]
+#   ↳ SKU=[WAF_Medium|WAF_Large] → metric=[게이트웨이 (시간당)]
+# Azure Front Door | SKU=비움 | Options: tier=[Standard|Premium]; zone=[Zone 1|Zone 2|Zone 3|Zone 4|Zone 5|Zone 6|Zone 7|Zone 8]; item=[Standard Base Fees|Standard Data Transfer Out|Standard Data Transfer In|Standard Requests|Standard Custom Domain|Standard Rule|Standard Policy|Standard Default Ruleset|Standard Default Request|Standard Bot Protection Ruleset|Standard Bot Protection Request|Standard Included Routing Rules|Standard Overage Routing Rules|Standard Edge Actions Base Fee|Standard Invocations|Standard Overage Execution Time|Premium Base Fees|Premium Data Transfer Out|Premium Data Transfer In|Premium Requests|Premium Captcha Sessions|Premium Edge Actions Base Fee|Premium Invocations|Premium Overage Execution Time]
+#   ↳ tier=Standard → item=[Standard Base Fees|Standard Data Transfer Out|Standard Data Transfer In|Standard Requests|Standard Custom Domain|Standard Rule|Standard Policy|Standard Default Ruleset|Standard Default Request|Standard Bot Protection Ruleset|Standard Bot Protection Request|Standard Included Routing Rules|Standard Overage Routing Rules|Standard Edge Actions Base Fee|Standard Invocations|Standard Overage Execution Time]
+#   ↳ tier=Premium → item=[Premium Base Fees|Premium Data Transfer Out|Premium Data Transfer In|Premium Requests|Premium Captcha Sessions|Premium Edge Actions Base Fee|Premium Invocations|Premium Overage Execution Time]
 # Public IP | SKU=SKU(예 Standard) | Options: ipType=[Static|Dynamic]
+#   ↳ SKU=[Standard|Global] → ipType=[Static]
+#   ↳ SKU=Basic → ipType=[Static|Dynamic]
 # Azure Firewall | SKU=비움 | Options: tier=[Standard|Premium|Basic]; metric=[Deployment (배포, 시간당)|Data Processed (데이터 처리, GB)|Capacity Unit (용량 단위, 시간당)]
+#   ↳ tier=[Standard|Premium] → metric=[Deployment (배포, 시간당)|Data Processed (데이터 처리, GB)|Capacity Unit (용량 단위, 시간당)]
+#   ↳ tier=Basic → metric=[Deployment (배포, 시간당)|Data Processed (데이터 처리, GB)]
 # Bandwidth | SKU=비움 | Options: direction=[Outbound (Internet Egress)|Inter-region|Intra-region]
 # NAT Gateway | SKU=비움 | Options: metric=[Resource Hour|Data Processed]
 # Azure Private Link | SKU=비움 | Options: metric=[프라이빗 엔드포인트 (시간당)|데이터 처리 - Inbound (GB)|데이터 처리 - Outbound (GB)]
 # Azure DNS | SKU=비움 | Options: zoneType=[Public|Private]; metric=[호스팅 영역 (월)|DNS 쿼리 (백만)]
-# Azure SQL Database | SKU=비움 | Options: model=[vCore|DTU]; tier=[General Purpose|Business Critical|Hyperscale]; compute=[Provisioned|Serverless]; hardware=[Gen5|Fsv2-series]; vCores=[1|2|4|6|8|10|12|14|16|18|20|24|32|40|80]; redundancy=[로컬 중복|영역 중복(ZR)]; license=[라이선스 포함|Azure Hybrid Benefit]; storageGB=숫자; dtuSize=[S0|S1|S2|S3|S4|S6|S7|S9|S12]
-# Azure SQL Database Elastic Pool | SKU=비움 | Options: tier=[Basic|Standard|Premium]; poolSize=[50|100|200|300|400|800|1200|1600]
+# Azure SQL Database | SKU=비움 | Options: model=[vCore|DTU]; tier=[General Purpose|Business Critical|Hyperscale|Basic|Standard|Premium]; compute=[Provisioned|Serverless]; hardware=[Gen5|Fsv2-series|M-series|Premium-series|Premium-series MO|DC-series]; vCores=[1|2|4|6|8|10|12|14|16|18|20|24|32|40|80]; redundancy=[로컬 중복|영역 중복(ZR)]; license=[라이선스 포함|Azure Hybrid Benefit]; storageGB=숫자; dtuSize=[B|S0|S1|S2|S3|S4|S6|S7|S9|S12|P1|P2|P4|P6|P11|P15]
+#   ↳ model=vCore, tier=General Purpose → compute=[Provisioned|Serverless]; hardware=[Gen5|Fsv2-series] | 미사용: dtuSize
+#   ↳ model=vCore, tier=Business Critical → compute=[Provisioned]; hardware=[Gen5|M-series] | 미사용: dtuSize
+#   ↳ model=vCore, tier=Hyperscale → compute=[Provisioned|Serverless]; hardware=[Gen5|Premium-series|Premium-series MO|DC-series] | 미사용: dtuSize
+#   ↳ model=DTU, tier=Basic → dtuSize=[B] | 미사용: compute, hardware, vCores, redundancy, license, storageGB
+#   ↳ model=DTU, tier=Standard → dtuSize=[S0|S1|S2|S3|S4|S6|S7|S9|S12] | 미사용: compute, hardware, vCores, redundancy, license, storageGB
+#   ↳ model=DTU, tier=Premium → dtuSize=[P1|P2|P4|P6|P11|P15] | 미사용: compute, hardware, vCores, redundancy, license, storageGB
+# Azure SQL Database Elastic Pool | SKU=비움 | Options: tier=[Basic|Standard|Premium]; poolSize=[50|100|200|300|400|800|1200|1600|2000|2500|3000|125|250|500|1000|1500|3500|4000]
+#   ↳ tier=Basic → poolSize=[50|100|200|300|400|800|1200|1600]
+#   ↳ tier=Standard → poolSize=[50|100|200|300|400|800|1200|1600|2000|2500|3000]
+#   ↳ tier=Premium → poolSize=[125|250|500|1000|1500|2000|2500|3000|3500|4000]
 # Azure SQL Managed Instance | SKU=비움 | Options: tier=[General Purpose|Business Critical]; hardware=[Gen5|Premium-series|Premium-series MO]; vCores=[4|8|16|24|32|40|64|80]; redundancy=[로컬 중복|영역 중복(ZR)]; license=[라이선스 포함|Azure Hybrid Benefit]
-# Azure Database for MySQL | SKU=비움 | Options: tier=[Burstable|General Purpose|Business Critical]; instance=[B1MS|B2S|B2MS|B4MS|B8MS|B12MS|B16MS|B20MS]; series=[Ddsv5|Ddsv6|Dadsv5 (AMD)|Dadsv6 (AMD)]; vCores=[1|2|4|8|16|32|48|64]
+# Azure Database for MySQL | SKU=비움 | Options: tier=[Burstable|General Purpose|Business Critical]; instance=[B1MS|B2S|B2MS|B4MS|B8MS|B12MS|B16MS|B20MS]; series=[Ddsv5|Ddsv6|Dadsv5 (AMD)|Dadsv6 (AMD)|Edsv5|Edsv6|Eadsv5 (AMD)|Eadsv6 (AMD)]; vCores=[1|2|4|8|16|32|48|64|96|20|104]
+#   ↳ tier=Burstable → 미사용: series, vCores
+#   ↳ tier=General Purpose → series=[Ddsv5|Ddsv6|Dadsv5 (AMD)|Dadsv6 (AMD)]; vCores=[1|2|4|8|16|32|48|64|96] | 미사용: instance
+#   ↳ tier=Business Critical → series=[Edsv5|Edsv6|Eadsv5 (AMD)|Eadsv6 (AMD)]; vCores=[2|4|8|16|20|32|48|64|96|104] | 미사용: instance
 # Azure Cosmos DB | SKU=비움 | Options: model=[Provisioned (수동, RU/s)|Autoscale (RU/s)|Serverless (백만 RU)|저장소 (Data Stored, GB)]; rus=숫자
+#   ↳ model=[Serverless (백만 RU)|저장소 (Data Stored, GB)] → 미사용: rus
 # Azure Cache for Redis | SKU=캐시 크기(예 C0, 선택 tier에 속해야 함) | Options: tier=[Basic|Standard|Premium|Enterprise|Enterprise Flash|AMR Balanced|AMR Memory Optimized|AMR Compute Optimized|AMR Flash Optimized]
-# App Service | SKU=인스턴스(예 P1V3) | Options: tier=[Free|Shared|Basic|Standard|Premium|Premium v2|Premium v3|Premium v4|Isolated|Isolated v2|Isolated v4]; os=[Windows|Linux]
+#   ↳ tier=[Basic|Standard] → SKU=[C0|C1|C2|C3|C4|C5|C6]
+#   ↳ tier=Premium → SKU=[P1|P2|P3|P4|P5]
+#   ↳ tier=Enterprise → SKU=[E1|E5|E10|E20|E50|E100|E200|E400]
+#   ↳ tier=Enterprise Flash → SKU=[F300|F700|F1500]
+#   ↳ tier=AMR Balanced → SKU=[B0|B1|B3|B5|B10|B20|B50|B100|B150|B250|B350|B500|B700|B1000]
+#   ↳ tier=AMR Memory Optimized → SKU=[M10|M20|M50|M150|M250|M350|M500|M700|M1000|M1500|M2000]
+#   ↳ tier=AMR Compute Optimized → SKU=[X3|X5|X10|X20|X50|X100|X150|X250|X350|X500|X700]
+#   ↳ tier=AMR Flash Optimized → SKU=[A250|A500|A700|A1000|A1500|A2000|A4500]
+# App Service | SKU=인스턴스(예 P1 v3, 선택 tier에 속해야 함) | Options: tier=[Free|Shared|Basic|Standard|Premium|Premium v2|Premium v3|Premium v4|Isolated|Isolated v2|Isolated v4]; os=[Windows|Linux]
+#   ↳ tier=Free → SKU=[F1]
+#   ↳ tier=Shared → SKU=[Shared]
+#   ↳ tier=Basic → SKU=[B1|B2|B3]
+#   ↳ tier=Standard → SKU=[S1|S2|S3]
+#   ↳ tier=Premium → SKU=[P1|P2|P3|P4]
+#   ↳ tier=Premium v2 → SKU=[P1 v2|P2 v2|P3 v2]
+#   ↳ tier=Premium v3 → SKU=[P0v3|P1 v3|P2 v3|P3 v3|P1mv3|P2mv3|P3mv3|P4mv3|P5mv3]
+#   ↳ tier=Premium v4 → SKU=[P0v4|P1v4|P2v4|P3v4|P1mv4|P2mv4|P3mv4|P4mv4|P5mv4]
+#   ↳ tier=Isolated → SKU=[I1|I2|I3]
+#   ↳ tier=Isolated v2 → SKU=[I1 v2|I2 v2|I3 v2|I4 v2|I5 v2|I6 v2|I1mv2|I2mv2|I3mv2|I4mv2|I5mv2]
+#   ↳ tier=Isolated v4 → SKU=[I1v4|I2v4|I3v4|I4v4|I5v4|I6v4|I1mv4|I2mv4|I3mv4|I4mv4|I5mv4]
 # API Management | SKU=비움 | Options: tier=[Developer|Basic|Standard|Premium|Basic v2|Standard v2|Premium v2|Consumption|Self-hosted Gateway]
 # Azure Bastion | SKU=비움 | Options: tier=[Basic|Standard|Premium]; metric=[게이트웨이(시간당)|추가 게이트웨이(시간당)|데이터 전송 아웃(GB)]
+# Event Hubs | SKU=비움 | Options: tier=[Basic|Standard|Premium|Dedicated|Geo Replication Zone 1|Geo Replication Zone 2|Geo Replication Zone 3]; item=[Basic Throughput Unit|Basic Ingress Events|Standard Throughput Unit|Standard Ingress Events|Standard Capture|Standard Kafka Endpoint|Premium Processing Unit|Premium Extended Retention|Dedicated Capacity Unit|Dedicated Extended Retention|Geo Replication Zone 1 Data Transfer|Geo Replication Zone 2 Data Transfer|Geo Replication Zone 3 Data Transfer]
+#   ↳ tier=Basic → item=[Basic Throughput Unit|Basic Ingress Events]
+#   ↳ tier=Standard → item=[Standard Throughput Unit|Standard Ingress Events|Standard Capture|Standard Kafka Endpoint]
+#   ↳ tier=Premium → item=[Premium Processing Unit|Premium Extended Retention]
+#   ↳ tier=Dedicated → item=[Dedicated Capacity Unit|Dedicated Extended Retention]
+#   ↳ tier=Geo Replication Zone 1 → item=[Geo Replication Zone 1 Data Transfer]
+#   ↳ tier=Geo Replication Zone 2 → item=[Geo Replication Zone 2 Data Transfer]
+#   ↳ tier=Geo Replication Zone 3 → item=[Geo Replication Zone 3 Data Transfer]
+# Service Bus | SKU=비움 | Options: tier=[Basic|Standard|Premium|Hybrid Connections|WCF Relay|Geo Replication Zone 1|Geo Replication Zone 2|Geo Replication Zone 3]; item=[Basic Messaging Operations|Standard Base Unit|Standard Messaging Operations|Standard Brokered Connection|Premium Messaging Unit|Hybrid Connections Listener Unit|Hybrid Connections Data Transfer|WCF Relay|WCF Relay Message|Geo Replication Zone 1 Data Transfer|Geo Replication Zone 2 Data Transfer|Geo Replication Zone 3 Data Transfer]
+#   ↳ tier=Basic → item=[Basic Messaging Operations]
+#   ↳ tier=Standard → item=[Standard Base Unit|Standard Messaging Operations|Standard Brokered Connection]
+#   ↳ tier=Premium → item=[Premium Messaging Unit]
+#   ↳ tier=Hybrid Connections → item=[Hybrid Connections Listener Unit|Hybrid Connections Data Transfer]
+#   ↳ tier=WCF Relay → item=[WCF Relay|WCF Relay Message]
+#   ↳ tier=Geo Replication Zone 1 → item=[Geo Replication Zone 1 Data Transfer]
+#   ↳ tier=Geo Replication Zone 2 → item=[Geo Replication Zone 2 Data Transfer]
+#   ↳ tier=Geo Replication Zone 3 → item=[Geo Replication Zone 3 Data Transfer]
 # Log Analytics | SKU=비움 | Options: metric=[Data Ingestion|Data Retention|Data Analyzed]
 # Microsoft Sentinel | SKU=비움 | Options: model=[Pay-as-you-go|Basic Logs|50 GB Commitment Tier|100 GB Commitment Tier|200 GB Commitment Tier|300 GB Commitment Tier|400 GB Commitment Tier|500 GB Commitment Tier|1000 GB Commitment Tier|2000 GB Commitment Tier|5000 GB Commitment Tier|10000 GB Commitment Tier|25000 GB Commitment Tier|50000 GB Commitment Tier]
 # Azure Synapse Analytics | SKU=비움 | Options: component=[Dedicated SQL Pool (DWU)|Serverless SQL Pool (Data Processed)|Data Flow (vCore-Hour)]; dwuLevel=[DW100c|DW200c|DW300c|DW400c|DW500c|DW1000c|DW1500c|DW2000c|DW2500c|DW3000c|DW5000c|DW6000c|DW7500c|DW10000c|DW15000c|DW30000c]; flowType=[Basic|Standard|Compute Optimized]
+#   ↳ component=Dedicated SQL Pool (DWU) → 미사용: flowType
+#   ↳ component=Serverless SQL Pool (Data Processed) → 미사용: dwuLevel, flowType
+#   ↳ component=Data Flow (vCore-Hour) → 미사용: dwuLevel
 # Azure OpenAI | SKU=비움 | Options: model=[GPT-5|GPT-5 mini|GPT-5.1|GPT-5.2|GPT-4.1|GPT-4.1 mini|GPT-4.1 nano|GPT-4o (1120)|GPT-4o mini (0718)|o1 (1217)|o3 (0416)|o3 mini (0131)|o4-mini (0416)|text-embedding-3-small|text-embedding-3-large]; metric=[입력 토큰|출력 토큰|캐시 입력 토큰]
 # Azure DevOps | SKU=비움 | Options: plan=[Basic Plan 사용자 (월)|Advanced 사용자 (월)|Test Plans 사용자 (월)|Artifacts 저장소 (GB/월)|MS-hosted 병렬 작업 (월)|Self-hosted 병렬 작업 (월)]
 # [Virtual Machine 인스턴스 카탈로그] Options에 series=[...]를 함께 지정, SKU는 해당 series 인스턴스
 #   B-series: B1ls, B1s, B1ms, B2s, B2ms, B4ms, B8ms, B12ms, B16ms, B20ms
+#   Bs-series v2: B2ts_v2, B2ls_v2, B2s_v2, B4ls_v2, B4s_v2, B8ls_v2, B8s_v2, B16ls_v2, B16s_v2, B32ls_v2, B32s_v2
+#   Bas-series v2 (AMD): B2ats_v2, B2als_v2, B2as_v2, B4als_v2, B4as_v2, B8als_v2, B8as_v2, B16als_v2, B16as_v2, B32als_v2, B32as_v2
 #   D-series v3: D2s_v3, D4s_v3, D8s_v3, D16s_v3, D32s_v3, D48s_v3, D64s_v3
 #   D-series v4: D2s_v4, D4s_v4, D8s_v4, D16s_v4, D32s_v4, D48s_v4, D64s_v4
 #   D-series v5: D2s_v5, D4s_v5, D8s_v5, D16s_v5, D32s_v5, D48s_v5, D64s_v5, D96s_v5
@@ -137,17 +249,37 @@ koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 �
 #   Dd-series v6: D2ds_v6, D4ds_v6, D8ds_v6, D16ds_v6, D32ds_v6, D48ds_v6, D64ds_v6, D96ds_v6, D128ds_v6, D192ds_v6
 #   Das-series v5 (AMD): D2as_v5, D4as_v5, D8as_v5, D16as_v5, D32as_v5, D48as_v5, D64as_v5, D96as_v5
 #   Das-series v6 (AMD): D2as_v6, D4as_v6, D8as_v6, D16as_v6, D32as_v6, D48as_v6, D64as_v6, D96as_v6
+#   D-series v7: D2s_v7, D4s_v7, D8s_v7, D16s_v7, D32s_v7, D48s_v7, D64s_v7, D96s_v7, D128s_v7, D192s_v7
+#   Dd-series v7: D2ds_v7, D4ds_v7, D8ds_v7, D16ds_v7, D32ds_v7, D48ds_v7, D64ds_v7, D96ds_v7, D128ds_v7, D192ds_v7
+#   Das-series v7 (AMD): D2as_v7, D4as_v7, D8as_v7, D16as_v7, D32as_v7, D48as_v7, D64as_v7, D96as_v7, D128as_v7, D160as_v7
+#   Dad-series v7 (AMD): D2ads_v7, D4ads_v7, D8ads_v7, D16ads_v7, D32ads_v7, D48ads_v7, D64ads_v7, D96ads_v7, D128ads_v7, D160ads_v7
 #   E-series v3: E2s_v3, E4s_v3, E8s_v3, E16s_v3, E20s_v3, E32s_v3, E48s_v3, E64s_v3
 #   E-series v4: E2s_v4, E4s_v4, E8s_v4, E16s_v4, E20s_v4, E32s_v4, E48s_v4, E64s_v4
 #   E-series v5: E2s_v5, E4s_v5, E8s_v5, E16s_v5, E20s_v5, E32s_v5, E48s_v5, E64s_v5, E96s_v5
 #   E-series v6: E2s_v6, E4s_v6, E8s_v6, E16s_v6, E20s_v6, E32s_v6, E48s_v6, E64s_v6, E96s_v6, E128s_v6
 #   Ed-series v6: E2ds_v6, E4ds_v6, E8ds_v6, E16ds_v6, E20ds_v6, E32ds_v6, E48ds_v6, E64ds_v6, E96ds_v6, E128ds_v6
 #   Eas-series v5 (AMD): E2as_v5, E4as_v5, E8as_v5, E16as_v5, E20as_v5, E32as_v5, E48as_v5, E64as_v5, E96as_v5
+#   Eas-series v6 (AMD): E2as_v6, E4as_v6, E8as_v6, E16as_v6, E20as_v6, E32as_v6, E48as_v6, E64as_v6, E96as_v6
+#   Ead-series v6 (AMD): E2ads_v6, E4ads_v6, E8ads_v6, E16ads_v6, E20ads_v6, E32ads_v6, E48ads_v6, E64ads_v6, E96ads_v6
+#   E-series v7: E2s_v7, E4s_v7, E8s_v7, E16s_v7, E20s_v7, E32s_v7, E48s_v7, E64s_v7, E96s_v7, E128s_v7, E192s_v7
+#   Ed-series v7: E2ds_v7, E4ds_v7, E8ds_v7, E16ds_v7, E20ds_v7, E32ds_v7, E48ds_v7, E64ds_v7, E96ds_v7, E128ds_v7, E192ds_v7
+#   Eas-series v7 (AMD): E2as_v7, E4as_v7, E8as_v7, E16as_v7, E32as_v7, E48as_v7, E64as_v7, E96as_v7, E128as_v7, E160as_v7
+#   Ead-series v7 (AMD): E2ads_v7, E4ads_v7, E8ads_v7, E16ads_v7, E32ads_v7, E48ads_v7, E64ads_v7, E96ads_v7, E128ads_v7
 #   F-series v2: F2s_v2, F4s_v2, F8s_v2, F16s_v2, F32s_v2, F48s_v2, F64s_v2, F72s_v2
+#   Fas-series v7 (AMD): F1as_v7, F2as_v7, F4as_v7, F8as_v7, F16as_v7, F32as_v7, F48as_v7, F64as_v7, F80as_v7
+#   Fals-series v7 (AMD): F1als_v7, F2als_v7, F4als_v7, F8als_v7, F16als_v7, F32als_v7, F48als_v7, F64als_v7, F80als_v7
 #   L-series v3: L8s_v3, L16s_v3, L32s_v3, L48s_v3, L64s_v3, L80s_v3
 #   Las-series v3 (AMD): L8as_v3, L16as_v3, L32as_v3, L48as_v3, L64as_v3, L80as_v3
+#   L-series v4: L2s_v4, L4s_v4, L8s_v4, L16s_v4, L32s_v4, L48s_v4, L64s_v4, L80s_v4, L96s_v4
+#   Las-series v4 (AMD): L2as_v4, L4as_v4, L8as_v4, L16as_v4, L32as_v4, L48as_v4, L64as_v4, L80as_v4, L96as_v4
 #   M-series: M8ms, M16ms, M32ms, M64ms, M128ms, M16s, M32s, M64s, M128s, M32ms_v2, M64ms_v2, M128ms_v2, M208ms_v2, M416ms_v2, M64ds_v2, M128ds_v2
+#   Ms-series v3 (Medium Memory): M12s_v3, M24s_v3, M48s_1_v3, M96s_1_v3, M96s_2_v3, M176s_3_v3, M176s_4_v3
+#   Mds-series v3 (Medium Memory): M12ds_v3, M24ds_v3, M48ds_1_v3, M96ds_1_v3, M96ds_2_v3, M176ds_3_v3, M176ds_4_v3
 #   N-series (GPU): NC4as_T4_v3, NC8as_T4_v3, NC16as_T4_v3, NC64as_T4_v3, NC6s_v3, NC12s_v3, NC24s_v3, NV4as_v4, NV8as_v4, NV16as_v4, NV32as_v4
+#   NC A100 v4 (GPU): NC24ads_A100_v4, NC48ads_A100_v4, NC96ads_A100_v4
+#   NC H100 v5 (GPU): NC40ads_H100_v5, NC80adis_H100_v5
+#   ND A100 v4 (GPU): ND96amsr_A100_v4
+#   ND H100 v5 (GPU): ND96isr_H100_v5
 #   A-series v2: A1_v2, A2_v2, A4_v2, A8_v2, A2m_v2, A4m_v2, A8m_v2
 #   FX-series: FX4mds, FX12mds, FX24mds, FX36mds, FX48mds
 #   HB-series v4 (HPC): HB176-24rs_v4, HB176-48rs_v4, HB176-96rs_v4, HB176-144rs_v4, HB176rs_v4
@@ -162,4 +294,12 @@ koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 �
 # [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용
 # [사용량 단위] 저장·전송 항목(Azure Files/Blob/Backup 저장소/Bandwidth/Bastion 데이터 전송)은 Hours 칸에 사용량(GB 등)을 입력
 # [사용량 단위 2] Cosmos DB Serverless=백만 RU, 저장소=GB / API Management Consumption=만 콜 / ACR 레지스트리=일수, 저장소=GB / Azure DNS 영역=1(Qty=영역 수), 쿼리=백만 / Azure DevOps=1(Qty=사용자·작업 수) / Azure OpenAI=백만 토큰 / Private Link 데이터=GB
-# [Region 코드] koreacentral, koreasouth, japaneast, eastus, westus2, westeurope, southeastasia
+# [사용량 단위 3] Event Hubs·Service Bus·Container Apps·Front Door 는 청구 항목(item)의 단위를 그대로 Hours 에 입력
+#   · 1 Hour/1(시간당) → 월 사용시간(730) / 1M → 백만 건 / 1 GB·1 GiB → GB(GiB) / 1 Second·1 GiB Second → 초(GiB·초) / 1/Month → 1
+# [지역 복제] Event Hubs·Service Bus 의 tier=Geo Replication Zone N 은 리전이 속한 존만 매칭됩니다(예 koreacentral=Zone 2)
+# [무료 허용량 주의] 일부 미터는 첫 구간이 0원(무료 허용량)이라 그 구간을 쓰면 견적이 0원이 됩니다.
+#   · 계산기는 0원이 아닌 최저 구간 단가를 씁니다 — 예) Service Bus Standard Messaging Operations(첫 13M 무료),
+#     Standard Brokered Connection(첫 1,000개 무료), Hybrid Connections Data Transfer(첫 5GB 무료),
+#     Front Door Standard Included Routing Rules(5개 포함). 무료 허용량 이하만 쓸 계획이면 그 행은 빼세요
+# [글로벌 서비스] Azure Front Door 는 Region 열을 무시하고 zone(요금 존)으로 가격이 정해집니다. Zone 1=북미·유럽, Zone 2=아시아 태평양(한국·일본), Zone 5=인도
+# [Region 코드] koreacentral, koreasouth, japaneast, japanwest, southeastasia, eastasia, australiaeast, australiasoutheast, centralindia, southindia, westindia, indonesiacentral, malaysiawest, newzealandnorth, eastus, eastus2, centralus, northcentralus, southcentralus, westus, westus2, westus3, westcentralus, canadacentral, canadaeast, mexicocentral, brazilsouth, westeurope, northeurope, uksouth, ukwest, francecentral, germanywestcentral, switzerlandnorth, norwayeast, swedencentral, polandcentral, italynorth, spaincentral, austriaeast, uaenorth, qatarcentral, israelcentral, southafricanorth

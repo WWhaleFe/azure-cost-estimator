@@ -1,4 +1,4 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, pickTieredMeter, tierNote } from '../core/kernel.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/container-apps.ts — Azure Container Apps (서버리스 컨테이너)
@@ -10,6 +10,7 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //     Dedicated        : Plan Management(1 Hour), vCPU Usage(1 Hour), Memory Usage(1 Hour), GPU Usage(1 Hour)
 //     Dynamic Sessions : Dynamic Sessions(1 Hour)
 //     Hybrid           : Hybrid vCPU Usage(1 Hour)
+//   구간(tier) 요금은 pickTieredMeter — 첫 구간이 0원이면 무료 허용량이므로 다음 유료 구간을 쓴다.
 //   플랜 변경 시 청구 항목 옵션을 재구성(instanceParentKey='plan').
 //   월=단가×Qty×usage(엔진 기본) — unitOfMeasure(1 Second/1 GiB Second/1M/1 Hour)에 맞춰 usage 입력.
 //   절약/예약 미적용. 못 찾으면 "매칭 실패".
@@ -72,9 +73,9 @@ REG['_resolve_Container_Apps'] = async function(row: Row, cur: string) {
     if (String(it.type||'').toLowerCase() !== 'consumption') return false;
     if (String(it.skuName||'') !== plan) return false;
     if (String(it.meterName||'') !== item) return false;
-    return Number(it.tierMinimumUnits||0) === 0;
-  }).sort(function(a: ApiItem, b: ApiItem){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); });
-  var chosen = cands[0] || null;
+    return true;
+  });
+  var chosen = pickTieredMeter(cands);
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
@@ -84,6 +85,6 @@ REG['_resolve_Container_Apps'] = async function(row: Row, cur: string) {
 
   row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
+  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + tierNote(chosen));
   updatePriceCells(row); updateTotalsRow();
 };

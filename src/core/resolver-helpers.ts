@@ -55,3 +55,27 @@ export function riItemsFromResv(resvItems: ApiItem[], skuLower: string, mult: nu
   }
   return { ri1:pick(1, /1\s*year/i), ri3:pick(3, /3\s*year/i) };
 }
+
+// ── 구간(tier) 요금 미터에서 대표 단가 고르기 ──
+// Retail Prices API 는 한 미터를 tierMinimumUnits 로 나눠 여러 건으로 돌려준다.
+// 첫 구간(tierMinimumUnits=0)이 0원인 미터가 있는데, 이건 요율이 아니라 **무료 허용량**이다.
+//   예) Service Bus Standard Messaging Operations — 첫 13M 무료, 이후 1,227.68/1M
+//       Service Bus Hybrid Connections Data Transfer — 첫 5GB 무료, 이후 1,534.6/GB
+//       Front Door Standard Included Routing Rules — 5개 포함, 이후 46.038/시간
+// 첫 구간을 그대로 쓰면 견적이 통째로 0원이 되므로, **0원이 아닌 가장 낮은 구간**을 고른다.
+// (전 구간이 0원인 미터는 그대로 0원 — 실제로 무료인 항목)
+export function pickTieredMeter(cands: ApiItem[] | null | undefined): ApiItem | null {
+  if (!cands || !cands.length) return null;
+  const sorted = cands.slice().sort(function (a, b) {
+    return (Number(a.tierMinimumUnits || 0) - Number(b.tierMinimumUnits || 0))
+        || (Number(a.unitPrice || 0) - Number(b.unitPrice || 0));
+  });
+  for (let i = 0; i < sorted.length; i++) if (Number(sorted[i].unitPrice || 0) > 0) return sorted[i];
+  return sorted[0];
+}
+
+// 무료 허용량을 건너뛰고 유료 구간을 골랐을 때 사용자에게 보여줄 꼬리말
+export function tierNote(chosen: ApiItem | null): string {
+  const min = Number(chosen && chosen.tierMinimumUnits || 0);
+  return min > 0 ? ` (${min} 초과분 단가 · 그 이하는 무료)` : '';
+}

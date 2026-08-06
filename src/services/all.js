@@ -1,0 +1,46 @@
+// ================================================================
+// services/all.js — 전 서비스 등록(부수효과 전용 배럴)
+// ----------------------------------------------------------------
+// 각 services/*.ts 는 import 시점에 REG._svcDefs 에 자기 정의를 등록한다.
+// main.js(앱)와 test/*(Node) 가 같은 목록을 쓰도록 여기 한 곳에 모은다.
+// ※ 서비스 추가 시 이 파일에 import 한 줄만 넣으면 앱·양식·테스트에 함께 반영된다.
+// ================================================================
+import './vm.js';
+import './aks.js';
+import './disk.js';
+import './vpn-gateway.js';
+import './load-balancer.js';
+import './app-gateway.js';
+import './public-ip.js';
+import './firewall.js';
+import './bandwidth.js';
+import './nat-gateway.js';
+import './sql-database.js';
+import './sql-managed-instance.js';
+import './sql-elastic-pool.js';
+import './mysql.js';
+import './app-service.js';
+import './bastion.js';
+import './azure-files.js';
+import './blob-storage.js';
+import './storage-account.js';
+import './adls-gen2.js';
+import './page-blob.js';
+import './files-provisioned-v2.js';
+import './backup.js';
+import './virtual-network.js';
+import './log-analytics.js';
+import './sentinel.js';
+import './synapse.js';
+import './cosmos-db.js';
+import './redis-cache.js';
+import './api-management.js';
+import './private-link.js';
+import './container-registry.js';
+import './azure-dns.js';
+import './azure-devops.js';
+import './azure-openai.js';
+import './event-hubs.js';
+import './service-bus.js';
+import './container-apps.js';
+import './front-door.js';

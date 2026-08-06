@@ -11,6 +11,7 @@ export { REG, SERVICE_CATEGORIES } from './registry.js';
 export { apiFetch, clearCacheForCurrency } from './network.js';
 export {
   normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv,
+  pickTieredMeter, tierNote,
 } from './resolver-helpers.js';
 export { probeRegions, regionHint } from './region-availability.js';
 export {

@@ -2,6 +2,33 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v115 — 2026-08-06
+- fix: **견적 양식·서비스 카탈로그·Retail Prices API 3자 동기화**. API에는 정상 조회되는 SKU가 양식에 없어 작성 시 누락·대체되던 문제 + 카탈로그 자체가 API를 못 담던 문제 + 일부 미터가 항상 0원으로 계산되던 문제
+
+### 1) 양식이 앱 카탈로그를 다 담지 못하던 문제 (누락·대체의 직접 원인)
+- **원인 — 부모 종속 옵션의 스냅샷**: 옵션 사전은 `services/*.ts` 의 `steps[].options` 를 그대로 읽어 만들었는데, 이 배열은 `_applyStepVisibility` 가 부모 값(tier/model/plan/category…)에 따라 **통째로 갈아끼우는** 런타임 값입니다. 결과적으로 "기본 부모 값의 목록"만 사전에 실렸고, 나머지 값은 존재 자체가 안 보였습니다. 게다가 업로드 시 `_applyStepVisibility` 는 목록에 없는 값을 **경고 없이 첫 번째 값으로 대체**하므로(`r.options.item = items[0]`), 사용자는 틀어진 걸 알 수 없었습니다
+- **부모 조합 전개(`expandServiceOptions`)**: 서비스마다 드라이버 키(`rebuildKeys` + `instanceParentKey`)의 조합을 실제로 순회하며 `_applyStepVisibility` 를 적용해 스텝별 유효 값을 수집. 사전에는 **합집합**을 싣고, 부모별 차이는 `↳` 줄로 명시(`미사용` = 그 조합에서 무시되는 키). 열거 후 `steps[].options` 는 원복(테스트로 고정)
+- **되살아난 값(대표)**: SQL Database `hardware` = M-series·Premium-series·Premium-series MO·DC-series, `dtuSize` = B·P1~P15 / MySQL BC `series` = Edsv5·Edsv6·Eadsv5·Eadsv6, `vCores` 20·104 / App Service `SKU` 전 11계층(Premium v4·Isolated v4 등) / Redis `SKU` 전 9계층(Enterprise·Enterprise Flash·AMR 4종) / Elastic Pool `poolSize` 계층별 / Load Balancer Gateway `metric` / Application Gateway v1 SKU / VM 범주→시리즈 매핑
+- **양식 파일 갱신**: 루트 `azure-quote-template_file.csv` 는 7월 7일 다운로드본이라 v102~v114 의 리전 9→**44개**, VM 시리즈 25→**46계열**, 신규 서비스 4종이 전부 빠져 있었음 → 현재 카탈로그로 재생성(165행 → 305행, 예시 84행 → **104행**)
+
+### 2) 카탈로그가 API 미터를 다 담지 못하던 문제
+- **Event Hubs** — `Geo Replication Zone 1~3` 계층 추가(Geo Replication Zone N Data Transfer, 1 GB)
+- **Service Bus** — `Hybrid Connections`(Listener Unit·Data Transfer), `WCF Relay`(WCF Relay·WCF Relay Message), `Geo Replication Zone 1~3` 계층 추가
+- **Azure Front Door** — Standard 8종(Default Request·Bot Protection Ruleset/Request·Included/Overage Routing Rules·Edge Actions Base Fee·Invocations·Overage Execution Time), Premium 4종(Captcha Sessions·Edge Actions Base Fee·Invocations·Overage Execution Time) 추가
+- **Container Apps** — 라이브 대조 결과 이미 전 미터 수록(변경 없음)
+
+### 3) 무료 허용량 구간을 요율로 오인해 견적이 0원이 되던 문제
+- Retail Prices API 는 한 미터를 `tierMinimumUnits` 로 나눠 여러 건으로 돌려주는데, **첫 구간이 0원인 미터**가 있습니다(무료 허용량). 기존 4개 resolver 는 `tierMinimumUnits=0` 만 남기고 최저가를 골라, 이런 미터가 **항상 0원**으로 계산됐습니다
+- 해당 미터: Service Bus `Standard Messaging Operations`(첫 13M 무료 → 1,227.68/1M), `Standard Brokered Connection`(첫 1,000개 무료 → 46.038), `Hybrid Connections Data Transfer`(첫 5GB 무료 → 1,534.6/GB), Front Door `Standard Included Routing Rules`(5개 포함 → 46.038/시간)
+- **`pickTieredMeter`(core/resolver-helpers)** 신설 — 구간을 `tierMinimumUnits` 오름차순으로 보고 **0원이 아닌 최저 구간**을 고름(전 구간 0원이면 그대로 0원). Event Hubs·Service Bus·Container Apps·Front Door 4종에 적용. `tierNote` 로 상태 표시줄에 `(13 초과분 단가 · 그 이하는 무료)` 를 덧붙여 근거를 노출
+- 양식 사전에도 `[무료 허용량 주의]`·`[지역 복제]` 안내 추가
+
+### 재발 방지·구조
+- 양식 본문 생성을 DOM 비의존 모듈 **`src/ui/csv-template.js`** 로 분리하고, **`test/csv-template.test.js`** 가 ① 전 서비스 예시 행 존재 ② 예시 행 값이 실제 부모 조합에서 유효(=대체되지 않음) ③ 저장된 양식 파일이 카탈로그와 일치 ④ 사전 생성이 서비스 정의를 훼손하지 않음 을 검사. 재생성은 `UPDATE_TEMPLATE=1 npx vitest run test/csv-template.test.js`
+- **`src/services/all.js`** 신설 — 41개 서비스 등록 배럴. `main.js` 와 테스트가 같은 목록을 공유(서비스 추가 시 한 곳만 수정)
+- 영향 파일: src/ui/csv-template.js·src/services/all.js·test/csv-template.test.js(신규), src/core/resolver-helpers.ts·kernel.ts(pickTieredMeter·tierNote), src/services/{event-hubs,service-bus,container-apps,front-door}.ts(카탈로그·구간 선택), src/ui/export-csv.js(양식 생성 로직 이관), src/main.js(배럴 사용), test/{resolver-helpers,new-services-resolve}.test.js(케이스 추가), azure-quote-template_file.csv(재생성), README.md, CHANGELOG.md
+- 검증: `npm test` **62 pass / 3 skip**(25→62), `npx tsc --noEmit` 0, `vite build` 성공. **라이브 API 34종 실조회 확인**(KRW) — 양식 신규 행 13종(VM D4s_v7·E8ds_v7, EH/SB/ACA/FD 기본 미터, SQL BC M-series, App Service P0v4, Redis E10) + 신규 카탈로그 21종(EH·SB 지역복제/Hybrid/WCF, FD Standard 9·Premium 4, 무료구간 미터 3) 전부 매칭 및 0원 아님
+
 ## v105 — 2026-08-02
 - feat: **자동 회귀 방지 (Phase 3) — Vitest 테스트 + 녹화 픽스처 + CI**. 35개 서비스 조회 로직의 회귀를 잡는 안전망
 - **녹화 픽스처**: 실제 `prices.azure.com` 응답을 `test/fixtures/*.json`으로 녹화(VM D4s_v5 koreacentral Consumption 6 + Reservation 2, Public IP 4) → 테스트가 네트워크 없이 결정론적으로 동작

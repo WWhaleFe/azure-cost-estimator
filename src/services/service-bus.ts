@@ -1,4 +1,4 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, pickTieredMeter, tierNote } from '../core/kernel.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/service-bus.ts — Service Bus (메시징)
@@ -9,7 +9,12 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //     Standard : Standard Base Unit(1/Hour), Standard Messaging Operations(1M),
 //                Standard Brokered Connection(1)
 //     Premium  : Premium Messaging Unit(1/Hour)
-//   Standard 일부 미터는 사용량 구간별 복수 단가 → tierMinimumUnits=0(1구간)의 최저가를 선택.
+//     Hybrid Connections : Listener Unit(1 Hour), Data Transfer(1 GB — 첫 5GB 무료)
+//     WCF Relay          : WCF Relay(100 Hours), WCF Relay Message(10K)
+//     Geo Replication Zone 1~3 : Geo Replication Zone N Data Transfer(1 GB)
+//   Standard 일부 미터는 사용량 구간별 복수 단가 → pickTieredMeter 로 **0원이 아닌 최저 구간**을 선택.
+//   (Standard Messaging Operations 첫 13M·Brokered Connection 첫 1,000개는 무료 구간이라
+//    첫 구간을 그대로 쓰면 견적이 0원이 된다 — v115 수정)
 //   계층 변경 시 청구 항목 옵션을 재구성(instanceParentKey='tier').
 //   월=단가×Qty×usage(엔진 기본) — unitOfMeasure에 맞춰 usage 입력. 절약/예약 미적용.
 // ================================================================
@@ -18,6 +23,12 @@ var _SB_ITEMS: Record<string,string[]> = {
   'Basic':    ['Basic Messaging Operations'],
   'Standard': ['Standard Base Unit','Standard Messaging Operations','Standard Brokered Connection'],
   'Premium':  ['Premium Messaging Unit'],
+  // 릴레이/하이브리드 연결·지역 복제 — 별도 skuName 으로 과금된다(계층처럼 취급).
+  'Hybrid Connections': ['Hybrid Connections Listener Unit','Hybrid Connections Data Transfer'],
+  'WCF Relay':          ['WCF Relay','WCF Relay Message'],
+  'Geo Replication Zone 1': ['Geo Replication Zone 1 Data Transfer'],
+  'Geo Replication Zone 2': ['Geo Replication Zone 2 Data Transfer'],
+  'Geo Replication Zone 3': ['Geo Replication Zone 3 Data Transfer'],
 };
 
 REG._svcDefs['Service Bus'] = {
@@ -69,9 +80,9 @@ REG['_resolve_Service_Bus'] = async function(row: Row, cur: string) {
     if (String(it.type||'').toLowerCase() !== 'consumption') return false;
     if (String(it.skuName||'') !== tier) return false;
     if (String(it.meterName||'') !== item) return false;
-    return Number(it.tierMinimumUnits||0) === 0;
-  }).sort(function(a: ApiItem, b: ApiItem){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); });
-  var chosen = cands[0] || null;
+    return true;
+  });
+  var chosen = pickTieredMeter(cands);
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
@@ -81,6 +92,6 @@ REG['_resolve_Service_Bus'] = async function(row: Row, cur: string) {
 
   row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
+  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + tierNote(chosen));
   updatePriceCells(row); updateTotalsRow();
 };

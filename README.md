@@ -53,7 +53,7 @@ npm test              # Vitest (녹화 픽스처 기반, 네트워크 불필요)
 RUN_LIVE=1 npm test   # 라이브 스모크 포함 (실제 prices.azure.com 호출)
 ```
 
-가격 정규화 순수 함수·서비스 조회 매칭(VM 커스텀·Public IP)·서버리스 프록시 핸들러를 검증합니다. 실제 API 응답은 `test/fixtures/*.json`에 녹화되어 결정론적으로 돌아가며, GitHub Actions(`.github/workflows/ci.yml`)가 push/PR마다 build + test를 실행합니다.
+가격 정규화 순수 함수·구간 요금 선택(`pickTieredMeter`)·서비스 조회 매칭(VM 커스텀·Public IP·Event Hubs·Service Bus·Container Apps·Front Door)·서버리스 프록시 핸들러·CSV 양식과 카탈로그의 일치를 검증합니다. 실제 API 응답은 `test/fixtures/*.json`에 녹화되어 결정론적으로 돌아가며, GitHub Actions(`.github/workflows/ci.yml`)가 push/PR마다 build + test를 실행합니다.
 
 #### 접속
 
@@ -98,13 +98,34 @@ http://localhost:5173/
 
 ### 6. CSV 양식으로 일괄 입력
 
-행이 많을 때 일일이 입력하는 대신, 정해진 양식의 CSV를 업로드하여 견적 행을 한 번에 만들 수 있습니다. (1차 지원 서비스: Virtual Machine, Disk, VPN Gateway)
+행이 많을 때 일일이 입력하는 대신, 정해진 양식의 CSV를 업로드하여 견적 행을 한 번에 만들 수 있습니다. (지원 서비스: 드롭다운에 있는 전 서비스)
 
 1. 상단 우측 **"CSV 양식 다운로드"** 버튼(엑셀 내보내기 왼쪽)을 눌러 빈 양식을 받습니다. 양식 컬럼은 `Region, 분류, ServiceCategory, SKU, Qty, Hours, Options` 이며, 파일 하단 `#` 줄에 서비스별 허용 옵션 값이 안내되어 있습니다.
 2. 양식을 채웁니다. `Options` 칸은 `키=값`을 세미콜론(;)으로 구분합니다(예: `os=Windows; tier=Standard; series=D-series v5`). `SKU` 칸에는 인스턴스/디스크/게이트웨이 이름을 넣습니다(프로비저닝형 디스크는 비움).
 3. **"CSV 불러오기"** 버튼으로 채운 파일을 업로드합니다. 행이 생성되고 각 행의 가격이 자동 조회됩니다. 기존 행이 있으면 교체할지 뒤에 추가할지 묻습니다.
 
 `#` 로 시작하는 줄과 빈 줄은 무시되며, 지원하지 않는 서비스나 Region 행은 건너뛰고 완료 후 제외 건수를 알려줍니다.
+
+#### 옵션 사전 읽는 법 — `↳` 줄이 중요합니다
+
+양식 하단 사전은 서비스마다 이렇게 실립니다.
+
+```
+# Event Hubs | SKU=비움 | Options: tier=[Basic|Standard|Premium|Dedicated]; item=[Basic Throughput Unit|…|Dedicated Extended Retention]
+#   ↳ tier=Standard → item=[Standard Throughput Unit|Standard Ingress Events|Standard Capture|Standard Kafka Endpoint]
+```
+
+- 서비스 줄의 `Options` 는 그 서비스에서 쓸 수 있는 값 **전체(합집합)** 입니다.
+- `↳` 줄은 **부모 옵션에 따라 달라지는 하위 값**입니다. 부모와 짝이 맞지 않는 값을 적으면 업로드 시 **경고 없이 그 부모의 첫 번째 값으로 대체**되어 견적이 조용히 틀어집니다(예: `tier=Premium; item=Standard Throughput Unit` → `item` 이 `Premium Processing Unit` 으로 바뀜). 반드시 짝을 맞추세요.
+- `미사용` 은 그 조합에서 무시되는 옵션 키입니다(적어도 계산에 영향 없음).
+
+일부 미터는 첫 구간이 **무료 허용량**(0원)입니다(예: Service Bus `Standard Messaging Operations` 첫 13M, `Hybrid Connections Data Transfer` 첫 5GB, Front Door `Standard Included Routing Rules` 5개 포함). 계산기는 이런 미터에서 0원 구간을 건너뛰고 **0원이 아닌 최저 구간 단가**를 쓰며, 상태 표시줄에 `(13 초과분 단가 · 그 이하는 무료)` 로 근거를 알려줍니다. 무료 허용량 이하만 쓸 계획이라면 그 행은 견적에서 빼세요.
+
+저장소 루트의 `azure-quote-template_file.csv` 는 앱의 "CSV 양식 다운로드" 결과와 같은 파일이며, `test/csv-template.test.js` 가 카탈로그와의 일치를 검사합니다. 서비스·SKU를 추가한 뒤에는 다음으로 재생성합니다.
+
+```bash
+UPDATE_TEMPLATE=1 npx vitest run test/csv-template.test.js
+```
 
 ---
 
@@ -169,9 +190,14 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
     │   ├── ui-hooks.js            resolver/서비스 → UI 역호출 간접층(순환 의존 차단)
     │   ├── resolver-helpers.js    가격 정규화 순수 함수(테스트 대상)
     │   └── resolver-engine.js     가격 조회 엔진(REG[fnName] 디스패치)
-    ├── services/                  서비스별 정의 + 가격 매칭 (35개, REG 에 등록)
+    ├── services/                  서비스별 정의 + 가격 매칭 (REG 에 등록)
+    │   └── all.js                 전 서비스 등록 배럴(앱·테스트 공용 목록)
+    ├── ui/
+    │   ├── service-order.js       서비스 카테고리 표시 순서(드롭다운·CSV 양식 공유)
+    │   ├── csv-template.js        CSV 양식 본문 생성(예시 행 + 옵션 사전, DOM 비의존)
+    │   └── export-csv.js          엑셀 내보내기 + CSV 양식 다운로드/업로드/직렬화
     ├── diagnostics.js             연결 진단, 환경별 안내 모달
-    └── ui-and-bootstrap.js        행/표/옵션 패널/엑셀/CSV/부트스트랩 + UI훅 등록
+    └── ui-and-bootstrap.js        행/표/옵션 패널/부트스트랩 + UI훅 등록
 ```
 
 로드 순서는 `src/main.js`의 import 그래프가 결정합니다: 서비스(REG 등록) → resolver-engine → diagnostics → ui-and-bootstrap → remark. 각 파일은 ES 모듈이며 전역 스코프 대신 명시적 import/export 로 연결됩니다. 서비스는 문자열 디스패치(`window['_resolve_*']`) 대신 공유 레지스트리 `REG` 에 등록됩니다. 빌드/번들은 Vite가 담당합니다.

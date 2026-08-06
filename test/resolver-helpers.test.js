@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   normalizeReservationPrice, makeSpItem, spItemsFromBase, riItemsFromResv,
+  pickTieredMeter, tierNote,
 } from '../src/core/resolver-helpers.js';
 
 describe('normalizeReservationPrice', () => {
@@ -85,5 +86,46 @@ describe('riItemsFromResv', () => {
   it('mult 반영', () => {
     const { ri1 } = riItemsFromResv(resv, 's', 4, 'KRW');
     expect(ri1.unitPrice).toBeCloseTo(4, 6);
+  });
+});
+
+// ── pickTieredMeter / tierNote (v115) ──
+// 첫 구간이 0원인 미터(무료 허용량)를 그대로 쓰면 견적이 통째로 0원이 되던 문제를 고정한다.
+describe('pickTieredMeter', () => {
+  const m = (tierMinimumUnits, unitPrice, unitOfMeasure = '1M') => ({ tierMinimumUnits, unitPrice, unitOfMeasure });
+
+  it('첫 구간이 유료면 첫 구간을 고른다', () => {
+    const chosen = pickTieredMeter([m(2500, 306.92), m(0, 1227.68), m(100, 767.3)]);
+    expect(chosen.tierMinimumUnits).toBe(0);
+    expect(chosen.unitPrice).toBe(1227.68);
+  });
+
+  it('첫 구간이 0원(무료 허용량)이면 다음 유료 구간을 고른다', () => {
+    // Service Bus Standard Messaging Operations 실제 구간 구조
+    const chosen = pickTieredMeter([m(0, 0), m(13, 1227.68), m(100, 767.3), m(2500, 306.92)]);
+    expect(chosen.tierMinimumUnits).toBe(13);
+    expect(chosen.unitPrice).toBe(1227.68);
+  });
+
+  it('전 구간이 0원이면 0원 그대로 둔다(실제 무료 항목)', () => {
+    const chosen = pickTieredMeter([m(0, 0), m(100, 0)]);
+    expect(chosen.unitPrice).toBe(0);
+  });
+
+  it('같은 구간에 단위가 여럿이면 최저 단가를 고른다', () => {
+    // Service Bus Standard Base Unit — 1/Hour 20.63 과 1/Month 15346 이 같이 온다
+    const chosen = pickTieredMeter([m(0, 15346, '1/Month'), m(0, 20.6266, '1/Hour')]);
+    expect(chosen.unitOfMeasure).toBe('1/Hour');
+  });
+
+  it('후보가 없으면 null', () => {
+    expect(pickTieredMeter([])).toBe(null);
+    expect(pickTieredMeter(null)).toBe(null);
+  });
+
+  it('tierNote 는 무료 허용량을 건너뛴 경우에만 꼬리말을 단다', () => {
+    expect(tierNote(m(13, 1227.68))).toContain('13 초과분');
+    expect(tierNote(m(0, 1227.68))).toBe('');
+    expect(tierNote(null)).toBe('');
   });
 });

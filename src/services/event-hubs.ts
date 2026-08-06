@@ -1,4 +1,4 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, pickTieredMeter, tierNote } from '../core/kernel.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/event-hubs.ts — Event Hubs (이벤트 스트리밍)
@@ -10,6 +10,8 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //                 Standard Capture(1 Hour), Standard Kafka Endpoint(1 Hour)
 //     Premium   : Premium Processing Unit(1 Hour), Premium Extended Retention(1 GB/Month)
 //     Dedicated : Dedicated Capacity Unit(1 Hour), Dedicated Extended Retention(1 GB/Month)
+//     Geo Replication Zone 1~3 : Geo Replication Zone N Data Transfer(1 GB)
+//   구간(tier) 요금은 pickTieredMeter — 첫 구간이 0원이면 무료 허용량이므로 다음 유료 구간을 쓴다.
 //   계층 변경 시 청구 항목 옵션을 재구성(instanceParentKey='tier').
 //   월=단가×Qty×usage(엔진 기본) — unitOfMeasure(1 Hour/1M/1 GB/Month)에 맞춰 usage 입력.
 //   절약/예약 미적용. 못 찾으면 "매칭 실패".
@@ -21,6 +23,10 @@ var _EH_ITEMS: Record<string,string[]> = {
   'Standard':  ['Standard Throughput Unit','Standard Ingress Events','Standard Capture','Standard Kafka Endpoint'],
   'Premium':   ['Premium Processing Unit','Premium Extended Retention'],
   'Dedicated': ['Dedicated Capacity Unit','Dedicated Extended Retention'],
+  // 지역 복제(Geo Replication) — skuName='Geo Replication Zone N'. 리전이 속한 존의 계층을 고른다.
+  'Geo Replication Zone 1': ['Geo Replication Zone 1 Data Transfer'],
+  'Geo Replication Zone 2': ['Geo Replication Zone 2 Data Transfer'],
+  'Geo Replication Zone 3': ['Geo Replication Zone 3 Data Transfer'],
 };
 
 REG._svcDefs['Event Hubs'] = {
@@ -72,9 +78,9 @@ REG['_resolve_Event_Hubs'] = async function(row: Row, cur: string) {
     if (String(it.type||'').toLowerCase() !== 'consumption') return false;
     if (String(it.skuName||'') !== tier) return false;
     if (String(it.meterName||'') !== item) return false;
-    return Number(it.tierMinimumUnits||0) === 0;
-  }).sort(function(a: ApiItem, b: ApiItem){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); });
-  var chosen = cands[0] || null;
+    return true;
+  });
+  var chosen = pickTieredMeter(cands);
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
@@ -85,6 +91,6 @@ REG['_resolve_Event_Hubs'] = async function(row: Row, cur: string) {
   // 매칭 미터 그대로 반환 → 엔진 기본 계산(월=단가×Qty×usage). 절약/예약 미적용.
   row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
+  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + tierNote(chosen));
   updatePriceCells(row); updateTotalsRow();
 };

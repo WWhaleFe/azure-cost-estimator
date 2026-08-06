@@ -1,4 +1,4 @@
-import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow } from '../core/kernel.js';
+import { REG, apiFetch, setStatus, updatePriceCells, updateTotalsRow, pickTieredMeter, tierNote } from '../core/kernel.js';
 import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 // services/front-door.ts — Azure Front Door (글로벌 CDN/L7 로드밸런서)
@@ -8,15 +8,22 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //   API 구조: serviceName='Azure Front Door Service', skuName=계층(Standard/Premium),
 //     meterName=청구 항목, armRegionName='Zone N'(존별) 또는 ''(존 무관: 도메인·규칙·WAF 등).
 //     ex) Zone 1 = 북미·유럽, Zone 2 = 아시아·태평양(한국·일본 포함), Zone 5 = 인도 …
-//   매칭: skuName=계층 & meterName=항목 & (armRegionName=선택존 or 빈값) & tierMinimumUnits=0 최저가.
-//   데이터 전송/요청 등 구간요금 미터는 첫 구간(0~) 단가를 사용(엔진 기본: 월=단가×Qty×usage).
+//   매칭: skuName=계층 & meterName=항목 & (armRegionName=선택존 or 빈값), 구간은 pickTieredMeter.
+//   구간요금 미터는 **0원이 아닌 최저 구간**을 사용(엔진 기본: 월=단가×Qty×usage).
+//   (Standard Included Routing Rules 는 5개 포함=0원 구간이라, 첫 구간을 쓰면 0원이 된다 — v115 수정)
 //   계층 변경 시 청구 항목 옵션 재구성(instanceParentKey='tier'). 절약/예약 미적용.
 // ================================================================
 
 // 계층(skuName) → 청구 항목(meterName) 목록
 var _FD_ITEMS: Record<string,string[]> = {
-  'Standard': ['Standard Base Fees','Standard Data Transfer Out','Standard Data Transfer In','Standard Requests','Standard Custom Domain','Standard Rule','Standard Policy','Standard Default Ruleset'],
-  'Premium':  ['Premium Base Fees','Premium Data Transfer Out','Premium Data Transfer In','Premium Requests'],
+  'Standard': ['Standard Base Fees','Standard Data Transfer Out','Standard Data Transfer In','Standard Requests',
+               'Standard Custom Domain','Standard Rule','Standard Policy','Standard Default Ruleset','Standard Default Request',
+               'Standard Bot Protection Ruleset','Standard Bot Protection Request',
+               'Standard Included Routing Rules','Standard Overage Routing Rules',
+               'Standard Edge Actions Base Fee','Standard Invocations','Standard Overage Execution Time'],
+  'Premium':  ['Premium Base Fees','Premium Data Transfer Out','Premium Data Transfer In','Premium Requests',
+               'Premium Captcha Sessions',
+               'Premium Edge Actions Base Fee','Premium Invocations','Premium Overage Execution Time'],
 };
 var _FD_ZONES = ['Zone 1','Zone 2','Zone 3','Zone 4','Zone 5','Zone 6','Zone 7','Zone 8'];
 
@@ -75,9 +82,9 @@ REG['_resolve_Azure_Front_Door'] = async function(row: Row, cur: string) {
     // 존별 미터는 선택 존, 존 무관 미터(도메인·규칙·WAF 등)는 빈 armRegionName 으로 매칭
     var rg = String(it.armRegionName||'');
     if (rg !== zone && rg !== '') return false;
-    return Number(it.tierMinimumUnits||0) === 0;
-  }).sort(function(a: ApiItem, b: ApiItem){ return Number(a.unitPrice||0) - Number(b.unitPrice||0); });
-  var chosen = cands[0] || null;
+    return true;
+  });
+  var chosen = pickTieredMeter(cands);
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
@@ -87,6 +94,6 @@ REG['_resolve_Azure_Front_Door'] = async function(row: Row, cur: string) {
 
   row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure);
+  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + tierNote(chosen));
   updatePriceCells(row); updateTotalsRow();
 };
