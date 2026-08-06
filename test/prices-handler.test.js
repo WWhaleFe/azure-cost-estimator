@@ -29,13 +29,16 @@ describe('api/prices 보안/유효성', () => {
   it('http(비 https) prices → 403', async () => {
     expect((await call({ url: 'http://prices.azure.com/api/retail/prices' })).statusCode).toBe(403);
   });
-  it('POST → 405', async () => {
-    expect((await call({ url: 'x' }, 'POST')).statusCode).toBe(405);
+  it('POST → 405 + Allow 헤더', async () => {
+    const r = await call({ url: 'x' }, 'POST');
+    expect(r.statusCode).toBe(405);
+    expect(r.headers.allow).toBe('GET, HEAD, OPTIONS');
   });
   it('OPTIONS → 204 + CORS', async () => {
     const r = await call({}, 'OPTIONS');
     expect(r.statusCode).toBe(204);
     expect(r.headers['access-control-allow-origin']).toBe('*');
+    expect(r.headers['access-control-allow-methods']).toBe('GET, HEAD, OPTIONS');
   });
 });
 
@@ -61,6 +64,27 @@ describe('api/prices 프록시(fetch 목)', () => {
     expect(cc).toContain('s-maxage=3600');
     expect(cc).toContain('stale-while-revalidate=86400');
     expect(r.headers['access-control-allow-origin']).toBe('*');
+  });
+
+  // HEAD 는 GET 과 같은 상태/헤더를 주고 본문만 비운다. 헬스체크가 405 를 받아
+  // 캐시 헤더까지 기본값으로 보이던 혼선을 없앤다.
+  it('HEAD → GET 과 동일한 상태/캐시헤더 + 본문 없음', async () => {
+    const fake = { Items: [{ armSkuName: 'X', unitPrice: 1 }] };
+    const body = JSON.stringify(fake);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({ status: 200, text: async () => body });
+    const url = 'https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&$top=1';
+    const r = await call({ url }, 'HEAD');
+    expect(r.statusCode).toBe(200);
+    expect(r.body).toBe('');                                        // 본문 없음
+    expect(r.ended).toBe(true);
+    expect(r.headers['content-length']).toBe(String(Buffer.byteLength(body)));
+    expect(String(r.headers['cache-control'])).toContain('s-maxage=3600');
+    expect(r.headers['access-control-allow-origin']).toBe('*');
+  });
+
+  it('HEAD 도 host 잠금을 그대로 적용', async () => {
+    expect((await call({ url: 'https://evil.example.com/x' }, 'HEAD')).statusCode).toBe(403);
+    expect((await call({}, 'HEAD')).statusCode).toBe(400);
   });
 
   it('업스트림 예외 → 502', async () => {

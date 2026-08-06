@@ -2,6 +2,15 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v116 — 2026-08-06
+- fix: **`/api/prices` 서버리스 프록시가 HEAD 를 405 로 거부하던 문제**. HEAD 를 GET 과 동일하게 처리(상태·헤더 동일, 본문만 비움 — HTTP 규약)
+- 프런트는 GET 만 쓰지만, 헬스체크·모니터링 도구나 `curl -I` 로 점검하면 405 가 떨어지고 그 응답의 기본 헤더(`public, max-age=0, must-revalidate`)가 보여 **캐시 설정이 안 걸린 것처럼 오인**됐다(실제 GET 은 `s-maxage=3600` 정상, 재요청 시 `x-vercel-cache: HIT`)
+- HEAD 도 GET 과 동일한 host 잠금(`prices.azure.com` 강제)·CORS·`Cache-Control` 을 적용하고 `Content-Length` 만 알린 뒤 본문 없이 종료
+- 405 응답에 `Allow: GET, HEAD, OPTIONS` 추가, OPTIONS 의 `Access-Control-Allow-Methods` 도 HEAD 포함으로 갱신
+- **테스트 보강**: 캐시 헤더 단언을 `toContain('max-age')` → `public`·`max-age=3600`·`s-maxage=3600`·`stale-while-revalidate=86400` 개별 검증으로 조임(기존 단언은 s-maxage 가 빠져도 통과 — 엣지 캐시가 꺼지는 회귀를 놓침). HEAD 케이스 2종 추가
+- 영향 파일: api/prices.js, test/prices-handler.test.js, CHANGELOG.md
+- 검증: `npm test` **64 pass / 3 skip**. 실 HTTP 서버에 핸들러를 붙여 확인 — HEAD 200 + `Content-Length: 6910`(GET 본문과 동일) + 본문 0바이트, POST 405 + Allow, OPTIONS 204, HEAD 로 타 host 요청 시 403. 변이 테스트로 `s-maxage` 제거 시 테스트가 실패하는 것도 확인
+
 ## v115 — 2026-08-06
 - fix: **견적 양식·서비스 카탈로그·Retail Prices API 3자 동기화**. API에는 정상 조회되는 SKU가 양식에 없어 작성 시 누락·대체되던 문제 + 카탈로그 자체가 API를 못 담던 문제 + 일부 미터가 항상 0원으로 계산되던 문제
 
