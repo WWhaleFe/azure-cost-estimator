@@ -146,7 +146,10 @@ function _csvNormalizeRegion(v) {
   return '';
 }
 
-async function _csvHandleUpload(file) {
+// opts.mode = 'append' 면 기존 행을 지울지 묻지 않고 항상 뒤에 덧붙인다
+// (하단 'CSV로 견적 추가하기' 버튼 전용 — 상단 'CSV 불러오기'는 기존대로 교체/추가를 묻는다)
+async function _csvHandleUpload(file, opts) {
+  var mode = (opts && opts.mode) || 'ask';
   var text;
   try { text = await file.text(); }
   catch (e) { alert('파일을 읽지 못했습니다: ' + e.message); return; }
@@ -175,10 +178,13 @@ async function _csvHandleUpload(file) {
   }
   if (dataRows.length === 0) { alert('불러올 데이터 행이 없습니다.'); return; }
 
-  var replace = true;
-  var hasExisting = getRows().some(function (r) { return r.serviceCategory || r.skuName || (r.options && Object.keys(r.options).length > 0); });
-  if (hasExisting) {
-    replace = confirm('기존 행을 모두 비우고 불러올까요?\n확인 = 교체, 취소 = 기존 행 뒤에 추가');
+  var replace = false;
+  if (mode !== 'append') {
+    replace = true;
+    var hasExisting = getRows().some(function (r) { return r.serviceCategory || r.skuName || (r.options && Object.keys(r.options).length > 0); });
+    if (hasExisting) {
+      replace = confirm('기존 행을 모두 비우고 불러올까요?\n확인 = 교체, 취소 = 기존 행 뒤에 추가');
+    }
   }
   if (replace) { setRows([]); setActiveConfigRowId(null); closeConfig(); }
 
@@ -222,18 +228,19 @@ async function _csvHandleUpload(file) {
   var notes = [];
   if (skippedCat > 0) notes.push('미지원 서비스 ' + skippedCat + '행은 제외했습니다.');
   if (skippedRegion > 0) notes.push('미지원 Region ' + skippedRegion + '행은 제외했습니다.');
-  var result = await resolveWithProgressModal('CSV 불러오기 — 가격 조회 중', newRows, {
+  var titleWord = (mode === 'append') ? 'CSV로 견적 추가' : 'CSV 불러오기';
+  var result = await resolveWithProgressModal(titleWord + ' — 가격 조회 중', newRows, {
     lanes: CSV_IMPORT_CONCURRENCY,
     notes: notes,
     onTick: function (p) {
-      if (p.phase === 'initial') setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + p.done + '/' + p.total + ')');
+      if (p.phase === 'initial') setStatus('loading', titleWord + ': 가격 조회 중... (' + p.done + '/' + p.total + ')');
       else setStatus('loading', '빈칸 재조회 중... (' + p.round + '/' + p.rounds + ' · 남은 ' + p.remaining + '행)');
     },
   });
   render();
 
   // 결과는 진행 팝업이 그대로 보여주므로 alert 는 띄우지 않는다(v122).
-  var msg = 'CSV 불러오기 완료: ' + created + '행 생성 · ' + summarize(result);
+  var msg = titleWord + ' 완료: ' + created + '행 ' + (mode === 'append' ? '추가' : '생성') + ' · ' + summarize(result);
   if (skippedCat > 0) msg += ', 미지원 서비스 ' + skippedCat + '행 제외';
   if (skippedRegion > 0) msg += ', 미지원 Region ' + skippedRegion + '행 제외';
   setStatus(result.failed.length ? 'error' : 'ok', msg);
@@ -358,6 +365,14 @@ document.getElementById('btnCsvImport').addEventListener('click', function () { 
 document.getElementById('fileCsvImport').addEventListener('change', function (e) {
   var f = e.target.files && e.target.files[0];
   if (f) _csvHandleUpload(f);
+  e.target.value = '';
+});
+
+// 하단 'CSV로 견적 추가하기' — 기존 견적을 유지한 채 CSV 행을 덧붙인다
+document.getElementById('btnCsvAppend').addEventListener('click', function () { document.getElementById('fileCsvAppend').click(); });
+document.getElementById('fileCsvAppend').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  if (f) _csvHandleUpload(f, { mode: 'append' });
   e.target.value = '';
 });
 
