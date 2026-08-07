@@ -9,7 +9,8 @@ import { SERVICE_CATEGORY_ORDER } from './service-order.js';
 import {
   CSV_HEADER, CSV_SKU_OPTION_KEY, csvRowToLine, buildOptionGuide, buildTemplateCsv,
 } from './csv-template.js';
-import { resolveRowsWithRetry, summarize } from './bulk-resolve.js';
+import { summarize } from './bulk-resolve.js';
+import { resolveWithProgressModal } from './progress-modal.js';
 import {
   getRows, setRows, setActiveConfigRowId,
   blankRow, render, closeConfig, calcGroup, setStatus, showToast,
@@ -217,23 +218,25 @@ async function _csvHandleUpload(file) {
   //   건드리지 않으므로(공유 상태 없음) 동시에 돌려도 안전하다.
   newRows.forEach(function (rr) { buildSkuAndDetail(rr); });
 
-  // 동시 실행 풀로 조회하고, 끝난 뒤 남은 빈칸은 자동으로 다시 조회한다(bulk-resolve).
-  setStatus('loading', 'CSV 불러오기: 가격 조회 중... (0/' + newRows.length + ')');
-  var result = await resolveRowsWithRetry(newRows, {
+  // 진행 팝업을 띄운 채 조회한다(조회 중 배경 조작 차단). 끝나면 팝업에 결과가 남는다.
+  var notes = [];
+  if (skippedCat > 0) notes.push('미지원 서비스 ' + skippedCat + '행은 제외했습니다.');
+  if (skippedRegion > 0) notes.push('미지원 Region ' + skippedRegion + '행은 제외했습니다.');
+  var result = await resolveWithProgressModal('CSV 불러오기 — 가격 조회 중', newRows, {
     lanes: CSV_IMPORT_CONCURRENCY,
-    onProgress: function (p) {
+    notes: notes,
+    onTick: function (p) {
       if (p.phase === 'initial') setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + p.done + '/' + p.total + ')');
       else setStatus('loading', '빈칸 재조회 중... (' + p.round + '/' + p.rounds + ' · 남은 ' + p.remaining + '행)');
     },
   });
   render();
 
-  var msg = 'CSV 불러오기 완료: ' + created + '행 생성';
+  // 결과는 진행 팝업이 그대로 보여주므로 alert 는 띄우지 않는다(v122).
+  var msg = 'CSV 불러오기 완료: ' + created + '행 생성 · ' + summarize(result);
   if (skippedCat > 0) msg += ', 미지원 서비스 ' + skippedCat + '행 제외';
   if (skippedRegion > 0) msg += ', 미지원 Region ' + skippedRegion + '행 제외';
-  msg += '\n' + summarize(result);
-  setStatus(result.failed.length ? 'error' : 'ok', msg.replace('\n', ' · '));
-  alert(msg + '\n(전 서비스 지원. 가격 매칭 정확도는 서비스별 resolver 수준을 따릅니다 — docs/service-status.csv 참고)');
+  setStatus(result.failed.length ? 'error' : 'ok', msg);
 }
 
 // ================================================================

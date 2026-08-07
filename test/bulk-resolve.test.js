@@ -95,6 +95,27 @@ describe('빈칸 자동 재조회', () => {
     expect(phases).toContain('retry');
   });
 
+  // 진행 팝업이 "무엇을 조회 중인지" 보여주려면 진행 중인 행 목록이 필요하다(v122)
+  it('진행 중인 행 목록(active)을 함께 알려준다', async () => {
+    const rows = [mk(1), mk(2), mk(3), mk(4)];
+    rows.forEach((r) => succeedAfter.set(r.id, 1));
+    const seen = [];
+    await resolveRowsWithRetry(rows, { lanes: 2, onProgress: (p) => seen.push(p.active) });
+    expect(seen.length).toBeGreaterThan(0);
+    seen.forEach((a) => expect(Array.isArray(a)).toBe(true));
+    // 레인 수를 넘지 않고, 최소 한 번은 실제로 조회 중인 행이 담긴다
+    expect(Math.max(...seen.map((a) => a.length))).toBeGreaterThan(0);
+    expect(Math.max(...seen.map((a) => a.length))).toBeLessThanOrEqual(2);
+  });
+
+  it('재조회 라운드에서도 active 를 알려준다', async () => {
+    const rows = [mk(1)];
+    succeedAfter.set(1, 2);                            // 2회차에 성공 → 재조회 라운드 발생
+    const retryActives = [];
+    await resolveRowsWithRetry(rows, { onProgress: (p) => { if (p.phase === 'retry') retryActives.push(p.active); } });
+    expect(retryActives.some((a) => a.length > 0)).toBe(true);
+  });
+
   it('summarize 가 남은 빈칸을 알려준다', () => {
     expect(summarize({ total: 3, resolved: 3, failed: [], rounds: 0 })).toContain('3행 조회 완료');
     const s = summarize({ total: 3, resolved: 2, failed: [{}], rounds: 2 });

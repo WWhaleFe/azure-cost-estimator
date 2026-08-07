@@ -220,3 +220,51 @@
   }
   .th-fill-btn:hover { background: rgba(255,255,255,0.32); }
   .th-fill-btn.on { background: #fff; color: #7a5b00; border-color: #fff; }
+
+  /* ===== 일괄 조회 진행 팝업(v122) ===== */
+  /* <dialog showModal> 이라 배경 조작·포커스 이동이 브라우저 차원에서 막힌다 */
+  .progress-dialog {
+    border: none; border-radius: 6px; padding: 0;
+    width: min(520px, 92vw); max-height: 85vh;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+    color: #323130; font-size: 13px;
+  }
+  .progress-dialog::backdrop { background: rgba(31, 31, 31, 0.45); }
+  .progress-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; background: #305496; color: #fff;
+  }
+  .progress-title { font-size: 15px; font-weight: 700; }
+  .progress-count { font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.92; }
+  .progress-body { padding: 16px 18px; overflow-y: auto; }
+  .progress-bar {
+    height: 8px; border-radius: 4px; background: #edebe9; overflow: hidden; margin-bottom: 10px;
+  }
+  .progress-bar-fill {
+    height: 100%; width: 0; border-radius: 4px; background: #2e75b6;
+    transition: width 0.2s ease;
+  }
+  .progress-bar-fill.done { background: #107c10; }
+  .progress-bar-fill.partial { background: #c55a11; }
+  .progress-phase { color: #605e5c; margin-bottom: 8px; }
+  /* 지금 조회 중인 항목들(동시 실행이라 여러 건이 함께 뜬다) */
+  .progress-active { list-style: none; margin: 0; padding: 0; min-height: 66px; }
+  .progress-active li {
+    padding: 2px 0; color: #323130; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .progress-active li::before { content: '· '; color: #2e75b6; }
+  .progress-result { margin-top: 4px; }
+  .progress-result .ok { color: #0b6a0b; font-weight: 700; }
+  .progress-result .fail { color: #a4262c; font-weight: 700; }
+  .progress-result .note { color: #605e5c; }
+  .progress-fail-list {
+    list-style: none; margin: 8px 0 0; padding: 8px 10px; max-height: 180px; overflow-y: auto;
+    background: #fdf3f4; border: 1px solid #f1bfc2; border-radius: 4px;
+  }
+  .progress-fail-list li { padding: 1px 0; color: #a4262c; }
+  .progress-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 18px; border-top: 1px solid #e1dfdd; background: #faf9f8;
+  }
+  .progress-hint { color: #605e5c; font-size: 12px; }

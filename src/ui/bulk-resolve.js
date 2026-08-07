@@ -21,16 +21,21 @@ export const RETRY_ROUNDS = 3;    // 빈칸 재조회 라운드 수
 
 export function isRowEmpty(r) { return !r.paygItem; }
 
-// 동시 실행 풀 — 행 하나씩 await 하면 대기 시간이 그대로 합산된다
-async function runPool(rows, lanes, onDone) {
+// 동시 실행 풀 — 행 하나씩 await 하면 대기 시간이 그대로 합산된다.
+// active 집합으로 "지금 조회 중인 행"을 밖에 알려준다(진행 팝업이 표시).
+async function runPool(rows, lanes, onEvent) {
   const queue = rows.slice();
+  const active = new Set();
   async function worker() {
     for (;;) {
       const r = queue.shift();
       if (!r) return;
+      active.add(r);
+      if (onEvent) onEvent('start', r, active);
       try { await tryResolveItem(r); }
       catch (e) { /* 개별 행 실패는 각 resolver 가 상태로 처리 */ }
-      if (onDone) onDone(r);
+      active.delete(r);
+      if (onEvent) onEvent('done', r, active);
     }
   }
   await Promise.all(Array.from({ length: Math.min(lanes, queue.length) }, worker));
@@ -52,8 +57,9 @@ export async function resolveRowsWithRetry(rows, opts = {}) {
   if (targets.length === 0) return { total: 0, resolved: 0, failed: [], rounds: 0 };
 
   let done = 0;
-  await runPool(targets, lanes, function () {
-    onProgress({ phase: 'initial', done: ++done, total: targets.length });
+  await runPool(targets, lanes, function (type, row, active) {
+    if (type === 'done') done++;
+    onProgress({ phase: 'initial', done, total: targets.length, active: Array.from(active) });
   });
 
   let pending = targets.filter(isRowEmpty);
@@ -64,8 +70,11 @@ export async function resolveRowsWithRetry(rows, opts = {}) {
     const wait = Math.round(700 * Math.pow(2, round - 1) * (0.5 + Math.random()));
     await new Promise(function (r) { setTimeout(r, wait); });
 
-    onProgress({ phase: 'retry', round, rounds, remaining: pending.length });
-    await runPool(pending, lanes);
+    onProgress({ phase: 'retry', round, rounds, remaining: pending.length, active: [] });
+    const roundTotal = pending.length;
+    await runPool(pending, lanes, function (type, row, active) {
+      onProgress({ phase: 'retry', round, rounds, remaining: roundTotal, active: Array.from(active) });
+    });
 
     const before = pending.length;
     pending = pending.filter(isRowEmpty);

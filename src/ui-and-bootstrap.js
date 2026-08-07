@@ -415,9 +415,10 @@ document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   // 통화가 바뀌면 전 행을 다시 조회한다. 예전엔 행을 하나씩 await 해서 104행이면
   // 대기 시간이 그대로 합산됐다 — CSV 불러오기와 같은 일괄 조회 경로로 통일하고,
   // 끝난 뒤 남은 빈칸은 자동으로 재조회한다(v121).
-  const {resolveRowsWithRetry,summarize}=await import('./ui/bulk-resolve.js');
-  const result=await resolveRowsWithRetry(rows,{
-    onProgress:(p)=>{
+  const {summarize}=await import('./ui/bulk-resolve.js');
+  const {resolveWithProgressModal}=await import('./ui/progress-modal.js');
+  const result=await resolveWithProgressModal(`통화 변경(${e.target.value}) — 가격 재조회 중`,rows,{
+    onTick:(p)=>{
       if(p.phase==='initial')setStatus('loading',`통화 변경 재조회 중... (${p.done}/${p.total})`);
       else setStatus('loading',`빈칸 재조회 중... (${p.round}/${p.rounds} · 남은 ${p.remaining}행)`);
     },

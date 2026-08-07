@@ -167,6 +167,24 @@
   </footer>
 </div>
 
+<!-- 일괄 조회 진행 팝업(v122). <dialog showModal> 이라 조회 중 배경 조작이 차단된다 -->
+<dialog id="progressDialog" class="progress-dialog" aria-labelledby="progressTitle">
+  <div class="progress-head">
+    <span class="progress-title" id="progressTitle">가격 조회 중</span>
+    <span class="progress-count" id="progressCount"></span>
+  </div>
+  <div class="progress-body">
+    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-phase" id="progressPhase">준비 중...</div>
+    <ul class="progress-active" id="progressActive"></ul>
+    <div class="progress-result" id="progressResult" hidden></div>
+  </div>
+  <div class="progress-foot">
+    <span class="progress-hint" id="progressHint">조회가 끝날 때까지 화면을 수정할 수 없습니다.</span>
+    <button type="button" id="btnProgressClose" class="btn" disabled>닫기</button>
+  </div>
+</dialog>
+
 <!-- 첫 진입 안내 팝업 (내용은 REMARK_ITEMS 한 곳에서 렌더링) -->
 <div id="remarkModalOverlay" class="remark-overlay" style="display:none;">
   <div class="remark-modal" role="dialog" aria-modal="true" aria-label="안내">
