@@ -4,11 +4,12 @@
 // 부수효과: 로드 시 내보내기·CSV 버튼 핸들러를 등록한다.
 // ================================================================
 import { REGION_LABEL } from '../core/config.js';
-import { buildSkuAndDetail, tryResolveItem } from '../core/resolver-engine.js';
+import { buildSkuAndDetail } from '../core/resolver-engine.js';
 import { SERVICE_CATEGORY_ORDER } from './service-order.js';
 import {
   CSV_HEADER, CSV_SKU_OPTION_KEY, csvRowToLine, buildOptionGuide, buildTemplateCsv,
 } from './csv-template.js';
+import { resolveRowsWithRetry, summarize } from './bulk-resolve.js';
 import {
   getRows, setRows, setActiveConfigRowId,
   blankRow, render, closeConfig, calcGroup, setStatus, showToast,
@@ -216,29 +217,22 @@ async function _csvHandleUpload(file) {
   //   건드리지 않으므로(공유 상태 없음) 동시에 돌려도 안전하다.
   newRows.forEach(function (rr) { buildSkuAndDetail(rr); });
 
-  // 행을 하나씩 await 하면 104행 기준 ≈49초(행당 약 468ms). 동시 실행 풀로 묶어
-  // 대기 시간을 겹친다. 같은 URL 이 겹쳐도 network.js 의 in-flight 병합이
-  // 요청을 한 번으로 합쳐준다.
+  // 동시 실행 풀로 조회하고, 끝난 뒤 남은 빈칸은 자동으로 다시 조회한다(bulk-resolve).
   setStatus('loading', 'CSV 불러오기: 가격 조회 중... (0/' + newRows.length + ')');
-  var done = 0;
-  var queue = newRows.slice();
-  async function csvResolveWorker() {
-    for (;;) {
-      var rr = queue.shift();
-      if (!rr) return;
-      try { await tryResolveItem(rr); } catch (e) { /* 개별 행 실패는 각 resolver가 상태로 처리 */ }
-      done++;
-      setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + done + '/' + newRows.length + ')');
-    }
-  }
-  var lanes = Math.min(CSV_IMPORT_CONCURRENCY, queue.length);
-  await Promise.all(Array.from({ length: lanes }, csvResolveWorker));
+  var result = await resolveRowsWithRetry(newRows, {
+    lanes: CSV_IMPORT_CONCURRENCY,
+    onProgress: function (p) {
+      if (p.phase === 'initial') setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + p.done + '/' + p.total + ')');
+      else setStatus('loading', '빈칸 재조회 중... (' + p.round + '/' + p.rounds + ' · 남은 ' + p.remaining + '행)');
+    },
+  });
   render();
 
   var msg = 'CSV 불러오기 완료: ' + created + '행 생성';
   if (skippedCat > 0) msg += ', 미지원 서비스 ' + skippedCat + '행 제외';
   if (skippedRegion > 0) msg += ', 미지원 Region ' + skippedRegion + '행 제외';
-  setStatus('ok', msg);
+  msg += '\n' + summarize(result);
+  setStatus(result.failed.length ? 'error' : 'ok', msg.replace('\n', ' · '));
   alert(msg + '\n(전 서비스 지원. 가격 매칭 정확도는 서비스별 resolver 수준을 따릅니다 — docs/service-status.csv 참고)');
 }
 

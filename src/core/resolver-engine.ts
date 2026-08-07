@@ -51,22 +51,23 @@ export async function tryResolveItem(row: Row): Promise<any> {
   return p;
 }
 
-async function resolveOnce(row: Row): Promise<any> {
-  // Disk: diskSubType에 따라 프로비저닝 계층 (v2/Ultra)는 skuName 없어도 조회 가능
-  const isDiskProv = row.serviceCategory === 'Disk' &&
-    (row.options.diskSubType === '프리미엄 SSD v2' || row.options.diskSubType === 'Ultra Disk');
-
-  if (!row.serviceCategory) {
-    row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return;
+// 조회를 시도할 수 있는 행인가(서비스·SKU 가 정해졌는가).
+// 아직 설정이 덜 된 행은 조회 대상이 아니다 — 일괄 조회·재시도에서 "실패"로 세지 않도록
+// 판정을 이 한 곳에 모은다.
+export function isRowResolvable(row: Row): boolean {
+  if (!row.serviceCategory) return false;
+  // Disk 프로비저닝 계층(프리미엄 SSD v2/Ultra)은 skuName 없이도 조회된다
+  if (row.serviceCategory === 'Disk') {
+    const sub = row.options && row.options.diskSubType;
+    if (sub === '프리미엄 SSD v2' || sub === 'Ultra Disk') return true;
+    return !!(row.options && row.options.diskInstance) || !!row.skuName;
   }
-  if (!isDiskProv && !row.skuName) {
-    // Disk SKU기반 계층: diskInstance 확인
-    if (row.serviceCategory === 'Disk') {
-      const hasInstance = row.options.diskInstance;
-      if (!hasInstance) { row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return; }
-    } else {
-      row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return;
-    }
+  return !!row.skuName;
+}
+
+async function resolveOnce(row: Row): Promise<any> {
+  if (!isRowResolvable(row)) {
+    row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; return;
   }
   const def = SERVICE_CATEGORIES[row.serviceCategory];
   if (!def) return;

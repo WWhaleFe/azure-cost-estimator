@@ -412,10 +412,18 @@ document.getElementById('currencySelect').addEventListener('change',async(e)=>{
   const prev=e.target._prevValue||'KRW';clearCacheForCurrency(prev);e.target._prevValue=e.target.value;
   for(const r of rows){r.paygItem=null;r.sp1Item=null;r.sp3Item=null;r.ri1Item=null;r.ri3Item=null;}
   render();
-  for(const r of rows){
-    const hasSku=r.skuName||(r.serviceCategory==='Disk'&&r.options.diskSubType);
-    if(hasSku)await tryResolveItem(r);
-  }
+  // 통화가 바뀌면 전 행을 다시 조회한다. 예전엔 행을 하나씩 await 해서 104행이면
+  // 대기 시간이 그대로 합산됐다 — CSV 불러오기와 같은 일괄 조회 경로로 통일하고,
+  // 끝난 뒤 남은 빈칸은 자동으로 재조회한다(v121).
+  const {resolveRowsWithRetry,summarize}=await import('./ui/bulk-resolve.js');
+  const result=await resolveRowsWithRetry(rows,{
+    onProgress:(p)=>{
+      if(p.phase==='initial')setStatus('loading',`통화 변경 재조회 중... (${p.done}/${p.total})`);
+      else setStatus('loading',`빈칸 재조회 중... (${p.round}/${p.rounds} · 남은 ${p.remaining}행)`);
+    },
+  });
+  render();
+  setStatus(result.failed.length?'error':'ok',summarize(result));
 });
 document.getElementById('currencySelect')._prevValue=document.getElementById('currencySelect').value;
 document.getElementById('defaultHours').addEventListener('change',(e)=>{
