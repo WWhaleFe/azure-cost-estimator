@@ -111,3 +111,71 @@ describe('계단식 타임아웃 · 실제 취소', () => {
     expect(sawSignal).toBe(true);
   });
 });
+
+// ================================================================
+// 429 스로틀링 처리 (v120)
+//   브라우저 실측에서 프로덕션 일괄 조회가 161초까지 늘어난 원인.
+//   429 는 "이 프록시가 고장났다"가 아니라 "잠시 뒤 다시"인데, v118 쿨다운이
+//   가장 빠른 경로를 60초 유배시켜 느린 공개 프록시로 몰아버렸다.
+// ================================================================
+describe('429 스로틀링', () => {
+  const OK = { ok: true, text: async () => OK_BODY };
+  const tooMany = (retryAfter) => ({
+    ok: false, status: 429,
+    headers: { get: (k) => (k.toLowerCase() === 'retry-after' && retryAfter ? String(retryAfter) : null) },
+  });
+
+  it('429 를 만나면 같은 프록시로 잠시 뒤 재시도한다(다른 프록시로 넘기지 않음)', async () => {
+    let n = 0;
+    globalThis.fetch = vi.fn(async (url) => {
+      calls.push(NAME_OF(String(url)));
+      return ++n === 1 ? tooMany() : OK;
+    });
+    const data = await fetchWithCorsFallback(TARGET);
+    expect(data.Items).toHaveLength(1);
+    expect(calls).toEqual(['vercel-fn', 'vercel-fn']);     // 같은 프록시 재시도
+  });
+
+  it('429 는 쿨다운 대상이 아니다(다음 요청도 1순위를 그대로 쓴다)', async () => {
+    let n = 0;
+    globalThis.fetch = vi.fn(async (url) => { calls.push(NAME_OF(String(url))); return ++n === 1 ? tooMany() : OK; });
+    await fetchWithCorsFallback(TARGET);
+    calls = [];
+    await fetchWithCorsFallback(TARGET);
+    expect(calls[0]).toBe('vercel-fn');                    // 유배되지 않음
+  });
+
+  it('429 가 계속되면 결국 다음 프록시로 넘어간다', async () => {
+    globalThis.fetch = vi.fn(async (url) => {
+      const name = NAME_OF(String(url));
+      calls.push(name);
+      return name === 'vercel-fn' ? tooMany() : OK;
+    });
+    const data = await fetchWithCorsFallback(TARGET);
+    expect(data.Items).toHaveLength(1);
+    expect(calls.filter((c) => c === 'vercel-fn').length).toBe(1 + 3);   // 최초 + 재시도 3회
+    expect(calls).toContain('direct');
+  });
+
+  it('Retry-After 헤더를 존중한다', async () => {
+    let n = 0;
+    const t0 = Date.now();
+    globalThis.fetch = vi.fn(async (url) => { calls.push(NAME_OF(String(url))); return ++n === 1 ? tooMany(1) : OK; });
+    await fetchWithCorsFallback(TARGET);
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(400);   // 1초 × 지터(0.5~1.5배)
+  });
+});
+
+describe('업스트림 동시 요청 상한', () => {
+  it('동시에 4건을 넘지 않는다', async () => {
+    let cur = 0, peak = 0;
+    globalThis.fetch = vi.fn(async () => {
+      cur++; peak = Math.max(peak, cur);
+      await new Promise((r) => setTimeout(r, 5));
+      cur--;
+      return { ok: true, text: async () => OK_BODY };
+    });
+    await Promise.all(Array.from({ length: 12 }, (_, i) => fetchWithCorsFallback(TARGET + '&n=' + i)));
+    expect(peak).toBeLessThanOrEqual(4);
+  });
+});

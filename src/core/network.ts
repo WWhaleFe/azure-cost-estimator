@@ -71,6 +71,28 @@ function getProxyOrder(expectedSizeKB: number): number[] {
   ].map(x=>x.i);
 }
 
+// ── 업스트림 동시 요청 상한 (v120) ──
+// 행 6개를 동시에 조회해도 행마다 Consumption·Reservation 을 병렬로 던지므로 실제
+// 동시 요청은 12건까지 뛴다. 브라우저 실측 결과 그 수준에서 Azure API 가 429 를
+// 돌려주고(공유 IP 인 Vercel 함수 경유에선 더 쉽게), 그게 프록시 실패로 처리돼
+// 오히려 전체가 느려졌다(프로덕션 161초). 실측상 동시 3건까지는 429 가 없었다.
+const MAX_CONCURRENT = 4;
+let running = 0;
+const waiters: (()=>void)[] = [];
+async function acquireSlot(): Promise<void> {
+  while (running >= MAX_CONCURRENT) await new Promise<void>(r=>waiters.push(r));
+  running++;
+}
+function releaseSlot(): void { running--; const w = waiters.shift(); if (w) w(); }
+
+// 429/503 은 "이 프록시가 고장났다"가 아니라 "잠시 뒤 다시"라는 뜻이다.
+// 쿨다운 대상으로 삼으면 가장 빠른 경로가 유배돼 되레 느려진다(v118 의 부작용).
+class RateLimited extends Error {
+  constructor(public retryAfterMs: number) { super('rate limited'); this.name = 'RateLimited'; }
+}
+const MAX_RATE_RETRIES = 3;
+const sleep = (ms: number) => new Promise(r=>setTimeout(r, ms));
+
 async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs: number): Promise<any> {
   // AbortController 로 실제로 끊는다. 예전 Promise.race 방식은 타이머만 이겼을 뿐
   // fetch 는 계속 살아 있어, 브라우저의 호스트당 연결 수(약 6개)를 죽은 요청이
@@ -79,7 +101,13 @@ async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs: number
   const timer = setTimeout(()=>ac.abort(), timeoutMs);
   try {
     const res = await fetch(proxy.url(targetUrl), { method:'GET', signal:ac.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      if (res.status === 429 || res.status === 503) {
+        const ra = Number(res.headers.get('retry-after'));
+        throw new RateLimited(isFinite(ra) && ra > 0 ? ra*1000 : 0);
+      }
+      throw new Error(`HTTP ${res.status}`);
+    }
     const text = await res.text();
     if (!text || text.length < 10) throw new Error('empty response');
     let data;
@@ -101,9 +129,16 @@ async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs: number
 }
 
 export async function fetchWithCorsFallback(targetUrl: string, expectedSizeKB = 0): Promise<any> {
+  await acquireSlot();                       // 대기 시간은 아래 예산에 넣지 않는다
+  try { return await runFallback(targetUrl, expectedSizeKB); }
+  finally { releaseSlot(); }
+}
+
+async function runFallback(targetUrl: string, expectedSizeKB: number): Promise<any> {
   const errors = [];
   const startedAt = Date.now();
   const order = getProxyOrder(expectedSizeKB);
+  let rateRetries = 0;
   for (let attempt = 0; attempt < order.length; attempt++) {
     const remaining = TOTAL_BUDGET_MS - (Date.now() - startedAt);
     if (remaining <= 500) { errors.push(`전체 제한 ${TOTAL_BUDGET_MS}ms 초과`); break; }
@@ -118,6 +153,14 @@ export async function fetchWithCorsFallback(targetUrl: string, expectedSizeKB = 
       proxyCooldownUntil[idx] = 0;
       return data;
     } catch(err: any) {
+      // 스로틀링은 같은 프록시로 잠깐 뒤 재시도(쿨다운 대상 아님)
+      if (err instanceof RateLimited && rateRetries < MAX_RATE_RETRIES) {
+        rateRetries++;
+        const base = err.retryAfterMs || Math.min(500 * 2**(rateRetries-1), 4000);
+        await sleep(Math.round(base * (0.5 + Math.random())));   // 지터 — 동시에 몰려 재시도하지 않게
+        attempt--;
+        continue;
+      }
       proxyFailStreak[idx]++;
       proxyCooldownUntil[idx] = Date.now() +
         Math.min(PROXY_COOLDOWN_MS * 2**(proxyFailStreak[idx]-1), PROXY_COOLDOWN_MAX_MS);
