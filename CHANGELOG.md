@@ -2,6 +2,18 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v117 — 2026-08-07
+- perf: **조회가 느리거나 멈춘 것처럼 보이는 문제 개선** — 순차 처리·중복 요청·실패 경로 3가지를 손봤다
+- **원인 조사(실측)**: VM 1행 콜드 468ms / 엣지 캐시 HIT 16ms · 매칭 실패 시 추가되는 `probeRegions` 535ms·**235KB**(성공 경로보다 무겁다) · Front Door 1행 216KB(리전 필터 없는 전체 조회)
+- **① 진행 중 요청 병합(`network.ts`)** — `apiCache` 는 요청이 *끝난 뒤에만* 채워져서, 같은 URL 을 동시에 요청하면 전부 네트워크로 나갔다. 한 서비스의 여러 행은 보통 `(serviceName, region)` 만으로 URL 이 같다(양식 기준 Service Bus 5·Event Hubs 4·Front Door 4·Container Apps 3행). `Map<url, Promise>` 로 진행 중 요청을 공유해 한 번만 나가게 함 — **동시 실행의 전제 조건**
+- **② 동시 실행 풀(`export-csv.js`)** — 일괄 불러오기가 행을 하나씩 `await` 했다. 6레인 풀로 전환. `buildSkuAndDetail` 은 공유 `def.steps` 를 갈아끼우므로 조회 전에 전부 동기로 끝내고, `_resolve_*` 는 `row.options` 만 읽어 공유 상태가 없음을 확인한 뒤 병렬화
+- **③ 실패 경로 비차단화(`vm.ts`·`app-service.ts`)** — 매칭 실패 시 `probeRegions`(전-리전 조회)를 `await` 한 뒤에야 상태가 갱신돼, 실패한 행일수록 더 오래 "조회 중"으로 보였다. 결과를 먼저 알리고 리전 안내는 백그라운드로 채우도록 변경. 비동기가 된 만큼 **낡은 응답이 최신 값을 덮어쓰지 않도록** 행 스탬프(region|skuName|options) 가드 추가
+- **효과(라이브 실측, 양식 104행 일괄 조회)**: 순차 **14.8초 → 동시 6개 3.4초 (4.3×)**, 104/104행 전부 가격 조회 성공
+- **테스트**: `network-inflight.test.js` 신규 4종(동시 4요청 → fetch 1회 / 필터 다르면 분리 / 완료 후 캐시 / 실패는 병합에 안 남음, 변이 테스트로 검증). `live-csv-import.test.js` 신규 — `RUN_LIVE=1` 에서 양식 전 행이 실제 가격까지 조회되는지 + 동시 실행이 순차보다 빠른지 확인(CI 제외)
+- 영향 파일: src/core/network.ts, src/ui/export-csv.js, src/services/vm.ts, src/services/app-service.ts, test/network-inflight.test.js(신규), test/live-csv-import.test.js(신규), CHANGELOG.md
+- 검증: `npm test` **68 pass / 4 skip**, `tsc --noEmit` 0, `vite build` 성공
+- **남은 개선(미적용)**: 조사 중 `direct` 프록시가 일시 실패하자 `activeProxyIndex` 가 느린 공개 프록시(allorigins-get)에 눌러앉아 같은 작업이 **374초**까지 늘어나는 상황을 실제로 관측했다. 다음 항목이 남아 있다 — (a) 계단식 타임아웃(현재 프록시당 25초 고정, 최악 7×25=175초) (b) `AbortController` 로 실제 요청 취소(현재 `Promise.race` 는 fetch 를 취소하지 않아 죽은 요청이 살아 있음) (c) 행별 요청 세대 토큰(옵션을 빠르게 바꾸면 늦게 온 과거 응답이 최신 값을 덮어씀) (d) 빈 결과 음성 캐시 (e) `getProxyOrder` 가 `expectedSizeKB>0` 일 때 sticky 프록시를 무시하는 비일관성
+
 ## v116 — 2026-08-06
 - fix: **`/api/prices` 서버리스 프록시가 HEAD 를 405 로 거부하던 문제**. HEAD 를 GET 과 동일하게 처리(상태·헤더 동일, 본문만 비움 — HTTP 규약)
 - 프런트는 GET 만 쓰지만, 헬스체크·모니터링 도구나 `curl -I` 로 점검하면 405 가 떨어지고 그 응답의 기본 헤더(`public, max-age=0, must-revalidate`)가 보여 **캐시 설정이 안 걸린 것처럼 오인**됐다(실제 GET 은 `s-maxage=3600` 정상, 재요청 시 `x-vercel-cache: HIT`)

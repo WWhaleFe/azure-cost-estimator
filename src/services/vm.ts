@@ -279,8 +279,11 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
       setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}${osMsg}`);
     }
     else {
-      // 매칭 실패 → 이 SKU가 다른 리전엔 있는지 확인해 "리전 미제공" 여부를 구분해 안내
-      await REG['_vmReportUnavailable'](row, armSku, cItems.length, cur);
+      // 매칭 실패 → 먼저 결과를 즉시 알리고, 리전 확인은 백그라운드로 돌린다.
+      // probeRegions 는 전-리전 조회(≈535ms·235KB)라 성공 경로보다 무겁다. 이걸
+      // await 하면 "실패한 행일수록 더 오래 조회 중"으로 보인다(v117).
+      setStatus('error', `${row.skuName}: 매칭 없음 (${cItems.length}건) · 리전 확인 중...`);
+      REG['_vmReportUnavailable'](row, armSku, cItems.length, cur);
     }
   } catch(err: any){ row.paygItem=null;row.sp1Item=null;row.sp3Item=null;row.ri1Item=null;row.ri3Item=null; setStatus('error',`API 실패: ${err.message.slice(0,100)}`); console.error('VM:',err); }
   updatePriceCells(row); updateTotalsRow();
@@ -292,11 +295,16 @@ REG['_vmSkuRegions'] = async function(armSku: string, cur: string): Promise<stri
     String(it.unitOfMeasure||'').toLowerCase().includes('hour') && Number(it.tierMinimumUnits||0) === 0);
 };
 
-// 매칭 실패 상태 메시지: 리전 미제공이면 지원 리전을 함께 안내
+// 매칭 실패 상태 메시지: 리전 미제공이면 지원 리전을 함께 안내.
+// 호출부가 await 하지 않으므로(비차단), 조회가 끝났을 때 행이 이미 바뀌었을 수 있다.
+// 그 사이 사용자가 옵션을 바꿔 값이 채워졌다면 낡은 안내로 덮어쓰지 않는다.
 REG['_vmReportUnavailable'] = async function(row: Row, armSku: string, nFetched: number, cur: string) {
   const here = String(row.region||'');
   const hereLabel = REGION_LABEL[here] || here;
+  const stampOf = () => `${row.region}|${row.skuName}|${JSON.stringify(row.options)}`;
+  const before = stampOf();
   const regions = await REG['_vmSkuRegions'](armSku, cur);
+  if (stampOf() !== before || row.paygItem) return;
   const hint = regionHint(regions, here, (r: string)=> REGION_LABEL[r] || r);
   if (hint.unavailable) {
     const msg = `${row.skuName}: ${hint.text}`;

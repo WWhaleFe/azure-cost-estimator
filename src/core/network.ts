@@ -10,6 +10,13 @@ import type { ApiItem, ProxyEntry, PriceFilters } from './types.js';
 export const apiCache = new Map<string, ApiItem[]>();
 export let activeProxyIndex = 0;
 
+// 진행 중인 요청(URL → Promise). apiCache 는 요청이 "끝난 뒤에만" 채워지므로,
+// 같은 URL 을 동시에 요청하면 캐시가 비어 있는 사이 전부 네트워크로 나간다.
+// 행을 동시에 조회하면 이런 겹침이 흔하다 — 한 서비스의 여러 행은 보통
+// (serviceName, region) 만으로 URL 이 같다(예: Front Door 4행 = 216KB × 4).
+// 같은 URL 이 이미 떠 있으면 그 Promise 를 그대로 돌려줘 한 번만 나가게 한다.
+const inFlight = new Map<string, Promise<ApiItem[]>>();
+
 function validateApiResponse(data: any): { ok: boolean; reason?: string } {
   if (!data || typeof data !== 'object') return { ok:false, reason:'not an object' };
   if (!Array.isArray(data.Items))         return { ok:false, reason:'no Items array' };
@@ -90,16 +97,25 @@ export async function apiFetch(filters: PriceFilters, currencyCode = 'KRW', maxI
     if (Array.isArray(c) && c.length>0) return c;
     apiCache.delete(targetUrl);
   }
-  const items = [];
-  let nextUrl = targetUrl, pages = 0;
-  while (nextUrl && items.length<maxItems && pages<maxPages) {
-    const data = await fetchWithCorsFallback(nextUrl, opts.expectedSizeKB||0);
-    if (Array.isArray(data.Items)) items.push(...data.Items);
-    nextUrl = data.NextPageLink || null;
-    pages++;
-  }
-  if (items.length>0) apiCache.set(targetUrl, items);
-  return items;
+  const pending = inFlight.get(targetUrl);
+  if (pending) return pending;
+
+  const run = (async (): Promise<ApiItem[]> => {
+    const items: ApiItem[] = [];
+    let nextUrl: string|null = targetUrl, pages = 0;
+    while (nextUrl && items.length<maxItems && pages<maxPages) {
+      const data = await fetchWithCorsFallback(nextUrl, opts.expectedSizeKB||0);
+      if (Array.isArray(data.Items)) items.push(...data.Items);
+      nextUrl = data.NextPageLink || null;
+      pages++;
+    }
+    if (items.length>0) apiCache.set(targetUrl, items);
+    return items;
+  })();
+
+  inFlight.set(targetUrl, run);
+  try { return await run; }
+  finally { inFlight.delete(targetUrl); }   // 성공·실패 모두 정리(실패는 다음 호출이 재시도)
 }
 
 export function clearCacheForCurrency(currencyCode: string): void {

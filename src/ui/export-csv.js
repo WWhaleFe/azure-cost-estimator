@@ -101,6 +101,10 @@ document.getElementById('btnExport').addEventListener('click',async ()=>{
 // ================================================================
 var CSV_SUPPORTED_CATEGORIES = SERVICE_CATEGORY_ORDER.slice();
 
+// CSV 불러오기 시 동시에 조회할 행 수. 공개 프록시 폴백 환경에서도 무리가 없도록
+// 낮게 잡았다(6 레인이면 104행 ≈49초 → ≈24초).
+var CSV_IMPORT_CONCURRENCY = 6;
+
 function _csvDownloadTemplate() {
   var blob = new Blob(['\ufeff' + buildTemplateCsv()], { type: 'text/csv;charset=utf-8;' });
   var url = URL.createObjectURL(blob);
@@ -206,15 +210,29 @@ async function _csvHandleUpload(file) {
   setRows(getRows().concat(newRows));
   render();
 
+  // SKU/상세는 먼저 전부 동기로 만든다.
+  //   buildSkuAndDetail → _applyStepVisibility 는 공유 def.steps 를 갈아끼우므로
+  //   조회(await)와 섞이면 안 된다. 반면 _resolve_* 는 row.options 만 읽고 def 를
+  //   건드리지 않으므로(공유 상태 없음) 동시에 돌려도 안전하다.
+  newRows.forEach(function (rr) { buildSkuAndDetail(rr); });
+
+  // 행을 하나씩 await 하면 104행 기준 ≈49초(행당 약 468ms). 동시 실행 풀로 묶어
+  // 대기 시간을 겹친다. 같은 URL 이 겹쳐도 network.js 의 in-flight 병합이
+  // 요청을 한 번으로 합쳐준다.
   setStatus('loading', 'CSV 불러오기: 가격 조회 중... (0/' + newRows.length + ')');
   var done = 0;
-  for (var k = 0; k < newRows.length; k++) {
-    var rr = newRows[k];
-    buildSkuAndDetail(rr);
-    try { await tryResolveItem(rr); } catch (e) { /* 개별 행 실패는 각 resolver가 상태로 처리 */ }
-    done++;
-    setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + done + '/' + newRows.length + ')');
+  var queue = newRows.slice();
+  async function csvResolveWorker() {
+    for (;;) {
+      var rr = queue.shift();
+      if (!rr) return;
+      try { await tryResolveItem(rr); } catch (e) { /* 개별 행 실패는 각 resolver가 상태로 처리 */ }
+      done++;
+      setStatus('loading', 'CSV 불러오기: 가격 조회 중... (' + done + '/' + newRows.length + ')');
+    }
   }
+  var lanes = Math.min(CSV_IMPORT_CONCURRENCY, queue.length);
+  await Promise.all(Array.from({ length: lanes }, csvResolveWorker));
   render();
 
   var msg = 'CSV 불러오기 완료: ' + created + '행 생성';

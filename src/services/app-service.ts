@@ -116,19 +116,27 @@ REG['_resolve_App_Service'] = async function(row: Row, cur: string) {
 
   if (!chosen) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-    // 이 사이즈가 다른 리전엔 있는지 확인 → 리전 미제공이면 지원 리전을 안내
-    var availRegions = await probeRegions({ serviceName:'Azure App Service', productName:product }, cur,
-      function(it: ApiItem){ return _appsvc_norm(it.skuName)===sizeNm; });
-    var regHint = regionHint(availRegions, row.region, function(r: string){ return REGION_LABEL[r] || r; });
-    if (regHint.unavailable) {
+    // 먼저 결과를 즉시 알린다. 리전 확인(probeRegions)은 전-리전 조회라 성공 경로보다
+    // 무거워서, await 하면 실패한 행일수록 더 오래 "조회 중"으로 보인다(v117).
+    setStatus('error', 'App Service ' + label + ': 매칭 실패 (' + cItems.length + '건 조회). 이 OS/계층에 해당 인스턴스가 없을 수 있습니다.');
+    console.warn('[AppSvc] 용량제 매칭 실패', { product:product, size:size, region:row.region, consumptionCount:cons.length, sampleSku:cons.slice(0,10).map(function(x: ApiItem){return x.skuName;}) });
+    updatePriceCells(row); updateTotalsRow();
+
+    // 백그라운드로 "리전 미제공" 여부를 확인해 안내를 보강한다.
+    // 조회 사이에 행이 바뀌었거나 값이 채워졌으면 낡은 안내로 덮어쓰지 않는다.
+    var stampOf = function(){ return row.region + '|' + row.skuName + '|' + JSON.stringify(row.options); };
+    var before = stampOf();
+    probeRegions({ serviceName:'Azure App Service', productName:product }, cur,
+      function(it: ApiItem){ return _appsvc_norm(it.skuName)===sizeNm; }
+    ).then(function(availRegions){
+      if (stampOf() !== before || row.paygItem) return;
+      var regHint = regionHint(availRegions, row.region, function(r: string){ return REGION_LABEL[r] || r; });
+      if (!regHint.unavailable) return;
       var regMsg = 'App Service ' + label + ': ' + regHint.text;
       setStatus('error', regMsg);
       if (typeof showToast === 'function') showToast(regMsg, 'error');
-    } else {
-      setStatus('error', 'App Service ' + label + ': 매칭 실패 (' + cItems.length + '건 조회). 이 OS/계층에 해당 인스턴스가 없을 수 있습니다.');
-    }
-    console.warn('[AppSvc] 용량제 매칭 실패', { product:product, size:size, region:row.region, consumptionCount:cons.length, sampleSku:cons.slice(0,10).map(function(x: ApiItem){return x.skuName;}) });
-    updatePriceCells(row); updateTotalsRow(); return;
+    });
+    return;
   }
 
   // 절약 플랜(1·3년): 같은 인스턴스(매칭/후보) 항목의 savingsPlan 배열에서만 추출(다른 인스턴스 가격 혼입 방지)
