@@ -25,8 +25,52 @@ function validateApiResponse(data: any): { ok: boolean; reason?: string } {
   return { ok:true };
 }
 
-async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs = 25000): Promise<any> {
-  const fp = fetch(proxy.url(targetUrl), { method:'GET' }).then(async res => {
+// ── 계단식 타임아웃 (v118) ──
+// 기존엔 프록시마다 25초 고정이라 최악 7×25=175초를 기다렸다. 첫 시도는 짧게 끊어
+// 죽은 경로를 빨리 버리고, 뒤로 갈수록 여유를 준다(느리지만 살아 있는 경로 구제).
+// 한 URL 전체에도 상한을 둬서 "언젠간 끝난다"를 보장한다.
+const ATTEMPT_TIMEOUT_MS = [10000, 15000, 20000];   // 시도 차수별 제한(마지막 값이 이후 전부)
+const TOTAL_BUDGET_MS = 60000;                       // 한 URL 에 쓰는 전체 상한
+
+function attemptTimeout(attempt: number, expectedSizeKB: number): number {
+  const base = ATTEMPT_TIMEOUT_MS[Math.min(attempt, ATTEMPT_TIMEOUT_MS.length-1)];
+  // 대용량 응답(probeRegions 235KB·Front Door 216KB)은 느린 회선에서 더 걸린다
+  return expectedSizeKB >= 100 ? Math.round(base*1.5) : base;
+}
+
+// ── 프록시 쿨다운 (v118) ──
+// 기존엔 성공한 프록시를 activeProxyIndex 에 눌러 담고 되돌리는 장치가 없었다.
+// direct 가 한 번 실패해 느린 공개 프록시로 넘어가면 그 뒤 모든 요청이 그 경로로
+// 가서 전체가 느려졌다(실측: 같은 작업이 374초). 이제 실패한 프록시만 한동안
+// 뒤로 미루고, 쿨다운이 끝나면 원래 우선순위로 자동 복귀한다.
+const PROXY_COOLDOWN_MS = 60000;        // 1회 실패 시
+const PROXY_COOLDOWN_MAX_MS = 300000;   // 연속 실패해도 이 이상은 안 미룸
+const proxyCooldownUntil: number[] = CORS_PROXIES.map(()=>0);
+const proxyFailStreak: number[] = CORS_PROXIES.map(()=>0);
+
+// 그룹 안에서는 CORS_PROXIES 원래 순서(우선순위)를 유지한다 →
+// 쿨다운이 풀리면 vercel-fn·direct 가 다시 1순위로 돌아온다.
+function getProxyOrder(expectedSizeKB: number): number[] {
+  const now = Date.now();
+  const all = CORS_PROXIES.map((p,i)=>({p,i}));
+  const sizeOk = (x: {p:ProxyEntry;i:number}) => !expectedSizeKB || expectedSizeKB<=0 || (x.p.sizeKB||Infinity)>=expectedSizeKB;
+  const cooling = (x: {p:ProxyEntry;i:number}) => proxyCooldownUntil[x.i] > now;
+  return [
+    ...all.filter(x=> sizeOk(x) && !cooling(x)),   // 크기 OK · 정상
+    ...all.filter(x=> sizeOk(x) &&  cooling(x)),   // 크기 OK · 쿨다운 중(최후 수단)
+    ...all.filter(x=>!sizeOk(x) && !cooling(x)),   // 크기 부족 · 정상
+    ...all.filter(x=>!sizeOk(x) &&  cooling(x)),
+  ].map(x=>x.i);
+}
+
+async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs: number): Promise<any> {
+  // AbortController 로 실제로 끊는다. 예전 Promise.race 방식은 타이머만 이겼을 뿐
+  // fetch 는 계속 살아 있어, 브라우저의 호스트당 연결 수(약 6개)를 죽은 요청이
+  // 점유해 뒤따르는 조회까지 느려졌다.
+  const ac = new AbortController();
+  const timer = setTimeout(()=>ac.abort(), timeoutMs);
+  try {
+    const res = await fetch(proxy.url(targetUrl), { method:'GET', signal:ac.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     if (!text || text.length < 10) throw new Error('empty response');
@@ -40,36 +84,46 @@ async function fetchOnce(targetUrl: string, proxy: ProxyEntry, timeoutMs = 25000
     const v = validateApiResponse(data);
     if (!v.ok) throw new Error(`invalid OData: ${v.reason}`);
     return data;
-  });
-  return Promise.race([fp, new Promise((_,rej)=>setTimeout(()=>rej(new Error(`timeout ${timeoutMs}ms`)),timeoutMs))]);
-}
-
-function getProxyOrder(expectedSizeKB: number): number[] {
-  if (!expectedSizeKB || expectedSizeKB<=0)
-    return CORS_PROXIES.map((_,i)=>(activeProxyIndex+i)%CORS_PROXIES.length);
-  const wi = CORS_PROXIES.map((p,i)=>({p,i}));
-  return [
-    ...wi.filter(x=>(x.p.sizeKB||Infinity)>=expectedSizeKB),
-    ...wi.filter(x=>(x.p.sizeKB||Infinity)< expectedSizeKB),
-  ].map(x=>x.i);
+  } catch (err: any) {
+    if (ac.signal.aborted) throw new Error(`timeout ${timeoutMs}ms`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function fetchWithCorsFallback(targetUrl: string, expectedSizeKB = 0): Promise<any> {
   const errors = [];
-  for (const idx of getProxyOrder(expectedSizeKB)) {
+  const startedAt = Date.now();
+  const order = getProxyOrder(expectedSizeKB);
+  for (let attempt = 0; attempt < order.length; attempt++) {
+    const remaining = TOTAL_BUDGET_MS - (Date.now() - startedAt);
+    if (remaining <= 500) { errors.push(`전체 제한 ${TOTAL_BUDGET_MS}ms 초과`); break; }
+    const idx = order[attempt];
     const proxy = CORS_PROXIES[idx];
     try {
-      const data = await fetchOnce(targetUrl, proxy);
+      const data = await fetchOnce(targetUrl, proxy, Math.min(attemptTimeout(attempt, expectedSizeKB), remaining));
       if (idx !== activeProxyIndex)
         console.log(`✓ 프록시 전환: ${proxy.name}`);
       activeProxyIndex = idx;
+      proxyFailStreak[idx] = 0;
+      proxyCooldownUntil[idx] = 0;
       return data;
     } catch(err: any) {
+      proxyFailStreak[idx]++;
+      proxyCooldownUntil[idx] = Date.now() +
+        Math.min(PROXY_COOLDOWN_MS * 2**(proxyFailStreak[idx]-1), PROXY_COOLDOWN_MAX_MS);
       errors.push(`${proxy.name}: ${err.message}`);
       console.warn(`프록시 [${proxy.name}] 실패: ${err.message}`);
     }
   }
   throw new Error(`모든 프록시 실패: ${errors.join(' | ')}`);
+}
+
+// 진단/테스트용 — 쿨다운 상태를 비운다(프록시 상태를 처음으로 되돌림)
+export function resetProxyHealth(): void {
+  for (let i = 0; i < CORS_PROXIES.length; i++) { proxyCooldownUntil[i] = 0; proxyFailStreak[i] = 0; }
+  activeProxyIndex = 0;
 }
 
 function buildApiUrl(filters: PriceFilters, currencyCode: string, pageSize: number): string {
