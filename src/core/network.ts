@@ -17,6 +17,14 @@ export let activeProxyIndex = 0;
 // 같은 URL 이 이미 떠 있으면 그 Promise 를 그대로 돌려줘 한 번만 나가게 한다.
 const inFlight = new Map<string, Promise<ApiItem[]>>();
 
+// ── 빈 결과 음성 캐시 (v119) ──
+// apiCache 는 items.length>0 일 때만 채운다. 그래서 "0건" 응답(그 리전에 없는 SKU 등)은
+// 캐시되지 않아, 같은 실패 조회가 화면을 다시 그릴 때마다 매번 네트워크로 나갔다.
+// 실패 경로는 성공 경로보다 무거우므로(probeRegions 235KB) 반복 비용이 크다.
+// 0건도 짧게 기억해 두되, 카탈로그가 바뀌면 스스로 풀리도록 TTL 을 짧게 둔다.
+const NEGATIVE_TTL_MS = 60000;
+const negativeCache = new Map<string, number>();   // url → 만료 시각
+
 function validateApiResponse(data: any): { ok: boolean; reason?: string } {
   if (!data || typeof data !== 'object') return { ok:false, reason:'not an object' };
   if (!Array.isArray(data.Items))         return { ok:false, reason:'no Items array' };
@@ -151,6 +159,12 @@ export async function apiFetch(filters: PriceFilters, currencyCode = 'KRW', maxI
     if (Array.isArray(c) && c.length>0) return c;
     apiCache.delete(targetUrl);
   }
+  const negUntil = negativeCache.get(targetUrl);
+  if (negUntil !== undefined) {
+    if (negUntil > Date.now()) return [];
+    negativeCache.delete(targetUrl);
+  }
+
   const pending = inFlight.get(targetUrl);
   if (pending) return pending;
 
@@ -163,7 +177,9 @@ export async function apiFetch(filters: PriceFilters, currencyCode = 'KRW', maxI
       nextUrl = data.NextPageLink || null;
       pages++;
     }
-    if (items.length>0) apiCache.set(targetUrl, items);
+    // 성공적으로 응답을 받았을 때만 기록한다(네트워크 실패는 throw 로 빠져 여기 안 옴)
+    if (items.length>0) { apiCache.set(targetUrl, items); negativeCache.delete(targetUrl); }
+    else negativeCache.set(targetUrl, Date.now() + NEGATIVE_TTL_MS);
     return items;
   })();
 
@@ -178,5 +194,12 @@ export function clearCacheForCurrency(currencyCode: string): void {
   for (const k of [...apiCache.keys()]) {
     if (k.includes(kw)) { apiCache.delete(k); n++; }
   }
+  // 음성 캐시(0건 기억)도 같이 비운다 — 안 그러면 통화를 바꿔도 "조회 안 됨"이 남는다
+  for (const k of [...negativeCache.keys()]) {
+    if (k.includes(kw)) negativeCache.delete(k);
+  }
   console.log(`[캐시] ${currencyCode} ${n}건 삭제`);
 }
+
+// 진단/테스트용 — 음성 캐시(0건 기억)를 비운다
+export function clearNegativeCache(): void { negativeCache.clear(); }

@@ -63,3 +63,62 @@ describe('apiFetch 진행 중 요청 병합', () => {
     expect(fetchCalls).toBeGreaterThan(first);       // 재시도됨(진행 중 맵에 눌러앉지 않음)
   });
 });
+
+// ================================================================
+// 빈 결과 음성 캐시 (v119)
+//   apiCache 는 items.length>0 일 때만 채운다. 그래서 "0건" 응답(그 리전에 없는
+//   SKU 등)은 캐시되지 않아, 같은 실패 조회가 매번 네트워크로 나갔다.
+// ================================================================
+describe('빈 결과 음성 캐시', () => {
+  const EMPTY = { ok: true, text: async () => JSON.stringify({ Items: [] }) };
+
+  it('0건 응답을 기억해 같은 조회를 다시 내보내지 않는다', async () => {
+    const { clearNegativeCache } = await import('../src/core/network.js');
+    clearNegativeCache();
+    globalThis.fetch = vi.fn(async () => { fetchCalls++; return EMPTY; });
+
+    const filters = { serviceName: 'Nope', armRegionName: 'koreacentral' };
+    expect(await apiFetch(filters, 'KRW')).toEqual([]);
+    const after = fetchCalls;
+    expect(await apiFetch(filters, 'KRW')).toEqual([]);
+    expect(fetchCalls).toBe(after);                 // 두 번째는 네트워크 없이 [] 반환
+  });
+
+  it('필터가 다르면 음성 캐시에 걸리지 않는다', async () => {
+    const { clearNegativeCache } = await import('../src/core/network.js');
+    clearNegativeCache();
+    globalThis.fetch = vi.fn(async () => { fetchCalls++; return EMPTY; });
+
+    await apiFetch({ serviceName: 'NopeA', armRegionName: 'koreacentral' }, 'KRW');
+    const after = fetchCalls;
+    await apiFetch({ serviceName: 'NopeB', armRegionName: 'koreacentral' }, 'KRW');
+    expect(fetchCalls).toBeGreaterThan(after);
+  });
+
+  it('네트워크 실패는 음성 캐시에 남지 않는다(다음 호출이 재시도)', async () => {
+    const { clearNegativeCache } = await import('../src/core/network.js');
+    clearNegativeCache();
+    globalThis.fetch = vi.fn(async () => { fetchCalls++; throw new Error('boom'); });
+
+    const filters = { serviceName: 'Flaky', armRegionName: 'koreacentral' };
+    await expect(apiFetch(filters, 'KRW')).rejects.toThrow();
+    const after = fetchCalls;
+    await expect(apiFetch(filters, 'KRW')).rejects.toThrow();
+    expect(fetchCalls).toBeGreaterThan(after);
+  });
+
+  it('통화를 바꾸면 음성 캐시도 함께 비워진다', async () => {
+    const { clearNegativeCache, clearCacheForCurrency } = await import('../src/core/network.js');
+    clearNegativeCache();
+    globalThis.fetch = vi.fn(async () => { fetchCalls++; return EMPTY; });
+
+    const filters = { serviceName: 'Nope2', armRegionName: 'koreacentral' };
+    await apiFetch(filters, 'KRW');
+    const after = fetchCalls;
+    await apiFetch(filters, 'KRW');
+    expect(fetchCalls).toBe(after);                 // 캐시됨
+    clearCacheForCurrency('KRW');
+    await apiFetch(filters, 'KRW');
+    expect(fetchCalls).toBeGreaterThan(after);      // 다시 조회됨
+  });
+});

@@ -20,7 +20,38 @@ export function buildSkuAndDetail(r: Row): void {
   r.detail  = vals.join(', ');
 }
 
+// ── 행 단위 직렬화 (v119) ──
+// 옵션을 빠르게 바꾸면 ui-and-bootstrap 이 tryResolveItem 을 await 없이 여러 번 쏜다.
+// 그러면 "가장 늦게 도착한" 응답이 이기므로, 과거 옵션으로 조회한 가격이 최신 값을
+// 덮어쓸 수 있었다(옵션은 이미 새 값이라 상세와 가격이 어긋난 채 남는다).
+// 행마다 한 번에 하나만 돌리고, 진행 중에 다시 요청이 오면 끝난 뒤 **최신 옵션으로**
+// 한 번 더 돌린다. resolver 39개를 건드리지 않고 경합을 없앤다.
+const rowInFlight = new WeakMap<Row, Promise<any>>();
+const rowRerun = new WeakSet<Row>();
+
 export async function tryResolveItem(row: Row): Promise<any> {
+  const running = rowInFlight.get(row);
+  if (running) { rowRerun.add(row); return running; }   // 진행 중이면 재실행 예약만
+
+  const p = (async () => {
+    let out;
+    try {
+      do {
+        rowRerun.delete(row);
+        out = await resolveOnce(row);                   // 매 회차마다 최신 row 를 읽는다
+      } while (rowRerun.has(row));
+    } finally {
+      rowRerun.delete(row);
+      rowInFlight.delete(row);
+    }
+    return out;
+  })();
+
+  rowInFlight.set(row, p);
+  return p;
+}
+
+async function resolveOnce(row: Row): Promise<any> {
   // Disk: diskSubType에 따라 프로비저닝 계층 (v2/Ultra)는 skuName 없어도 조회 가능
   const isDiskProv = row.serviceCategory === 'Disk' &&
     (row.options.diskSubType === '프리미엄 SSD v2' || row.options.diskSubType === 'Ultra Disk');
