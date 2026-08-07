@@ -3,7 +3,7 @@ import { REG, SERVICE_CATEGORIES } from './core/registry.js';
 import { REGION_LABEL, REGION_GROUPS } from './core/config.js';
 import { clearCacheForCurrency } from './core/network.js';
 import { buildSkuAndDetail, tryResolveItem } from './core/resolver-engine.js';
-import { sortRowsForView, nextSortState, sortLabel } from './ui/table-sort.js';
+import { sortRowsForView, nextSortState, sortStatusText } from './ui/table-sort.js';
 import { registerUIHooks } from './core/ui-hooks.js';
 import { bootDiagnostics } from './diagnostics.js';
 import { SERVICE_CATEGORY_ORDER } from './ui/service-order.js';
@@ -446,8 +446,9 @@ function _syncSortUI(){
     else delete th.dataset.dir;
   });
   document.getElementById('mainTable').classList.toggle('sorted', !!sortState);
-  const btn=document.getElementById('btnSortReset');
-  if(btn) btn.style.display = sortState ? '' : 'none';
+  // 정렬 상태는 사라지는 상태 메시지가 아니라 상단에 **계속** 표시한다(v126)
+  const chip=document.getElementById('sortStatus');
+  if(chip){ chip.textContent=sortStatusText(sortState); chip.hidden=!sortState; }
 }
 document.querySelector('#mainTable thead').addEventListener('click',(e)=>{
   const th=e.target.closest('.th-sort'); if(!th) return;
@@ -455,10 +456,10 @@ document.querySelector('#mainTable thead').addEventListener('click',(e)=>{
   if(e.target.closest('input,button,label')) return;
   sortState=nextSortState(sortState, th.dataset.sort);
   _syncSortUI(); render();
-  setStatus('ok', sortState ? `정렬: ${sortLabel(sortState)}` : '원본 순서로 되돌렸습니다.');
 });
 document.getElementById('btnSortReset').addEventListener('click',()=>{
-  sortState=null; _syncSortUI(); render(); setStatus('ok','원본 순서로 되돌렸습니다.');
+  if(!sortState) return;                       // 이미 원본 순서면 아무 일도 하지 않는다
+  sortState=null; _syncSortUI(); render();
 });
 
 let dragSrcId=null;

@@ -5,7 +5,7 @@
 //            그래야 "원본 형태로 보기"가 언제든 정확히 복원된다.
 // ================================================================
 import { describe, it, expect } from 'vitest';
-import { sortRowsForView, nextSortState, sortLabel, SORT_COLUMNS } from '../src/ui/table-sort.js';
+import { sortRowsForView, nextSortState, sortLabel, sortStatusText, SORT_COLUMNS } from '../src/ui/table-sort.js';
 
 // 가격 셀 계산기(ui-and-bootstrap 의 calcGroup 과 같은 모양)
 const calcGroup = (item, qty, usage) => {
@@ -107,5 +107,18 @@ describe('정렬 상태 순환', () => {
     const keys = Object.keys(SORT_COLUMNS);
     expect(keys).toHaveLength(7 + 15);
     ['payg.unit', 'sp1.monthly', 'sp3.year', 'ri1.unit', 'ri3.year'].forEach((k) => expect(keys).toContain(k));
+  });
+});
+
+// 상단에 계속 떠 있는 정렬 상태 문구(v126)
+describe('정렬 상태 상시 표시 문구', () => {
+  it('열 이름과 방향을 사람 말로 알려준다', () => {
+    expect(sortStatusText({ key: 'qty', dir: 'asc' })).toBe("현재 'Qty' 열 오름차순으로 보는 중");
+    expect(sortStatusText({ key: 'skuName', dir: 'desc' })).toBe("현재 'Service name (SKU)' 열 내림차순으로 보는 중");
+    expect(sortStatusText({ key: 'payg.monthly', dir: 'asc' })).toContain('용량제 1 Monthly Cost');
+  });
+
+  it('원본 순서일 때는 빈 문자열(표시 안 함)', () => {
+    expect(sortStatusText(null)).toBe('');
   });
 });

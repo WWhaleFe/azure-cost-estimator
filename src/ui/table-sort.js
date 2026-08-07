@@ -102,3 +102,11 @@ export function sortLabel(sortState) {
   const col = SORT_COLUMNS[sortState.key];
   return `${col ? col.label : sortState.key} ${sortState.dir === 'asc' ? '오름차순' : '내림차순'}`;
 }
+
+/** 상단에 계속 띄우는 문구 — "현재 'Qty' 열 오름차순으로 보는 중" */
+export function sortStatusText(sortState) {
+  if (!sortState) return '';
+  const col = SORT_COLUMNS[sortState.key];
+  const name = col ? col.label : sortState.key;
+  return `현재 '${name}' 열 ${sortState.dir === 'asc' ? '오름차순' : '내림차순'}으로 보는 중`;
+}

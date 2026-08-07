@@ -270,12 +270,27 @@
   .progress-hint { color: #605e5c; font-size: 12px; }
 
   /* ===== 열 정렬(v124) — 보기 전용. 원본 rows 순서는 유지된다 ===== */
-  .th-sort { cursor: pointer; user-select: none; }
-  .th-sort:hover { background: rgba(255, 255, 255, 0.14); }
-  .sort-ind { margin-left: 4px; font-size: 10px; opacity: 0.55; }
-  .th-sort[data-dir="asc"] .sort-ind::after  { content: '▲'; opacity: 1; }
-  .th-sort[data-dir="desc"] .sort-ind::after { content: '▼'; opacity: 1; }
+  .th-sort { cursor: pointer; user-select: none; position: relative; }
+  /* 배경을 덮으면 헤더 글자 대비가 무너져 내용이 안 보인다(v126).
+     활성 표시는 '아래쪽 강조선 + 또렷한 화살표'로만 한다. */
+  .th-sort:hover .sort-ind { opacity: 0.85; }
+  .sort-ind { margin-left: 3px; font-size: 9px; opacity: 0.3; }
+  .th-sort[data-dir="asc"] .sort-ind::after  { content: '▲'; }
+  .th-sort[data-dir="desc"] .sort-ind::after { content: '▼'; }
   .th-sort:not([data-dir]) .sort-ind::after  { content: '⇅'; }
-  .th-sort[data-dir] { background: rgba(255, 255, 255, 0.20); }
+  .th-sort[data-dir] .sort-ind { opacity: 1; font-size: 11px; }
+  .th-sort[data-dir]::after {
+    content: ''; position: absolute; left: 2px; right: 2px; bottom: 0; height: 3px;
+    background: #ffd966; border-radius: 2px 2px 0 0;
+  }
   /* 정렬 중에는 드래그 순서 변경을 막는다(보이는 순서와 원본 순서가 달라 혼동) */
   .grid-table.sorted .cell-drag { opacity: 0.3; cursor: not-allowed; }
+
+  /* 현재 정렬 상태를 계속 보여주는 표시(v126) — 사라지는 상태 메시지 대신 상단에 고정 */
+  .sort-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 12px; white-space: nowrap;
+    background: #fff4ce; border: 1px solid #ffd966; color: #7a5b00;
+    font-size: 11px; font-weight: 600;
+  }
+  .sort-status::before { content: '▦'; font-size: 10px; opacity: 0.7; }

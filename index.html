@@ -23,6 +23,8 @@
           <option value="JPY">JPY</option>
         </select>
         <a href="https://azure.microsoft.com/ko-kr/pricing/calculator/" target="_blank" rel="noopener noreferrer" class="btn btn-calculator">가격 계산기 열기</a>
+        <span id="sortStatus" class="sort-status" hidden></span>
+        <button id="btnSortReset" class="btn btn-secondary" title="열 정렬을 해제하고 원래 입력 순서로 되돌립니다.">↺ 원본 데이터 순으로 보기</button>
         <button id="btnCsvTemplate" class="btn btn-secondary">CSV 양식 다운로드</button>
         <button id="btnCsvImport" class="btn btn-secondary">CSV 불러오기</button>
         <input type="file" id="fileCsvImport" accept=".csv" style="display:none" />
@@ -134,7 +136,6 @@
   </div>
 
   <div class="mt-2 flex flex-wrap gap-2 items-center">
-    <button id="btnSortReset" class="btn btn-secondary" style="display:none;" title="열 정렬을 해제하고 원래 입력 순서로 되돌립니다.">↺ 원본 순서로 보기</button>
     <button id="btnCsvAppend" class="btn btn-secondary" title="CSV 파일의 견적 행을 기존 내용 뒤에 추가합니다(기존 행은 지우지 않습니다).">＋ CSV로 견적 추가하기</button>
     <input type="file" id="fileCsvAppend" accept=".csv" style="display:none" />
     <button id="btnAddRow" class="btn-add-row" style="width:auto;flex:1 1 auto;">+ 행 추가</button>
