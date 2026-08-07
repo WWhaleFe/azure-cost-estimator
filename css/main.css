@@ -268,3 +268,14 @@
     padding: 12px 18px; border-top: 1px solid #e1dfdd; background: #faf9f8;
   }
   .progress-hint { color: #605e5c; font-size: 12px; }
+
+  /* ===== 열 정렬(v124) — 보기 전용. 원본 rows 순서는 유지된다 ===== */
+  .th-sort { cursor: pointer; user-select: none; }
+  .th-sort:hover { background: rgba(255, 255, 255, 0.14); }
+  .sort-ind { margin-left: 4px; font-size: 10px; opacity: 0.55; }
+  .th-sort[data-dir="asc"] .sort-ind::after  { content: '▲'; opacity: 1; }
+  .th-sort[data-dir="desc"] .sort-ind::after { content: '▼'; opacity: 1; }
+  .th-sort:not([data-dir]) .sort-ind::after  { content: '⇅'; }
+  .th-sort[data-dir] { background: rgba(255, 255, 255, 0.20); }
+  /* 정렬 중에는 드래그 순서 변경을 막는다(보이는 순서와 원본 순서가 달라 혼동) */
+  .grid-table.sorted .cell-drag { opacity: 0.3; cursor: not-allowed; }

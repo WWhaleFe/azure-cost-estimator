@@ -3,6 +3,7 @@ import { REG, SERVICE_CATEGORIES } from './core/registry.js';
 import { REGION_LABEL, REGION_GROUPS } from './core/config.js';
 import { clearCacheForCurrency } from './core/network.js';
 import { buildSkuAndDetail, tryResolveItem } from './core/resolver-engine.js';
+import { sortRowsForView, nextSortState, sortLabel } from './ui/table-sort.js';
 import { registerUIHooks } from './core/ui-hooks.js';
 import { bootDiagnostics } from './diagnostics.js';
 import { SERVICE_CATEGORY_ORDER } from './ui/service-order.js';
@@ -19,7 +20,7 @@ let activeConfigRowId = null;
 function getRows(){ return rows; }
 function setRows(v){ rows = v; }
 function setActiveConfigRowId(v){ activeConfigRowId = v; }
-export { getRows, setRows, setActiveConfigRowId, blankRow, render, closeConfig, calcGroup, setStatus, showToast };
+export { getRows, getViewRows, setRows, setActiveConfigRowId, blankRow, render, closeConfig, calcGroup, setStatus, showToast };
 
 function blankRow() {
   return {
@@ -82,10 +83,14 @@ function _updateActiveRowHighlight(){
   });
 }
 
+// 열 정렬 상태(null = 원본 순서). 보기 순서만 바꾸고 rows 자체는 재배열하지 않는다(v124).
+let sortState=null;
+function getViewRows(){ return sortRowsForView(rows, sortState, calcGroup); }
+
 function render(){
   $body.innerHTML='';
   let totals={paygM:0,paygY:0,sp1M:0,sp1Y:0,sp3M:0,sp3Y:0,ri1M:0,ri1Y:0,ri3M:0,ri3Y:0};
-  rows.forEach((row,idx)=>{
+  getViewRows().forEach((row,idx)=>{
     const tr=document.createElement('tr');
     tr.dataset.id=row.id;
     tr.draggable=false;
@@ -434,8 +439,34 @@ document.getElementById('defaultHours').addEventListener('change',(e)=>{
   updateTotalsRow();render();
 });
 
+// ── 열 정렬(v124): 헤더 클릭 = 오름차순 → 내림차순 → 원본 순서 ──
+function _syncSortUI(){
+  document.querySelectorAll('#mainTable .th-sort').forEach(th=>{
+    if(sortState && th.dataset.sort===sortState.key) th.dataset.dir=sortState.dir;
+    else delete th.dataset.dir;
+  });
+  document.getElementById('mainTable').classList.toggle('sorted', !!sortState);
+  const btn=document.getElementById('btnSortReset');
+  if(btn) btn.style.display = sortState ? '' : 'none';
+}
+document.querySelector('#mainTable thead').addEventListener('click',(e)=>{
+  const th=e.target.closest('.th-sort'); if(!th) return;
+  // 헤더 안의 체크박스·채우기 버튼 클릭은 정렬로 취급하지 않는다
+  if(e.target.closest('input,button,label')) return;
+  sortState=nextSortState(sortState, th.dataset.sort);
+  _syncSortUI(); render();
+  setStatus('ok', sortState ? `정렬: ${sortLabel(sortState)}` : '원본 순서로 되돌렸습니다.');
+});
+document.getElementById('btnSortReset').addEventListener('click',()=>{
+  sortState=null; _syncSortUI(); render(); setStatus('ok','원본 순서로 되돌렸습니다.');
+});
+
 let dragSrcId=null;
-$body.addEventListener('mousedown',(e)=>{const h=e.target.closest('[data-act="drag-handle"]');if(h)h.closest('tr').draggable=true;});
+$body.addEventListener('mousedown',(e)=>{const h=e.target.closest('[data-act="drag-handle"]');
+  if(!h)return;
+  // 정렬 중에는 보이는 순서와 원본 순서가 달라 드래그 결과가 어긋난다 → 막고 안내
+  if(sortState){ setStatus('error','정렬 중에는 순서를 바꿀 수 없습니다. ↺ 원본 순서로 보기 후 이동하세요.'); return; }
+  h.closest('tr').draggable=true;});
 $body.addEventListener('dragstart',(e)=>{const tr=e.target.closest('tr');if(!tr)return;dragSrcId=Number(tr.dataset.id);tr.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
 $body.addEventListener('dragover',(e)=>{e.preventDefault();const tr=e.target.closest('tr');if(!tr)return;$body.querySelectorAll('tr').forEach(t=>t.classList.remove('drag-over'));tr.classList.add('drag-over');});
 $body.addEventListener('drop',(e)=>{e.preventDefault();const tr=e.target.closest('tr');if(!tr||dragSrcId===null)return;const tid=Number(tr.dataset.id);if(tid===dragSrcId)return;const si=rows.findIndex(r=>r.id===dragSrcId),ti=rows.findIndex(r=>r.id===tid);if(si<0||ti<0)return;const[moved]=rows.splice(si,1);rows.splice(ti,0,moved);render();});

@@ -29,12 +29,17 @@ export function rowLabel(r) {
 }
 
 let busy = false;
+let autoCloseTimer = null;
+
+// 완료 후 자동 닫힘까지의 시간(성공만 있을 때). 결과를 한 번 볼 여유는 남긴다.
+const AUTO_CLOSE_MS = 2000;
 
 function onCancel(e) { if (busy) e.preventDefault(); }   // 조회 중 Esc 차단
 
 function open(title) {
   const e = els();
   if (!e.dlg) return null;
+  if (autoCloseTimer) { clearInterval(autoCloseTimer); autoCloseTimer = null; }
   busy = true;
   e.title.textContent = title;
   e.count.textContent = '';
@@ -93,9 +98,32 @@ function finish(e, result, notes) {
   }
   e.result.innerHTML = parts.join('');
   e.result.hidden = false;
-  e.hint.textContent = failedN ? '실패한 행은 옵션·리전을 확인해 주세요.' : '';
   e.close.disabled = false;
   e.close.focus();
+
+  // 전부 성공했으면 읽을 게 없으므로 잠시 뒤 자동으로 닫는다(v125).
+  // 실패가 있으면 목록을 읽어야 하므로 자동으로 닫지 않는다.
+  if (failedN) {
+    e.hint.textContent = '실패한 행은 옵션·리전을 확인해 주세요.';
+    return;
+  }
+  let left = Math.round(AUTO_CLOSE_MS / 1000);
+  const tick = () => {
+    e.hint.textContent = `${left}초 후 자동으로 닫힙니다.`;
+    if (left <= 0) { closeNow(); return; }
+    left--;
+  };
+  tick();
+  autoCloseTimer = setInterval(tick, 1000);
+}
+
+// 팝업 닫기(자동·수동 공통) — 타이머와 cancel 가드를 함께 정리한다
+function closeNow() {
+  if (autoCloseTimer) { clearInterval(autoCloseTimer); autoCloseTimer = null; }
+  const d = els().dlg;
+  if (!d) return;
+  d.removeEventListener('cancel', onCancel);
+  if (d.open) d.close();
 }
 
 function escapeHtml(s) {
@@ -111,11 +139,7 @@ function bindClose() {
   const e = els();
   if (!e.close || e.close._bound) return;
   e.close._bound = true;
-  e.close.addEventListener('click', () => {
-    const d = els().dlg;
-    d.removeEventListener('cancel', onCancel);
-    if (d.open) d.close();
-  });
+  e.close.addEventListener('click', closeNow);
 }
 
 /**
@@ -138,6 +162,7 @@ export async function resolveWithProgressModal(title, rows, opts = {}) {
   } catch (err) {
     // 예기치 못한 실패에도 팝업이 잠기지 않게 반드시 풀어준다
     busy = false;
+    if (autoCloseTimer) { clearInterval(autoCloseTimer); autoCloseTimer = null; }
     if (e) {
       e.title.textContent = '조회 중 오류';
       e.phase.textContent = String((err && err.message) || err).slice(0, 200);

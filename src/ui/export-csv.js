@@ -12,7 +12,7 @@ import {
 import { summarize } from './bulk-resolve.js';
 import { resolveWithProgressModal } from './progress-modal.js';
 import {
-  getRows, setRows, setActiveConfigRowId,
+  getRows, getViewRows, setRows, setActiveConfigRowId,
   blankRow, render, closeConfig, calcGroup, setStatus, showToast,
 } from '../ui-and-bootstrap.js';
 
@@ -49,7 +49,7 @@ document.getElementById('btnExport').addEventListener('click',async ()=>{
   enabledGroups.forEach(g=>{gHdr.push(g.label,'','');gCol.push('Unit Price','1 Monthly Cost','1 Year Cost');});
   data.push(gHdr);data.push(gCol);
   let totals={};enabledGroups.forEach(g=>{totals[g.totMKey]=0;totals[g.totYKey]=0;});
-  getRows().forEach((r,idx)=>{
+  getViewRows().forEach((r,idx)=>{
     const qty=Number(r.qty)||0,usage=Number(r.usage)||0;
     const calc=(it)=>{if(!it)return['','',''];const d=calcGroup(it,qty,usage);if(!d)return['','',''];return[d.unit,d.monthly,d.year];};
     const isDiskProv=r.serviceCategory==='Disk'&&(r.options.diskSubType==='프리미엄 SSD v2'||r.options.diskSubType==='Ultra Disk');
@@ -75,8 +75,8 @@ document.getElementById('btnExport').addEventListener('click',async ()=>{
   if(ws['A2'])ws['A2'].s=sSt;
   const tC=8+enabledGroups.length*3;
   for(let c=0;c<tC;c++){const a3=XLSX.utils.encode_cell({r:3,c}),a4=XLSX.utils.encode_cell({r:4,c});let color='305496';if(c>=8){const gi=Math.floor((c-8)/3);if(gi<enabledGroups.length)color=enabledGroups[gi].color;}if(!ws[a3])ws[a3]={v:''};ws[a3].s=hSt(color);if(!ws[a4])ws[a4]={v:''};ws[a4].s=hSt(color);}
-  for(let i=0;i<getRows().length;i++){const ri=5+i;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:ri,c});if(!ws[addr])ws[addr]={v:''};if(c>=6&&typeof ws[addr].v==='number')ws[addr].s=nSt;else ws[addr].s={...dSt,alignment:{...dSt.alignment,horizontal:c===0?'center':'left'}};}}
-  const tri=5+getRows().length;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:tri,c});if(!ws[addr])ws[addr]={v:''};ws[addr].s=totSt;}
+  for(let i=0;i<getViewRows().length;i++){const ri=5+i;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:ri,c});if(!ws[addr])ws[addr]={v:''};if(c>=6&&typeof ws[addr].v==='number')ws[addr].s=nSt;else ws[addr].s={...dSt,alignment:{...dSt.alignment,horizontal:c===0?'center':'left'}};}}
+  const tri=5+getViewRows().length;for(let c=0;c<tC;c++){const addr=XLSX.utils.encode_cell({r:tri,c});if(!ws[addr])ws[addr]={v:''};ws[addr].s=totSt;}
   ws['!cols']=[{wch:4},{wch:14},{wch:24},{wch:22},{wch:18},{wch:36},{wch:6},{wch:12},...enabledGroups.flatMap(()=>[{wch:13},{wch:16},{wch:16}])];
   ws['!rows']=[];ws['!rows'][0]={hpt:28};ws['!rows'][3]={hpt:22};ws['!rows'][4]={hpt:22};
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:tC-1}},{s:{r:1,c:0},e:{r:1,c:tC-1}},...[0,1,2,3,4,5,6,7].map(c=>({s:{r:3,c},e:{r:4,c}})),...enabledGroups.map((_,gi)=>({s:{r:3,c:8+gi*3},e:{r:3,c:8+gi*3+2}})),{s:{r:tri,c:0},e:{r:tri,c:7}}];
@@ -252,7 +252,7 @@ async function _csvHandleUpload(file, opts) {
 function _csvExportCurrentRows() {
   var lines = [];
   lines.push(csvRowToLine(CSV_HEADER));
-  getRows().forEach(function (r) {
+  getViewRows().forEach(function (r) {
     if (!r.serviceCategory) return;
     var cat = r.serviceCategory;
     var skuKey = CSV_SKU_OPTION_KEY[cat];
