@@ -2,6 +2,26 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v128 — 2026-08-20
+- feat/fix: **Azure OpenAI 배포 유형** · **무료 허용량 차감** · **ML 워크스페이스 0원 항목**. 기존 견적서를 이 도구로 옮길 때 막히던 지점들을 걷어내면서 **GPT-5 계열 단가 2배 과다 산정 버그**를 함께 잡았다
+- **fix ⚠️ Azure OpenAI GPT-5 계열이 표준 단가의 2배로 계산되고 있었다** (`services/azure-openai.ts`) — API 의 `pp` 접두 미터는 **우선 처리(Priority Processing)** 로 표준의 정확히 2배다(koreacentral GPT-5 입력: 표준 `GPT 5 Inpt Glbl` 1,809.1875 vs `5 pp inp Gl` 3,618.375). 예전 카탈로그가 GPT-5·5 mini·5.1·5.2 를 **pp 미터로 하드코딩**해 두어 네 모델 전부 2배였다. 이제 base 를 `gpt 5…` 로 잡아 표준 미터만 매칭한다(pp 는 범위 외)
+- **feat Azure OpenAI `deploymentType` 옵션 신설** — 같은 모델·같은 토큰이라도 배포 유형별로 미터와 단가가 다르다(japaneast GPT-4.1 mini 입력: Global `0.5789/1K` vs Regional `0.7005/1K` = 1.21배). 예전에는 Global 미터 이름을 통째로 하드코딩해 Data Zone·Regional·Batch 를 **고를 수조차 없었고**, 리전에 그 유형이 없으면 조용히 매칭 실패했다. `Global | Data Zone | Regional | Batch Global | Batch Data Zone | Batch Regional` 6종
+- **매칭 방식을 카탈로그 → 문법 해석으로 바꿨다** — skuName = `<모델 base> + [pp] [batch] + <토큰 종류> + <배포 유형 꼬리>`. API 표기가 리전·모델마다 제각각이라(`glbl/global/Gl/glb` · `DZ/Dz/dzone/DataZone/Data Zone` · `regnl/rgnl/regional` · `Inp/Input/Inpt` · `Outp/Out/Opt/Outpt` · `cached/cd/cchd/ccchd`) 각 자리를 동의어 집합으로 받는다. **모르는 토큰이 하나라도 남으면 후보에서 뺀다** — 미세 조정(`ft`·`dev ft`·`rft`·`training`·`hosting`)이나 하위 모델(`mini`·`nano`·`pro`·`chat`·`codex`) 미터가 base 접두사만 같다는 이유로 섞여 드는 것을 막는 장치다
+- **매칭 실패 시 그 리전에서 고를 수 있는 배포 유형을 알려 준다** — `koreacentral` 은 GPT-4.1 mini=Global 만, text-embedding-3-small=Data Zone 만 있는 식으로 편차가 커서, 실패 메시지에 `이 리전에서 고를 수 있는 배포 유형 → Global, Batch Global` 을 붙인다
+- 모델 목록 보완: **GPT-5 nano · GPT-5 pro · GPT-5 codex · GPT-5 chat · GPT-5.1 chat · GPT-5.2 chat · GPT-5.2 pro** 추가(15 → 22종)
+- **feat 무료 허용량 차감** (`services/azure-devops.ts`, `ui-and-bootstrap.js`) — Retail Prices API 는 조직 무료 한도를 단가에 반영하지 않아(Basic 사용자 8,684.1원 단일 단가) 그대로 곱하면 과다 산정된다. resolver 가 `paygItem._freeUnits` 를 실어 보내고 `calcGroup` 이 **과금 수량 = max(0, Qty × Hours − 무료 수량)** 으로 계산한다. Basic 사용자 첫 5명 / MS-hosted·Self-hosted 병렬 작업 첫 1개 / Artifacts 첫 2GB. 예) Basic 10명 86,841원 → **43,420.5원**
+  - Qty·Hours **둘의 곱**에서 빼므로 어느 칸에 수량을 넣든 같게 동작한다
+  - 무료 한도는 **조직 단위**라 다른 프로젝트가 이미 쓰는 경우가 있다 → `freeTier=미차감 (전량 과금)` 으로 끌 수 있다(기본은 차감)
+  - Unit Price 는 API 값 그대로 두고 월비용에서만 뺀다(단가의 출처를 흐리지 않기 위해)
+- **feat Azure ML `워크스페이스 (무료 · 과금 미터 없음)` 청구 항목** (`services/azure-ml.ts`) — 워크스페이스를 과금하는 미터는 API 에 **존재하지 않는다**(전 리전에서 meterName 에 `workspace` 가 든 미터 0건, koreacentral 은 vCPU/GPU Surcharge 10건이 전부). 논리적 컨테이너라 보유만으로는 요금이 붙지 않고 비용은 전부 딸린 리소스로 청구되기 때문이다. 그래서 원본 견적서에 "ML Workspace" 항목이 있어도 적을 자리가 없어 **"반영 불가"로 빠졌다**. 이제 API 를 조회하지 않고 0원 항목으로 남겨 원본 항목 수와 행 수를 맞춘다. 상태 표시줄에 어느 카테고리로 나눠 적어야 하는지(VM·Blob·ACR·Log Analytics·Key Vault) 근거를 남긴다
+- **Elasticsearch** — 여전히 Retail Prices API 에 단가가 없다(Azure Marketplace SaaS). 자체 구축 모델링을 실제로 쓸 수 있게 양식에 `Elasticsearch 노드 3대`(VM `E8s_v5` ×3) + `Elasticsearch 데이터 디스크`(Disk `P20`) 예시 행을 넣고 안내를 붙였다
+- CSV 양식: 예시 행 6개 추가·4개 갱신(OpenAI 3행에 `deploymentType`, Batch 예시, ML 워크스페이스, DevOps `freeTier`, Elasticsearch VM+Disk) + 배포 유형·무료 허용량·워크스페이스 안내 절 추가, `azure-quote-template_file.csv` 재생성
+- 안내(Remark) 3줄 추가 — OpenAI 배포 유형 · DevOps 무료 한도 · Elasticsearch/Workspace 미지원
+- **테스트**: `azure-openai-deployment.test.js` 신규 7종(녹화 픽스처 `azure-openai.json` — koreacentral·japaneast 245건. 표기 동의어 해석, 남의 미터 배제, pp 배제, 배포 유형별 단가 차이, Batch 절반, 리전에 없는 유형 안내), `free-allowance.test.js` 신규 7종, `platform-services-resolve.test.js` 에 워크스페이스 1종 추가
+- **검증(라이브 API · KRW)**: 양식 123행 전부 매칭. koreacentral·japaneast·eastus 3개 리전에서 22개 모델 × 3 배포 유형 × 3 토큰 종류를 실 API 로 해석해 오분류 0건 확인
+- 영향 파일: src/services/azure-openai.ts, src/services/azure-ml.ts, src/services/azure-devops.ts, src/ui-and-bootstrap.js, src/ui/csv-template.js, src/core/remark.js, azure-quote-template_file.csv, test/azure-openai-deployment.test.js(신규), test/free-allowance.test.js(신규), test/fixtures/azure-openai.json(신규), test/platform-services-resolve.test.js, README.md, CHANGELOG.md
+- 검증: `npm test` **148 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v127 — 2026-08-20
 - feat: **플랫폼·거버넌스 서비스 5종 신설** — Microsoft Fabric · Azure Monitor · Azure Key Vault · GitHub · Azure Machine Learning. 기존 견적에서 "대응 ServiceCategory 가 없어" 옮기지 못하던 항목을 드롭다운·CSV 양식에서 그대로 추가할 수 있다
 - **Microsoft Fabric** (`services/fabric.ts`) — Retail Prices API 에는 **F64 한 줄 미터가 없다**. 공시 단가가 **CU 시간**뿐이고 그마저 워크로드별(Power BI·Spark·Data Warehouse·Eventhouse…) 미터로 쪼개져 나온다(koreacentral 92건이 전부 같은 값). 그래서 productName='Fabric Capacity' & meterName 이 `… Capacity Usage CU` 로 끝나는 **유료 미터의 최빈 단가**를 기준 CU 단가로 잡고 F SKU 의 CU 수를 곱한다(F64 → ×64). 초과분(`Capacity Overage`)·서버리스(`… Serverless Usage CU`)는 기준에서 제외. 예약은 `Fabric Capacity Reservation` 1·3년을 시간당 환산 후 ×CU. OneLake 저장소(Hot/Cool/Cold·캐시·BCDR·SQL·미러링)는 별도 청구 항목으로 분리(`metric` 2단 구성)

@@ -8,7 +8,10 @@
     '가격 그룹 5종: 용량제, 절약 플랜 1Y/3Y, 예약 1Y/3Y를 동시 비교합니다.',
     '사용량(Hours)은 직접 숫자로 입력하세요. 한 달 = 730 Hours.',
     '<strong>엑셀 내보내기</strong>: 헤더의 체크박스(☑ 텍스트 앞)를 해제하면 해당 열이 엑셀에서 제외됩니다.',
-    'Action: ⊕ 빈 절약·예약 칸을 용량제 값으로 채우기(수동), ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경. 채운 셀은 더블클릭으로 채움↔빈칸 토글.'
+    'Action: ⊕ 빈 절약·예약 칸을 용량제 값으로 채우기(수동), ⚙ 옵션, ⎘ 행 복사, ✕ 행 삭제. ⋮⋮ 드래그로 행 순서 변경. 채운 셀은 더블클릭으로 채움↔빈칸 토글.',
+    '<strong>Azure OpenAI</strong>는 <em>배포 유형</em>(Global / Data Zone / Regional / Batch)에 따라 단가가 다릅니다. 리전마다 제공 유형이 다르니 매칭 실패 메시지의 안내를 따르세요.',
+    '<strong>Azure DevOps</strong>는 조직 무료 한도(Basic 5명, 병렬 작업 1개, Artifacts 2GB)를 기본으로 차감합니다. 이미 다른 프로젝트가 쓰고 있다면 옵션에서 <em>미차감</em>을 고르세요.',
+    'Elasticsearch(Elastic Cloud)와 Azure ML Workspace 는 Retail Prices API 에 단가·미터가 없습니다. Elasticsearch 는 Virtual Machine + Disk 행으로, Workspace 는 0원 항목으로 적으세요.'
   ];
   // 다른 곳에서 참조/수정할 수 있도록 window에도 노출
   window.REMARK_ITEMS = REMARK_ITEMS;

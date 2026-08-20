@@ -58,6 +58,10 @@ function regionOptionsHtml(selected){
   if(el) el.innerHTML=regionOptionsHtml(el.value||'koreacentral');
 })();
 
+// item._freeUnits(v128) — 서비스가 제공하는 무료 허용량. 과금 수량 = max(0, Qty×Hours − 무료).
+//   Retail Prices API 는 Azure DevOps 처럼 무료 한도를 단가에 반영하지 않는 미터가 있어
+//   그대로 곱하면 실제 청구액보다 많이 나온다. resolver 가 이 값을 실어 보내면 여기서 뺀다.
+//   Qty·Hours 중 어느 칸에 수량을 넣었든 맞도록 둘의 곱에서 뺀다.
 function calcGroup(item,qty,usage){
   if(!item)return null;
   if(item._billingMode==='monthly'&&typeof item._monthlyTotal==='number'){
@@ -65,7 +69,9 @@ function calcGroup(item,qty,usage){
     return{unit:monthly/730,monthly:monthly*qty,year:monthly*qty*12};
   }
   const u=Number(item.unitPrice);if(isNaN(u))return null;
-  return{unit:u,monthly:u*qty*usage,year:u*qty*usage*12};
+  let units=qty*usage;
+  if(typeof item._freeUnits==='number')units=Math.max(0,units-item._freeUnits);
+  return{unit:u,monthly:u*units,year:u*units*12};
 }
 function priceCells(data,hasItem,isManual,groupClass){
   const gc=groupClass?(' '+groupClass):'';

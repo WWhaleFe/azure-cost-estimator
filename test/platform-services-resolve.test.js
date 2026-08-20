@@ -225,4 +225,15 @@ describe('Azure Machine Learning resolve (_resolve_Azure_Machine_Learning)', () 
     expect(r.paygItem).toBeTruthy();
     expect(r.paygItem.unitPrice).toBe(0);
   });
+
+  // v128 — 워크스페이스는 API 미터가 없다(정의상 무료). API 조회 없이 0원 항목으로 남긴다.
+  it('워크스페이스는 조회하지 않고 0원 항목이 된다', async () => {
+    const before = calls.length;
+    const r = await resolve('Azure Machine Learning', { metric: '워크스페이스 (무료 · 과금 미터 없음)' });
+    expect(calls.length).toBe(before);            // API 를 부르지 않는다
+    expect(r.paygItem).toBeTruthy();
+    expect(r.paygItem.unitPrice).toBe(0);
+    expect(r.paygItem._freeByDefinition).toBe(true);
+    expect(r.skuName).toBe('Workspace');
+  });
 });

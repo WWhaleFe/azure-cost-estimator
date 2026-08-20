@@ -5,6 +5,9 @@
 *_quote_*.csv
 *_import.csv
 
+# 고객사 원본 자료(견적 xlsx·요구사항 문서) — 저장소에 올리지 않음
+수정사항확인/
+
 # 로컬 검증 산출물(업로드 결과·오류 스크린샷 등, 대용량)
 docs/test/
 azure-quote-*.xlsx

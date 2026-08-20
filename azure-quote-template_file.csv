@@ -6,6 +6,8 @@ koreacentral,DB 서버(메모리 v7),Virtual Machine,E8ds_v7,1,730,os=Linux; swT
 koreacentral,개발 서버(B시리즈),Virtual Machine,B2ms,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series
 koreacentral,GPU 학습(NC A100 v4),Virtual Machine,NC24ads_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=NC A100 v4 (GPU)
 polandcentral,GPU 추론(ND A100 v4),Virtual Machine,ND96amsr_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)
+koreacentral,Elasticsearch 노드 3대,Virtual Machine,E8s_v5,3,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=E-series v5
+koreacentral,Elasticsearch 데이터 디스크,Disk,P20,3,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
 koreacentral,AKS 클러스터(SLA),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA
 koreacentral,AKS 클러스터(LTS),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA and Long Term Support
 koreacentral,컨테이너 앱(vCPU 활성),Container Apps,,1,2628000,plan=Standard; item=Standard vCPU Active Usage
@@ -108,13 +110,15 @@ koreacentral,Synapse 서버리스(2TB),Azure Synapse Analytics,,1,2,component=Se
 koreacentral,Fabric 용량(F64),Microsoft Fabric,,1,730,metric=용량 (CU 시간); capacity=F64
 koreacentral,Fabric 용량(F2 소규모),Microsoft Fabric,,1,730,metric=용량 (CU 시간); capacity=F2
 koreacentral,OneLake 저장소 5TB,Microsoft Fabric,,1,5000,metric=OneLake 저장소 (GB/월); storageItem=OneLake 저장소 Hot (GB/월)
-koreacentral,OpenAI 입력(GPT-4.1 mini 10M),Azure OpenAI,,1,10,model=GPT-4.1 mini; metric=입력 토큰
-koreacentral,OpenAI 출력(GPT-4.1 mini 3M),Azure OpenAI,,1,3,model=GPT-4.1 mini; metric=출력 토큰
-koreacentral,OpenAI 임베딩(small 20M),Azure OpenAI,,1,20,model=text-embedding-3-small; metric=입력 토큰
+koreacentral,OpenAI 입력(GPT-4.1 mini 10M),Azure OpenAI,,1,10,model=GPT-4.1 mini; deploymentType=Global; metric=입력 토큰
+koreacentral,OpenAI 출력(GPT-4.1 mini 3M),Azure OpenAI,,1,3,model=GPT-4.1 mini; deploymentType=Global; metric=출력 토큰
+koreacentral,OpenAI 임베딩(small 20M),Azure OpenAI,,1,20,model=text-embedding-3-small; deploymentType=Data Zone; metric=입력 토큰
+koreacentral,OpenAI 일괄 입력(GPT-5 10M),Azure OpenAI,,1,10,model=GPT-5; deploymentType=Batch Global; metric=입력 토큰
+koreacentral,ML 워크스페이스(0원),Azure Machine Learning,,1,1,metric=워크스페이스 (무료 · 과금 미터 없음)
 koreacentral,ML 추론 vCPU 추가요금,Azure Machine Learning,,32,730,metric=vCPU 추가 요금 (시간)
 koreacentral,ML 추론 GPU 추가요금,Azure Machine Learning,,1,730,metric=GPU 추가 요금 (시간)
-koreacentral,DevOps Basic 5명,Azure DevOps,,5,1,plan=Basic Plan 사용자 (월)
-koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 작업 (월)
+koreacentral,DevOps Basic 10명(5명 무료),Azure DevOps,,10,1,plan=Basic Plan 사용자 (월); freeTier=차감 (조직 무료 한도 적용)
+koreacentral,DevOps 병렬 작업 3개,Azure DevOps,,3,1,plan=MS-hosted 병렬 작업 (월); freeTier=차감 (조직 무료 한도 적용)
 koreacentral,GHE 사용자 50명,GitHub,,50,1,plan=GitHub Enterprise 사용자 (월)
 koreacentral,Copilot Business 20명,GitHub,,20,1,plan=Copilot Business 사용자 (월)
 koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (분)
@@ -264,9 +268,9 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 # Microsoft Fabric | SKU=비움 | Options: metric=[용량 (CU 시간)|OneLake 저장소 (GB/월)]; capacity=[F2|F4|F8|F16|F32|F64|F128|F256|F512|F1024|F2048]; storageItem=[OneLake 저장소 Hot (GB/월)|OneLake 저장소 Cool (GB/월)|OneLake 저장소 Cold (GB/월)|OneLake 캐시 (GB/월)|OneLake BCDR Hot (GB/월)|OneLake BCDR Cool (GB/월)|OneLake BCDR Cold (GB/월)|SQL 저장소 (GB/월)|SQL 백업 저장소 (GB/월)|미러링 저장소 (GB/월)]
 #   ↳ metric=용량 (CU 시간) → 미사용: storageItem
 #   ↳ metric=OneLake 저장소 (GB/월) → 미사용: capacity
-# Azure OpenAI | SKU=비움 | Options: model=[GPT-5|GPT-5 mini|GPT-5.1|GPT-5.2|GPT-4.1|GPT-4.1 mini|GPT-4.1 nano|GPT-4o (1120)|GPT-4o mini (0718)|o1 (1217)|o3 (0416)|o3 mini (0131)|o4-mini (0416)|text-embedding-3-small|text-embedding-3-large]; metric=[입력 토큰|출력 토큰|캐시 입력 토큰]
-# Azure Machine Learning | SKU=비움 | Options: metric=[vCPU 추가 요금 (시간)|GPU 추가 요금 (시간)|학습 vCPU 추가 요금 (시간)|학습 GPU 추가 요금 (시간)|PB vCPU 추가 요금 (시간)]
-# Azure DevOps | SKU=비움 | Options: plan=[Basic Plan 사용자 (월)|Advanced 사용자 (월)|Test Plans 사용자 (월)|Artifacts 저장소 (GB/월)|MS-hosted 병렬 작업 (월)|Self-hosted 병렬 작업 (월)]
+# Azure OpenAI | SKU=비움 | Options: model=[GPT-5|GPT-5 mini|GPT-5 nano|GPT-5 pro|GPT-5 chat|GPT-5 codex|GPT-5.1|GPT-5.1 chat|GPT-5.2|GPT-5.2 chat|GPT-5.2 pro|GPT-4.1|GPT-4.1 mini|GPT-4.1 nano|GPT-4o (1120)|GPT-4o mini (0718)|o1 (1217)|o3 (0416)|o3 mini (0131)|o4-mini (0416)|text-embedding-3-small|text-embedding-3-large]; deploymentType=[Global|Data Zone|Regional|Batch Global|Batch Data Zone|Batch Regional]; metric=[입력 토큰|출력 토큰|캐시 입력 토큰]
+# Azure Machine Learning | SKU=비움 | Options: metric=[워크스페이스 (무료 · 과금 미터 없음)|vCPU 추가 요금 (시간)|GPU 추가 요금 (시간)|학습 vCPU 추가 요금 (시간)|학습 GPU 추가 요금 (시간)|PB vCPU 추가 요금 (시간)]
+# Azure DevOps | SKU=비움 | Options: plan=[Basic Plan 사용자 (월)|Advanced 사용자 (월)|Test Plans 사용자 (월)|Artifacts 저장소 (GB/월)|MS-hosted 병렬 작업 (월)|Self-hosted 병렬 작업 (월)]; freeTier=[차감 (조직 무료 한도 적용)|미차감 (전량 과금)]
 # GitHub | SKU=비움 | Options: plan=[GitHub Enterprise 사용자 (월)|Copilot Business 사용자 (월)|Copilot Enterprise 사용자 (월)|Copilot Premium 요청 (건)|Advanced Security 커미터 (월)|Code Scanning 커미터 (월)|Secret Scanning 커미터 (월)|Code Quality 커미터 (월)|Actions Linux 실행 (분)|Actions Windows 실행 (분)|Actions macOS 실행 (분)|Actions 저장소 (GiB/월)|Packages 저장소 (GB/월)|LFS 저장소 (GiB/월)|Codespaces 저장소 (GiB/월)|Codespaces D2 (시간)|Codespaces D4 (시간)|Codespaces D8 (시간)|Codespaces D16 (시간)|데이터 전송 - Actions (GiB)|데이터 전송 - LFS (GiB)]
 # [Virtual Machine 인스턴스 카탈로그] Options에 series=[...]를 함께 지정, SKU는 해당 series 인스턴스
 #   B-series: B1ls, B1s, B1ms, B2s, B2ms, B4ms, B8ms, B12ms, B16ms, B20ms
@@ -333,6 +337,14 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   · GitHub — 사용자·커미터=1(Qty=인원 수) / Actions 실행=분 / 저장소·전송=GB(GiB) / Codespaces=시간
 #   · Azure Machine Learning — Qty=vCPU·GPU 수, Hours=월 사용시간. 컴퓨팅 자체 요금은 Virtual Machine 행으로 따로 적으세요
 #     (워크스페이스는 무료, 추가 요금은 리전·SKU 에 따라 0원인 경우가 많습니다 — 0원 조회는 오류가 아닙니다)
+# [Azure OpenAI 배포 유형] 같은 모델·같은 토큰이라도 배포 유형에 따라 미터와 단가가 다릅니다(지정하지 않으면 최대 2배 오차).
+#   · Global < Data Zone < Regional 순으로 비싸고, Batch 계열은 절반 수준입니다
+#   · 리전마다 제공되는 배포 유형이 다릅니다 — 예) koreacentral 은 GPT-4.1 mini=Global 만, text-embedding-3-small=Data Zone 만
+#     없는 조합을 적으면 매칭 실패로 알리면서 그 리전에서 고를 수 있는 배포 유형을 함께 표시합니다
+#   · 우선 처리(Priority Processing, 표준의 2배)·미세 조정·오디오/이미지/실시간 모델·PTU 는 범위 외입니다
+# [무료 허용량 차감] Azure DevOps 는 freeTier=차감 (조직 무료 한도 적용) 이 기본이라 과금 수량 = max(0, Qty×Hours − 무료 수량) 입니다.
+#   · Basic 사용자 첫 5명 / MS-hosted·Self-hosted 병렬 작업 첫 1개 / Artifacts 첫 2GB 가 무료입니다(Retail Prices API 단가에는 반영돼 있지 않습니다)
+#   · 무료 한도는 조직 단위라 같은 조직의 다른 프로젝트가 이미 쓰고 있다면 freeTier=미차감 (전량 과금) 을 고르세요
 # [지역 복제] Event Hubs·Service Bus 의 tier=Geo Replication Zone N 은 리전이 속한 존만 매칭됩니다(예 koreacentral=Zone 2)
 # [무료 허용량 주의] 일부 미터는 첫 구간이 0원(무료 허용량)이라 그 구간을 쓰면 견적이 0원이 됩니다.
 #   · 계산기는 0원이 아닌 최저 구간 단가를 씁니다 — 예) Service Bus Standard Messaging Operations(첫 13M 무료),
@@ -342,4 +354,8 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   · Azure DevOps·GitHub 도 리전 비종속(Global) 이라 Region 열이 가격에 영향을 주지 않습니다
 # [미지원 — 별도 산정 필요] Elastic Cloud(Elasticsearch)는 Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다.
 #   · 자체 관리형으로 올린다면 Virtual Machine + Disk 행으로, 관리형(Elastic Cloud)이면 Elastic 견적을 그대로 옮겨 적으세요
+#   · 자체 관리형 예시는 위 "Elasticsearch 노드 3대"(VM) + "Elasticsearch 데이터 디스크"(Disk) 두 행을 참고하세요
+# [과금 미터가 없어 0원인 항목] Azure ML Workspace 는 논리적 컨테이너라 보유만으로는 요금이 붙지 않습니다(Retail Prices API 에 미터 자체가 없음).
+#   · metric=워크스페이스 (무료 · 과금 미터 없음) 행으로 0원임을 견적서에 남기고, 실제 비용은 딸린 리소스로 각각 잡으세요
+#     컴퓨팅=Virtual Machine / 저장소=Blob Storage·Storage Account / 이미지=Azure Container Registry / 로그=Log Analytics·Azure Monitor / 비밀=Azure Key Vault
 # [Region 코드] koreacentral, koreasouth, japaneast, japanwest, southeastasia, eastasia, australiaeast, australiasoutheast, centralindia, southindia, westindia, indonesiacentral, malaysiawest, newzealandnorth, eastus, eastus2, centralus, northcentralus, southcentralus, westus, westus2, westus3, westcentralus, canadacentral, canadaeast, mexicocentral, brazilsouth, westeurope, northeurope, uksouth, ukwest, francecentral, germanywestcentral, switzerlandnorth, norwayeast, swedencentral, polandcentral, italynorth, spaincentral, austriaeast, uaenorth, qatarcentral, israelcentral, southafricanorth

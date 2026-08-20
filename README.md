@@ -125,6 +125,21 @@ http://localhost:5173/
 - 상단 **"CSV 불러오기"** — 기존 행이 있으면 *교체할지 뒤에 추가할지* 묻습니다(기존 동작).
 - 하단 **"＋ CSV로 견적 추가하기"** — 묻지 않고 **항상 추가**합니다.
 
+#### 원본 1개 항목이 2행이 되는 경우
+
+기존 견적서를 이 양식으로 옮길 때, 원본 **1개 항목이 견적서 2행**이 되는 일이 있습니다. 과금 미터의 단위가 서로 달라 `단가 × Qty × Hours` 한 줄로 표현할 수 없기 때문입니다.
+
+| 원본 항목 | 나뉘는 이유 |
+| --- | --- |
+| Log Analytics | 수집(GB 당) · 보존(GB/월 당) |
+| Azure Monitor | 메트릭 수집(10M 샘플 당) · 경고 규칙(개/월 당) |
+| Backup | 보호 인스턴스(대/월 당) · 백업 저장소(GB/월 당) |
+| Azure Key Vault Premium | 작업(10K 건 당) · HSM 키(키/월 당) |
+| Azure OpenAI | 입력 토큰 · 출력 토큰 단가 상이 |
+| Azure DevOps | 사용자(명/월 당) · 병렬 작업(개/월 당) |
+
+**택일이 아니라 함께 청구되는 관계**라 두 행을 더한 값이 원본 1개 항목에 대응합니다. 분류 열에 `(1/2)`, `(2/2)` 같은 표시를 직접 넣어 두면 나중에 알아보기 쉽습니다.
+
 #### 조회 진행 팝업 (v122)
 
 일괄 조회가 시작되면 진행 팝업이 뜹니다. 진행률과 함께 **지금 어떤 항목을 조회 중인지** 보여주고, 조회가 끝날 때까지 **배경 화면은 조작할 수 없습니다**(값이 채워지는 도중 행을 고쳐 결과가 어긋나는 것을 막습니다).
@@ -160,10 +175,44 @@ http://localhost:5173/
 | **Azure Machine Learning** | `metric=vCPU·GPU 추가 요금 (시간)` 등 | Qty=vCPU·GPU 수, Hours=월 사용시간 |
 
 - **Fabric 용량**은 Retail Prices API 에 "F64 한 줄" 미터가 없습니다. 공시 단가가 **CU 시간**뿐이고 워크로드별 미터로 쪼개져 나오므로, 계산기가 그 미터들의 **기준 CU 단가**에 F SKU 의 CU 수를 곱합니다(초과분 `Capacity Overage`·서버리스 미터는 기준에서 제외). 예약(1년/3년)도 함께 채워집니다.
-- **Azure ML 워크스페이스는 무료**입니다. 관리형 컴퓨팅(Compute Instance/Cluster)은 같은 VM SKU 요금이므로 **`Virtual Machine` 행으로 따로** 적고, 이 카테고리에는 그 위에 붙는 추가 요금(Surcharge)만 넣으세요. 리전·SKU 에 따라 0원인 경우가 많으며 **0원 조회는 오류가 아닙니다**.
+- **Azure ML 워크스페이스는 무료**입니다. 관리형 컴퓨팅(Compute Instance/Cluster)은 같은 VM SKU 요금이므로 **`Virtual Machine` 행으로 따로** 적고, 이 카테고리에는 그 위에 붙는 추가 요금(Surcharge)만 넣으세요. 리전·SKU 에 따라 0원인 경우가 많으며 **0원 조회는 오류가 아닙니다**. 원본 문서에 "Workspace" 항목이 따로 있다면 `metric=워크스페이스 (무료 · 과금 미터 없음)` 행으로 0원임을 남길 수 있습니다(v128 — 아래 참고).
 - **Azure DevOps · GitHub 는 리전 비종속(Global)** 이라 Region 열이 가격에 영향을 주지 않습니다.
 - **Azure Monitor 와 `Log Analytics` 는 다른 카테고리**입니다. 작업 영역의 분석 로그 수집·보존·분석은 `Log Analytics`, 그 위에 붙는 기본/보조 로그·플랫폼 로그·보관·복원·검색·약정 계층은 `Azure Monitor` 입니다.
-- **Elastic Cloud(Elasticsearch)는 지원하지 않습니다.** Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다. 직접 VM 위에 올린다면 `Virtual Machine` + `Disk` 행으로, 관리형이라면 Elastic 쪽 견적을 그대로 옮겨 적으세요.
+- **Elastic Cloud(Elasticsearch)는 지원하지 않습니다.** Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다. 직접 VM 위에 올린다면 `Virtual Machine` + `Disk` 행으로, 관리형이라면 Elastic 쪽 견적을 그대로 옮겨 적으세요. 양식에 "Elasticsearch 노드 3대"(VM `E8s_v5` ×3) + "Elasticsearch 데이터 디스크"(Disk `P20`) 예시 행이 있습니다.
+
+#### Azure OpenAI 배포 유형 (v128)
+
+같은 모델·같은 토큰 종류라도 **배포 유형에 따라 미터와 단가가 다릅니다.** 지정하지 않으면 최대 2배까지 어긋나므로 `deploymentType` 을 반드시 함께 적으세요.
+
+| 배포 유형 | 성격 | 상대 단가 |
+| --- | --- | --- |
+| `Global` | 전 세계 용량 풀 | 가장 쌈 |
+| `Data Zone` | 지역(EU/US 등) 데이터 존 안에서 처리 | Global 보다 약간 비쌈 |
+| `Regional` | 특정 리전 안에서만 처리 | 가장 비쌈 (Global 대비 약 1.2배) |
+| `Batch Global` / `Batch Data Zone` / `Batch Regional` | 비동기 일괄 처리(24시간 내 완료) | 같은 유형의 절반 |
+
+**리전마다 제공되는 배포 유형이 다릅니다.** 예를 들어 `koreacentral` 에서 `GPT-4.1 mini` 는 Global 만, `text-embedding-3-small` 은 Data Zone 만 있습니다. 없는 조합을 고르면 매칭 실패로 알리면서 **그 리전에서 고를 수 있는 배포 유형을 함께 표시**합니다.
+
+```
+Azure OpenAI / GPT-4.1 mini / Regional / 입력 토큰: 매칭 실패 (399건 조회).
+이 리전에서 고를 수 있는 배포 유형 → Global, Batch Global
+```
+
+범위 외: **우선 처리(Priority Processing)** — 표준의 정확히 2배 단가인 별도 미터라 계산에서 제외합니다. 미세 조정·호스팅, 오디오/이미지/실시간 모델, Provisioned Throughput(PTU) 도 지원하지 않습니다.
+
+#### 무료 허용량 차감 — Azure DevOps (v128)
+
+Retail Prices API 는 **조직 무료 한도를 단가에 반영하지 않습니다**(Basic 사용자 단일 단가). 그대로 곱하면 실제 청구액보다 많이 나오므로, `Azure DevOps` 는 무료 수량을 빼고 계산합니다.
+
+**과금 수량 = max(0, Qty × Hours − 무료 수량)**
+
+| 요금제 | 무료 수량 |
+| --- | --- |
+| Basic Plan 사용자 (월) | 첫 5명 |
+| MS-hosted / Self-hosted 병렬 작업 (월) | 첫 1개 |
+| Artifacts 저장소 (GB/월) | 첫 2GB |
+
+예) Basic 사용자 10명 → API 단가 그대로면 86,841원이지만 실제는 **43,420.5원**(5명분)입니다. 무료 한도는 **조직 단위**라 같은 조직의 다른 프로젝트가 이미 쓰고 있다면 옵션에서 `freeTier=미차감 (전량 과금)` 을 고르세요. 화면의 Unit Price 는 API 값 그대로 두고 **1 Monthly Cost 에서만 차감**되므로, 단가와 월비용이 곱셈으로 딱 맞지 않아 보일 수 있습니다.
 
 #### 옵션 사전 읽는 법 — `↳` 줄이 중요합니다
 
@@ -200,6 +249,10 @@ UPDATE_TEMPLATE=1 npx vitest run test/csv-template.test.js
 - **1 Year cost** = 1 Monthly Cost × 12
 
 Storage 항목은 월 정액 청구이므로 사용량(Hours) 변경에 영향받지 않습니다.
+
+**무료 허용량이 있는 항목**(현재 `Azure DevOps`)은 `Unit Price × max(0, Qty × 사용량 − 무료 수량)` 으로 계산합니다. 단가는 API 값 그대로 보여주고 월비용에서만 빼므로, 단가와 월비용이 곱셈으로 딱 맞지 않아 보일 수 있습니다.
+
+**정의상 0원인 항목**(현재 `Azure Machine Learning` 의 `워크스페이스`)은 API 를 조회하지 않고 0원으로 채웁니다. 원본 견적서의 항목 수와 행 수를 맞추기 위한 자리이며, 실제 비용은 딸린 리소스(컴퓨팅·저장소·레지스트리·로그·Key Vault) 행으로 각각 잡습니다.
 
 ---
 

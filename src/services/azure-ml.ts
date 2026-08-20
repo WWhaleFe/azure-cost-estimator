@@ -24,7 +24,23 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //   절약/예약 미적용. 못 찾으면 "매칭 실패"(그 리전에 해당 미터가 없는 경우).
 //   범위 외: Managed Model Hosting(모델별 토큰 과금 — 'Azure OpenAI' 카테고리와 별개로 미지원),
 //           Enterprise Inferencing 제품군(리전마다 productName 이 달라 제외, 대부분 0원).
+//
+// [v128] '워크스페이스' 청구 항목 신설 — 0원임을 견적서에 남기기 위한 항목
+//   Azure ML Workspace 자체를 과금하는 미터는 Retail Prices API 에 존재하지 않는다.
+//   워크스페이스는 논리적 컨테이너라 생성·보유만으로는 요금이 붙지 않고, 실제 비용은
+//   전부 워크스페이스가 **딸려 만드는 다른 리소스**로 청구되기 때문이다.
+//     · 컴퓨팅(Compute Instance/Cluster·관리형 엔드포인트) → Virtual Machine 행
+//     · 기본 저장소 계정(스냅샷·데이터셋·모델 아티팩트)   → Blob Storage / Storage Account 행
+//     · 컨테이너 레지스트리(환경 이미지)                  → Azure Container Registry 행
+//     · Application Insights / Log Analytics(작업 로그)   → Azure Monitor / Log Analytics 행
+//     · Key Vault(연결 문자열·비밀)                       → Azure Key Vault 행
+//   그래서 예전에는 이 항목을 견적서에 아예 적을 수 없어 "반영 불가"로 빠졌다. 이제
+//   0원 항목으로 넣어 원본 문서의 항목 수와 견적서 행 수를 맞출 수 있게 한다.
+//   API 조회 결과가 아니라 **정의상 0원**이므로 아래처럼 표시를 붙여 구분한다.
 // ================================================================
+
+// 워크스페이스 항목(노출명) — API 미터가 아니라 '무료'임을 명시하는 자리
+var _AML_WORKSPACE = '워크스페이스 (무료 · 과금 미터 없음)';
 
 // 청구 항목(노출명) → meterName(소문자)
 var _AML_METERS: Record<string, string> = {
@@ -38,23 +54,39 @@ var _AML_METERS: Record<string, string> = {
 REG._svcDefs['Azure Machine Learning'] = {
   apiServiceName: 'Azure Machine Learning',
   steps: [
-    { key:'metric', label:'청구 항목', options:Object.keys(_AML_METERS), tooltip:'컴퓨팅(Compute Instance/Cluster) 자체 요금은 Virtual Machine 행으로 따로 적으세요. 여기는 그 위에 붙는 추가 요금입니다.' },
+    { key:'metric', label:'청구 항목', options:[_AML_WORKSPACE].concat(Object.keys(_AML_METERS)), tooltip:'컴퓨팅(Compute Instance/Cluster) 자체 요금은 Virtual Machine 행으로 따로 적으세요. 여기는 그 위에 붙는 추가 요금입니다. 워크스페이스 자체는 무료라 0원 항목으로만 남습니다.' },
   ],
   instanceField: false,
 };
 
 REG['_buildDetail_Azure_Machine_Learning'] = function(r: Row) {
   var o = r.options || {};
-  r.skuName = 'Machine Learning';
+  r.skuName = (o.metric === _AML_WORKSPACE) ? 'Workspace' : 'Machine Learning';
   r.detail = ['Azure ML', o.metric].filter(Boolean).join(' / ');
 };
 
 // 가격 조회 — productName='Machine Learning service' 안에서 meterName 정확 일치
 REG['_resolve_Azure_Machine_Learning'] = async function(row: Row, cur: string) {
   var o = row.options || {};
-  var metric = o.metric || Object.keys(_AML_METERS)[0];
+  var metric = o.metric || _AML_WORKSPACE;
   var target = _AML_METERS[metric];
   var label = 'Azure ML / ' + metric;
+
+  // 워크스페이스 — API 미터가 없다(정의상 무료). 조회하지 않고 0원 항목으로 남긴다.
+  if (metric === _AML_WORKSPACE) {
+    row.paygItem = {
+      currencyCode: cur, unitPrice: 0, retailPrice: 0,
+      armRegionName: row.region, productName: 'Machine Learning service',
+      skuName: 'Workspace', meterName: '(과금 미터 없음)',
+      unitOfMeasure: '1/Month', type: 'Consumption',
+      _freeByDefinition: true,
+    };
+    row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
+    setStatus('ok', label + ' · 0원 — Retail Prices API 에 워크스페이스 과금 미터가 없습니다. '
+      + '실제 비용은 컴퓨팅(Virtual Machine), 저장소(Blob Storage), 레지스트리(Azure Container Registry), '
+      + '로그(Log Analytics·Azure Monitor), Key Vault 행으로 각각 잡으세요.');
+    updatePriceCells(row); updateTotalsRow(); return;
+  }
 
   if (!target) {
     row.paygItem=null; row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;

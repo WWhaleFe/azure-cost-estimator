@@ -20,29 +20,47 @@ import type { Row, ApiItem } from '../core/kernel.js';
 //   (Artifacts는 usage 칸에 GB도 가능 — Qty×usage 곱이므로 동일).
 //   절약/예약 미적용. 못 찾으면 "매칭 실패".
 //   범위 외: GitHub Advanced Security, Linux/Windows/macOS 분당 과금 Job, 부하 테스트.
+//
+// [v128] 무료 허용량 차감
+//   Azure DevOps 는 조직마다 무료 한도가 있는데 Retail Prices API 단가에는 그게 없다
+//   (Basic 사용자 8,684.1원/명 단일 단가). 그대로 곱하면 실제 청구액보다 많이 나온다.
+//   예) Basic 10명 → API 그대로면 86,841원이지만 첫 5명이 무료라 실제는 43,420.5원.
+//   그래서 요금제별 무료 수량을 표로 두고 paygItem._freeUnits 로 실어 보낸다
+//   (과금 수량 = max(0, Qty×Hours − 무료 수량) — 계산은 calcGroup 이 한다).
+//   무료 한도는 조직 단위라 이미 다른 프로젝트에서 쓰고 있다면 차감하면 안 된다.
+//   그래서 freeTier 옵션으로 끌 수 있게 했다(기본은 차감).
 // ================================================================
 
-// 요금제 → productName / meterName 정확 일치 타깃
-var _DEVOPS_PLANS: Record<string, { prod: string; meter: string }> = {
-  'Basic Plan 사용자 (월)':        { prod:'Azure Repos and Boards (Basic)', meter:'basic user' },
-  'Advanced 사용자 (월)':          { prod:'Azure Repos and Boards',         meter:'advanced user' },
-  'Test Plans 사용자 (월)':        { prod:'Azure Test Plans',               meter:'standard user' },
-  'Artifacts 저장소 (GB/월)':      { prod:'Azure Artifacts',                meter:'standard data stored' },
-  'MS-hosted 병렬 작업 (월)':      { prod:'Azure Pipelines',                meter:'microsoft-hosted ci/cd concurrent job' },
-  'Self-hosted 병렬 작업 (월)':    { prod:'Azure Pipelines',                meter:'self-hosted ci/cd concurrent job' },
+// 요금제 → productName / meterName 정확 일치 타깃 + 무료 수량(free, 없으면 0)
+//   free 출처: Azure DevOps 요금제 공시(조직당 Basic 5명, MS-hosted 병렬 1개,
+//   Self-hosted 병렬 1개, Artifacts 2GB). 사용자 수·작업 수·GB 기준.
+var _DEVOPS_PLANS: Record<string, { prod: string; meter: string; free: number; freeNote: string }> = {
+  'Basic Plan 사용자 (월)':        { prod:'Azure Repos and Boards (Basic)', meter:'basic user',                             free:5, freeNote:'첫 5명 무료' },
+  'Advanced 사용자 (월)':          { prod:'Azure Repos and Boards',         meter:'advanced user',                          free:0, freeNote:'' },
+  'Test Plans 사용자 (월)':        { prod:'Azure Test Plans',               meter:'standard user',                          free:0, freeNote:'' },
+  'Artifacts 저장소 (GB/월)':      { prod:'Azure Artifacts',                meter:'standard data stored',                   free:2, freeNote:'첫 2GB 무료' },
+  'MS-hosted 병렬 작업 (월)':      { prod:'Azure Pipelines',                meter:'microsoft-hosted ci/cd concurrent job',  free:1, freeNote:'첫 1개 무료' },
+  'Self-hosted 병렬 작업 (월)':    { prod:'Azure Pipelines',                meter:'self-hosted ci/cd concurrent job',       free:1, freeNote:'첫 1개 무료' },
 };
+
+var _DEVOPS_FREE_ON = '차감 (조직 무료 한도 적용)';
+var _DEVOPS_FREE_OFF = '미차감 (전량 과금)';
 
 REG._svcDefs['Azure DevOps'] = {
   apiServiceName: 'Azure DevOps',
   steps: [
     { key:'plan', label:'요금제', options: Object.keys(_DEVOPS_PLANS) },
+    { key:'freeTier', label:'무료 한도', options:[_DEVOPS_FREE_ON, _DEVOPS_FREE_OFF],
+      tooltip:'무료 한도는 Azure DevOps 조직 단위입니다. 같은 조직의 다른 프로젝트가 이미 쓰고 있다면 미차감을 고르세요.' },
   ],
   instanceField: false,
 };
 REG['_buildDetail_Azure_DevOps'] = function(r: Row) {
   var o = r.options || {};
+  var conf = _DEVOPS_PLANS[o.plan || ''];
+  var free = (conf && conf.free && (o.freeTier || _DEVOPS_FREE_ON) === _DEVOPS_FREE_ON) ? conf.freeNote : '';
   r.skuName = o.plan ? o.plan.replace(/\s*\(.*\)$/, '') : '';
-  r.detail = ['Azure DevOps', o.plan].filter(Boolean).join(' / ');
+  r.detail = ['Azure DevOps', o.plan, free].filter(Boolean).join(' / ');
 };
 
 // 가격 조회 — productName + meterName 정확 일치 (리전 비종속)
@@ -80,9 +98,14 @@ REG['_resolve_Azure_DevOps'] = async function(row: Row, cur: string) {
     updatePriceCells(row); updateTotalsRow(); return;
   }
 
-  // 매칭 미터를 그대로 반환 → 엔진 기본 계산(월=단가×Qty×usage). 절약/예약 미적용.
-  row.paygItem = Object.assign({}, chosen, { currencyCode: cur });
+  // 매칭 미터 + 무료 허용량 → 엔진 계산(월=단가×max(0, Qty×usage − 무료)). 절약/예약 미적용.
+  var useFree = (o.freeTier || _DEVOPS_FREE_ON) === _DEVOPS_FREE_ON;
+  var free = useFree ? conf.free : 0;
+  row.paygItem = Object.assign({}, chosen, { currencyCode: cur, _freeUnits: free });
   row.sp1Item=null; row.sp3Item=null; row.ri1Item=null; row.ri3Item=null;
-  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + ' (usage=1, Qty=수량 · 무료 한도 미반영)');
+  var freeMsg = conf.free
+    ? (free ? ' · ' + conf.freeNote + ' 차감' : ' · ' + conf.freeNote + ' 이지만 미차감 선택')
+    : ' · 무료 한도 없음';
+  setStatus('ok', label + ' 완료 · ' + Number(chosen.unitPrice) + ' / ' + chosen.unitOfMeasure + ' (usage=1, Qty=수량)' + freeMsg);
   updatePriceCells(row); updateTotalsRow();
 };
