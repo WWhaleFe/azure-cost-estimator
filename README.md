@@ -53,7 +53,7 @@ npm test              # Vitest (녹화 픽스처 기반, 네트워크 불필요)
 RUN_LIVE=1 npm test   # 라이브 스모크 포함 (실제 prices.azure.com 호출)
 ```
 
-가격 정규화 순수 함수·구간 요금 선택(`pickTieredMeter`)·서비스 조회 매칭(VM 커스텀·Public IP·Event Hubs·Service Bus·Container Apps·Front Door)·서버리스 프록시 핸들러·CSV 양식과 카탈로그의 일치·네트워크 계층(진행 중 요청 병합, 프록시 쿨다운 복귀, 계단식 타임아웃, 429 백오프)·일괄 조회의 빈칸 재조회를 검증합니다. 실제 API 응답은 `test/fixtures/*.json`에 녹화되어 결정론적으로 돌아가며, GitHub Actions(`.github/workflows/ci.yml`)가 push/PR마다 build + test를 실행합니다.
+가격 정규화 순수 함수·구간 요금 선택(`pickTieredMeter`)·서비스 조회 매칭(VM 커스텀·Public IP·Event Hubs·Service Bus·Container Apps·Front Door·Microsoft Fabric·Azure Monitor·Key Vault·GitHub·Azure ML)·서버리스 프록시 핸들러·CSV 양식과 카탈로그의 일치·네트워크 계층(진행 중 요청 병합, 프록시 쿨다운 복귀, 계단식 타임아웃, 429 백오프)·일괄 조회의 빈칸 재조회를 검증합니다. 실제 API 응답은 `test/fixtures/*.json`에 녹화되어 결정론적으로 돌아가며, GitHub Actions(`.github/workflows/ci.yml`)가 push/PR마다 build + test를 실행합니다.
 
 #### 접속
 
@@ -146,6 +146,24 @@ http://localhost:5173/
 확정적 실패(그 리전에 없는 SKU, 옵션 조합 불일치)는 이미 캐시가 받아주므로 재조회에 추가 네트워크 비용이 들지 않습니다. 끝내 실패한 행은 위 팝업에 목록으로 표시됩니다.
 
 통화를 바꿔 전 행을 다시 조회할 때도 같은 팝업·재조회가 적용됩니다.
+
+#### 플랫폼·거버넌스 서비스 5종 (v127 추가)
+
+기존 견적에서 "템플릿에 대응 ServiceCategory 가 없어" 옮기지 못하던 항목들을 드롭다운·CSV 양식에 넣었습니다.
+
+| ServiceCategory | 주요 옵션 | Qty / Hours 넣는 법 |
+| --- | --- | --- |
+| **Microsoft Fabric** | `metric=용량 (CU 시간)` + `capacity=F2…F2048` / `metric=OneLake 저장소 (GB/월)` + `storageItem=…` | 용량은 Hours=월 사용시간(24×7 → 730). **F SKU 의 CU 수는 자동으로 곱합니다**(F64 → CU 단가 ×64). 저장소는 Hours=GB |
+| **Azure Monitor** | `group=메트릭 / 경고 (월) / 로그 / 약정 계층 (일) / 웹 테스트` + `item=…` | 메트릭=샘플 수÷단위(10M·1K), 경고=Hours 1·Qty 규칙 수, 로그=GB, 약정 계층=일수(예 30) |
+| **Azure Key Vault** | `tier=Standard / Premium / Managed HSM` + `metric=…` | 작업(10K)=만 건 수, 키·갱신=Hours 1·Qty 개수, Managed HSM=Hours 730 |
+| **GitHub** | `plan=GitHub Enterprise 사용자 (월) / Copilot … / Advanced Security … / Actions … / Codespaces …` | 사용자·커미터=Hours 1·Qty 인원 수, Actions=분, 저장소·전송=GB |
+| **Azure Machine Learning** | `metric=vCPU·GPU 추가 요금 (시간)` 등 | Qty=vCPU·GPU 수, Hours=월 사용시간 |
+
+- **Fabric 용량**은 Retail Prices API 에 "F64 한 줄" 미터가 없습니다. 공시 단가가 **CU 시간**뿐이고 워크로드별 미터로 쪼개져 나오므로, 계산기가 그 미터들의 **기준 CU 단가**에 F SKU 의 CU 수를 곱합니다(초과분 `Capacity Overage`·서버리스 미터는 기준에서 제외). 예약(1년/3년)도 함께 채워집니다.
+- **Azure ML 워크스페이스는 무료**입니다. 관리형 컴퓨팅(Compute Instance/Cluster)은 같은 VM SKU 요금이므로 **`Virtual Machine` 행으로 따로** 적고, 이 카테고리에는 그 위에 붙는 추가 요금(Surcharge)만 넣으세요. 리전·SKU 에 따라 0원인 경우가 많으며 **0원 조회는 오류가 아닙니다**.
+- **Azure DevOps · GitHub 는 리전 비종속(Global)** 이라 Region 열이 가격에 영향을 주지 않습니다.
+- **Azure Monitor 와 `Log Analytics` 는 다른 카테고리**입니다. 작업 영역의 분석 로그 수집·보존·분석은 `Log Analytics`, 그 위에 붙는 기본/보조 로그·플랫폼 로그·보관·복원·검색·약정 계층은 `Azure Monitor` 입니다.
+- **Elastic Cloud(Elasticsearch)는 지원하지 않습니다.** Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다. 직접 VM 위에 올린다면 `Virtual Machine` + `Disk` 행으로, 관리형이라면 Elastic 쪽 견적을 그대로 옮겨 적으세요.
 
 #### 옵션 사전 읽는 법 — `↳` 줄이 중요합니다
 

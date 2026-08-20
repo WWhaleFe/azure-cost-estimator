@@ -44,3 +44,8 @@ import './event-hubs.js';
 import './service-bus.js';
 import './container-apps.js';
 import './front-door.js';
+import './fabric.js';
+import './azure-ml.js';
+import './azure-monitor.js';
+import './key-vault.js';
+import './github.js';

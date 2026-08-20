@@ -1,0 +1,69 @@
+{
+ "consumption": [
+  {
+   "skuName": "Standard",
+   "meterName": "Standard vCPU Surcharge",
+   "productName": "Machine Learning service",
+   "unitOfMeasure": "1 Hour",
+   "unitPrice": 0.0,
+   "retailPrice": 0.0,
+   "tierMinimumUnits": 0.0,
+   "armRegionName": "koreacentral",
+   "type": "Consumption",
+   "currencyCode": "USD",
+   "armSkuName": ""
+  },
+  {
+   "skuName": "Standard",
+   "meterName": "Standard GPU Surcharge",
+   "productName": "Machine Learning service",
+   "unitOfMeasure": "1 Hour",
+   "unitPrice": 0.11,
+   "retailPrice": 0.11,
+   "tierMinimumUnits": 0.0,
+   "armRegionName": "koreacentral",
+   "type": "Consumption",
+   "currencyCode": "USD",
+   "armSkuName": ""
+  },
+  {
+   "skuName": "Standard",
+   "meterName": "Standard Training GPU Surcharge",
+   "productName": "Machine Learning service",
+   "unitOfMeasure": "1 Hour",
+   "unitPrice": 0.0,
+   "retailPrice": 0.0,
+   "tierMinimumUnits": 0.0,
+   "armRegionName": "koreacentral",
+   "type": "Consumption",
+   "currencyCode": "USD",
+   "armSkuName": ""
+  },
+  {
+   "skuName": "Standard",
+   "meterName": "Standard Training vCPU Surcharge",
+   "productName": "Machine Learning service",
+   "unitOfMeasure": "1 Hour",
+   "unitPrice": 0.0,
+   "retailPrice": 0.0,
+   "tierMinimumUnits": 0.0,
+   "armRegionName": "koreacentral",
+   "type": "Consumption",
+   "currencyCode": "USD",
+   "armSkuName": ""
+  },
+  {
+   "skuName": "PB",
+   "meterName": "PB vCPU Surcharge",
+   "productName": "Machine Learning service",
+   "unitOfMeasure": "1 Hour",
+   "unitPrice": 0.055,
+   "retailPrice": 0.055,
+   "tierMinimumUnits": 0.0,
+   "armRegionName": "koreacentral",
+   "type": "Consumption",
+   "currencyCode": "USD",
+   "armSkuName": ""
+  }
+ ]
+}

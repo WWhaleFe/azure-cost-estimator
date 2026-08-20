@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v127 — 2026-08-20
+- feat: **플랫폼·거버넌스 서비스 5종 신설** — Microsoft Fabric · Azure Monitor · Azure Key Vault · GitHub · Azure Machine Learning. 기존 견적에서 "대응 ServiceCategory 가 없어" 옮기지 못하던 항목을 드롭다운·CSV 양식에서 그대로 추가할 수 있다
+- **Microsoft Fabric** (`services/fabric.ts`) — Retail Prices API 에는 **F64 한 줄 미터가 없다**. 공시 단가가 **CU 시간**뿐이고 그마저 워크로드별(Power BI·Spark·Data Warehouse·Eventhouse…) 미터로 쪼개져 나온다(koreacentral 92건이 전부 같은 값). 그래서 productName='Fabric Capacity' & meterName 이 `… Capacity Usage CU` 로 끝나는 **유료 미터의 최빈 단가**를 기준 CU 단가로 잡고 F SKU 의 CU 수를 곱한다(F64 → ×64). 초과분(`Capacity Overage`)·서버리스(`… Serverless Usage CU`)는 기준에서 제외. 예약은 `Fabric Capacity Reservation` 1·3년을 시간당 환산 후 ×CU. OneLake 저장소(Hot/Cool/Cold·캐시·BCDR·SQL·미러링)는 별도 청구 항목으로 분리(`metric` 2단 구성)
+- **Azure Monitor** (`services/azure-monitor.ts`) — 이 서비스는 **productName 이 전부 `Azure Monitor` 한 값**이고 청구 항목 묶음이 **skuName** 에 들어 있다(다른 서비스와 반대). 그래서 매칭 축을 `skuName + meterName` 으로 잡았다. 항목이 200건 넘어 **그룹(메트릭/경고/로그/약정 계층/웹 테스트) → 청구 항목** 2단으로 나눈다. 국가코드별 SMS·Voice 미터(대부분 0원)는 제외
+- **Azure Key Vault** (`services/key-vault.ts`) — 계층(Standard/Premium/Managed HSM)에 따라 청구 항목이 갈린다. Premium 전용 HSM 보호 키(RSA 2048·고급 키), Managed HSM 은 productName='Key Vault HSM Pool' 의 시간당 인스턴스 미터
+- **GitHub** (`services/github.ts`) — **리전 비종속(Global)** 이라 Azure DevOps 와 같이 armRegionName 필터 없이 조회한다. Enterprise·Copilot(Business/Enterprise/Premium Request)·Advanced Security·Code/Secret Scanning·Code Quality·Actions 실행(분)·Storage·Codespaces·Bandwidth 21종
+- **Azure Machine Learning** (`services/azure-ml.ts`) — **워크스페이스 자체는 무료**이고 관리형 컴퓨팅은 같은 VM SKU 요금이라, 컴퓨팅은 `Virtual Machine` 행으로 적고 이 카테고리에는 그 위에 붙는 **추가 요금(Surcharge)** 만 넣는다. 리전·SKU 에 따라 0원인 경우가 많아 **0원 조회를 매칭 실패로 다루지 않는다**(상태 표시줄에 근거를 남긴다)
+- **미지원 명시** — Elastic Cloud(Elasticsearch)는 Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없다. 양식 주석·README 에 "자체 관리형이면 VM+Disk 행, 관리형이면 Elastic 견적을 옮겨 적으라"고 안내
+- CSV 양식 예시 행 14개 추가(Fabric F64/F2/OneLake 5TB, Monitor 메트릭·경고·기본 로그·약정, Key Vault 작업/HSM 키/Managed HSM, GitHub GHE·Copilot·Actions, Azure ML vCPU·GPU) + 사용량 단위·조건부 옵션·글로벌 서비스 안내 갱신, `azure-quote-template_file.csv` 재생성
+- **테스트**: `platform-services-resolve.test.js` 신규 20종(녹화 픽스처 5개 — Fabric CU 배수·초과분 미터 배제·OneLake 대소문자 혼용 매칭, Monitor 의 skuName 조회 축·그룹 전환 시 항목 교체, Key Vault 계층 전환 대체, GitHub 동명 미터의 제품군 분리·리전 필터 미사용, ML 0원 미터). `live-smoke.test.js` 에 5종 계약 검증 추가
+- **검증(라이브 API · KRW · koreacentral)**: 양식 예시 14행을 엔진 경로 그대로 조회 — Fabric F64 `CU 303.9435 × 64 = 19,452.384/h` (RI 1·3년 `11,568.2258/h`), F2 가 정확히 1/32, OneLake Hot `36.18375 /GB·월`, Monitor 약정 100GB/일 `382,968.81 /Day`·경고 5분 `217.1025 /Month`, Key Vault Managed HSM `4,631.52/h`, GHE 사용자 `30,394.35/Month`, Actions Linux `8.6841/분`, ML GPU 추가요금 `159.2085/h`·vCPU `0` — 14행 전부 매칭
+- 영향 파일: src/services/fabric.ts(신규), src/services/azure-monitor.ts(신규), src/services/key-vault.ts(신규), src/services/github.ts(신규), src/services/azure-ml.ts(신규), src/services/all.js, src/ui/service-order.js, src/ui/csv-template.js, azure-quote-template_file.csv, test/platform-services-resolve.test.js(신규), test/fixtures/{fabric-koreacentral,azure-monitor-koreacentral,key-vault-koreacentral,github-global,azure-ml-koreacentral}.json(신규), test/live-smoke.test.js, README.md, CHANGELOG.md
+- 검증: `npm test` **133 pass / 4 skip**, `RUN_LIVE=1` 라이브 스모크 8 pass, `tsc --noEmit` 0, `vite build` 성공
+
 ## v126 — 2026-08-07
 - fix/feat: **정렬 UI 다듬기** — 헤더 글자 가림 해소 · 원본 보기 버튼 상단 이동 · 정렬 상태 상시 표시
 - **① 헤더 글자가 안 보이던 문제** — 활성 열에 `background: rgba(255,255,255,0.20)` 를 덮었더니 남색·초록 헤더 위 흰 글자의 대비가 무너져 내용이 읽히지 않았다. 배경 덮기를 **제거**하고, 활성 표시는 **헤더 아래쪽 노란 강조선(3px)** 과 **또렷해진 ▲▼** 로만 한다(비활성은 흐린 `⇅`)

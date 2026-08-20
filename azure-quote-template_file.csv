@@ -92,17 +92,32 @@ koreacentral,Service Bus(작업 50M),Service Bus,,1,50,tier=Standard; item=Stand
 koreacentral,Service Bus(Premium MU),Service Bus,,1,730,tier=Premium; item=Premium Messaging Unit
 koreacentral,Service Bus(하이브리드 연결),Service Bus,,1,730,tier=Hybrid Connections; item=Hybrid Connections Listener Unit
 koreacentral,Service Bus(WCF Relay),Service Bus,,1,730,tier=WCF Relay; item=WCF Relay
+koreacentral,모니터 메트릭 수집,Azure Monitor,,1,10,group=메트릭; item=메트릭 수집 (10M 샘플)
+koreacentral,모니터 경고 20개,Azure Monitor,,20,1,group=경고 (월); item=리소스 모니터링 - 5분 주기
+koreacentral,모니터 기본 로그 500GB,Azure Monitor,,1,500,group=로그; item=기본 로그 수집 (GB)
+koreacentral,모니터 약정 100GB/일,Azure Monitor,,1,30,group=약정 계층 (일); item=100 GB/일 약정
 koreacentral,로그 수집 100GB,Log Analytics,,1,100,metric=Data Ingestion
 koreacentral,로그 보존 500GB,Log Analytics,,1,500,metric=Data Retention
 koreacentral,Sentinel(PAYG 100GB),Microsoft Sentinel,,1,100,model=Pay-as-you-go
 koreacentral,Sentinel(100GB 커밋 30일),Microsoft Sentinel,,1,30,model=100 GB Commitment Tier
+koreacentral,Key Vault 작업 100만건,Azure Key Vault,,1,100,tier=Standard; metric=작업 (10K)
+koreacentral,Key Vault HSM 키 10개,Azure Key Vault,,10,1,tier=Premium; metric=HSM 보호 RSA 2048비트 키 (키/월)
+koreacentral,Managed HSM(B1),Azure Key Vault,,1,730,tier=Managed HSM; metric=Standard B1 인스턴스 (시간)
 koreacentral,Synapse DW(DW100c),Azure Synapse Analytics,,1,730,component=Dedicated SQL Pool (DWU); dwuLevel=DW100c
 koreacentral,Synapse 서버리스(2TB),Azure Synapse Analytics,,1,2,component=Serverless SQL Pool (Data Processed)
+koreacentral,Fabric 용량(F64),Microsoft Fabric,,1,730,metric=용량 (CU 시간); capacity=F64
+koreacentral,Fabric 용량(F2 소규모),Microsoft Fabric,,1,730,metric=용량 (CU 시간); capacity=F2
+koreacentral,OneLake 저장소 5TB,Microsoft Fabric,,1,5000,metric=OneLake 저장소 (GB/월); storageItem=OneLake 저장소 Hot (GB/월)
 koreacentral,OpenAI 입력(GPT-4.1 mini 10M),Azure OpenAI,,1,10,model=GPT-4.1 mini; metric=입력 토큰
 koreacentral,OpenAI 출력(GPT-4.1 mini 3M),Azure OpenAI,,1,3,model=GPT-4.1 mini; metric=출력 토큰
 koreacentral,OpenAI 임베딩(small 20M),Azure OpenAI,,1,20,model=text-embedding-3-small; metric=입력 토큰
+koreacentral,ML 추론 vCPU 추가요금,Azure Machine Learning,,32,730,metric=vCPU 추가 요금 (시간)
+koreacentral,ML 추론 GPU 추가요금,Azure Machine Learning,,1,730,metric=GPU 추가 요금 (시간)
 koreacentral,DevOps Basic 5명,Azure DevOps,,5,1,plan=Basic Plan 사용자 (월)
 koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 작업 (월)
+koreacentral,GHE 사용자 50명,GitHub,,50,1,plan=GitHub Enterprise 사용자 (월)
+koreacentral,Copilot Business 20명,GitHub,,20,1,plan=Copilot Business 사용자 (월)
+koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (분)
 
 # ────────────────────────────────────────────────────────────
 # [작성 안내] 아래 # 줄은 업로드 시 모두 무시됩니다(설명/사전 전용).
@@ -230,14 +245,29 @@ koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 �
 #   ↳ tier=Geo Replication Zone 1 → item=[Geo Replication Zone 1 Data Transfer]
 #   ↳ tier=Geo Replication Zone 2 → item=[Geo Replication Zone 2 Data Transfer]
 #   ↳ tier=Geo Replication Zone 3 → item=[Geo Replication Zone 3 Data Transfer]
+# Azure Monitor | SKU=비움 | Options: group=[메트릭|경고 (월)|로그|약정 계층 (일)|웹 테스트]; item=[메트릭 수집 (10M 샘플)|고급 플랫폼 메트릭 수집 (10M 샘플)|Prometheus 메트릭 쿼리 (10M 샘플)|메트릭 내보내기 (1K 샘플)|리소스 모니터링 - 1분 주기|리소스 모니터링 - 5분 주기|리소스 모니터링 - 10분 주기|리소스 모니터링 - 15분 주기|시스템 로그 모니터링 - 1분 주기|시스템 로그 모니터링 - 5분 주기|시스템 로그 모니터링 - 10분 주기|시스템 로그 모니터링 - 15분 주기|동적 임계값|기본 로그 수집 (GB)|보조 로그 수집 (GB)|플랫폼 로그 처리 (GB)|데이터 보관 (GB/월)|데이터 복원 (GB/일)|데이터 복제 (GB)|로그 내보내기 (GB)|검색 작업 (GB)|검색 쿼리 (GB)|100 GB/일 약정|200 GB/일 약정|300 GB/일 약정|400 GB/일 약정|500 GB/일 약정|1000 GB/일 약정|2000 GB/일 약정|5000 GB/일 약정|10000 GB/일 약정|25000 GB/일 약정|50000 GB/일 약정|표준 웹 테스트 (실행 1회)]
+#   ↳ group=메트릭 → item=[메트릭 수집 (10M 샘플)|고급 플랫폼 메트릭 수집 (10M 샘플)|Prometheus 메트릭 쿼리 (10M 샘플)|메트릭 내보내기 (1K 샘플)]
+#   ↳ group=경고 (월) → item=[리소스 모니터링 - 1분 주기|리소스 모니터링 - 5분 주기|리소스 모니터링 - 10분 주기|리소스 모니터링 - 15분 주기|시스템 로그 모니터링 - 1분 주기|시스템 로그 모니터링 - 5분 주기|시스템 로그 모니터링 - 10분 주기|시스템 로그 모니터링 - 15분 주기|동적 임계값]
+#   ↳ group=로그 → item=[기본 로그 수집 (GB)|보조 로그 수집 (GB)|플랫폼 로그 처리 (GB)|데이터 보관 (GB/월)|데이터 복원 (GB/일)|데이터 복제 (GB)|로그 내보내기 (GB)|검색 작업 (GB)|검색 쿼리 (GB)]
+#   ↳ group=약정 계층 (일) → item=[100 GB/일 약정|200 GB/일 약정|300 GB/일 약정|400 GB/일 약정|500 GB/일 약정|1000 GB/일 약정|2000 GB/일 약정|5000 GB/일 약정|10000 GB/일 약정|25000 GB/일 약정|50000 GB/일 약정]
+#   ↳ group=웹 테스트 → item=[표준 웹 테스트 (실행 1회)]
 # Log Analytics | SKU=비움 | Options: metric=[Data Ingestion|Data Retention|Data Analyzed]
 # Microsoft Sentinel | SKU=비움 | Options: model=[Pay-as-you-go|Basic Logs|50 GB Commitment Tier|100 GB Commitment Tier|200 GB Commitment Tier|300 GB Commitment Tier|400 GB Commitment Tier|500 GB Commitment Tier|1000 GB Commitment Tier|2000 GB Commitment Tier|5000 GB Commitment Tier|10000 GB Commitment Tier|25000 GB Commitment Tier|50000 GB Commitment Tier]
+# Azure Key Vault | SKU=비움 | Options: tier=[Standard|Premium|Managed HSM]; metric=[작업 (10K)|고급 키 작업 (10K)|인증서 갱신 요청 (건)|비밀 갱신 (건)|자동 키 순환 (회)|HSM 보호 RSA 2048비트 키 (키/월)|HSM 보호 고급 키 (키/월)|Standard B1 인스턴스 (시간)]
+#   ↳ tier=Standard → metric=[작업 (10K)|고급 키 작업 (10K)|인증서 갱신 요청 (건)|비밀 갱신 (건)|자동 키 순환 (회)]
+#   ↳ tier=Premium → metric=[작업 (10K)|고급 키 작업 (10K)|HSM 보호 RSA 2048비트 키 (키/월)|HSM 보호 고급 키 (키/월)|인증서 갱신 요청 (건)|비밀 갱신 (건)|자동 키 순환 (회)]
+#   ↳ tier=Managed HSM → metric=[Standard B1 인스턴스 (시간)]
 # Azure Synapse Analytics | SKU=비움 | Options: component=[Dedicated SQL Pool (DWU)|Serverless SQL Pool (Data Processed)|Data Flow (vCore-Hour)]; dwuLevel=[DW100c|DW200c|DW300c|DW400c|DW500c|DW1000c|DW1500c|DW2000c|DW2500c|DW3000c|DW5000c|DW6000c|DW7500c|DW10000c|DW15000c|DW30000c]; flowType=[Basic|Standard|Compute Optimized]
 #   ↳ component=Dedicated SQL Pool (DWU) → 미사용: flowType
 #   ↳ component=Serverless SQL Pool (Data Processed) → 미사용: dwuLevel, flowType
 #   ↳ component=Data Flow (vCore-Hour) → 미사용: dwuLevel
+# Microsoft Fabric | SKU=비움 | Options: metric=[용량 (CU 시간)|OneLake 저장소 (GB/월)]; capacity=[F2|F4|F8|F16|F32|F64|F128|F256|F512|F1024|F2048]; storageItem=[OneLake 저장소 Hot (GB/월)|OneLake 저장소 Cool (GB/월)|OneLake 저장소 Cold (GB/월)|OneLake 캐시 (GB/월)|OneLake BCDR Hot (GB/월)|OneLake BCDR Cool (GB/월)|OneLake BCDR Cold (GB/월)|SQL 저장소 (GB/월)|SQL 백업 저장소 (GB/월)|미러링 저장소 (GB/월)]
+#   ↳ metric=용량 (CU 시간) → 미사용: storageItem
+#   ↳ metric=OneLake 저장소 (GB/월) → 미사용: capacity
 # Azure OpenAI | SKU=비움 | Options: model=[GPT-5|GPT-5 mini|GPT-5.1|GPT-5.2|GPT-4.1|GPT-4.1 mini|GPT-4.1 nano|GPT-4o (1120)|GPT-4o mini (0718)|o1 (1217)|o3 (0416)|o3 mini (0131)|o4-mini (0416)|text-embedding-3-small|text-embedding-3-large]; metric=[입력 토큰|출력 토큰|캐시 입력 토큰]
+# Azure Machine Learning | SKU=비움 | Options: metric=[vCPU 추가 요금 (시간)|GPU 추가 요금 (시간)|학습 vCPU 추가 요금 (시간)|학습 GPU 추가 요금 (시간)|PB vCPU 추가 요금 (시간)]
 # Azure DevOps | SKU=비움 | Options: plan=[Basic Plan 사용자 (월)|Advanced 사용자 (월)|Test Plans 사용자 (월)|Artifacts 저장소 (GB/월)|MS-hosted 병렬 작업 (월)|Self-hosted 병렬 작업 (월)]
+# GitHub | SKU=비움 | Options: plan=[GitHub Enterprise 사용자 (월)|Copilot Business 사용자 (월)|Copilot Enterprise 사용자 (월)|Copilot Premium 요청 (건)|Advanced Security 커미터 (월)|Code Scanning 커미터 (월)|Secret Scanning 커미터 (월)|Code Quality 커미터 (월)|Actions Linux 실행 (분)|Actions Windows 실행 (분)|Actions macOS 실행 (분)|Actions 저장소 (GiB/월)|Packages 저장소 (GB/월)|LFS 저장소 (GiB/월)|Codespaces 저장소 (GiB/월)|Codespaces D2 (시간)|Codespaces D4 (시간)|Codespaces D8 (시간)|Codespaces D16 (시간)|데이터 전송 - Actions (GiB)|데이터 전송 - LFS (GiB)]
 # [Virtual Machine 인스턴스 카탈로그] Options에 series=[...]를 함께 지정, SKU는 해당 series 인스턴스
 #   B-series: B1ls, B1s, B1ms, B2s, B2ms, B4ms, B8ms, B12ms, B16ms, B20ms
 #   Bs-series v2: B2ts_v2, B2ls_v2, B2s_v2, B4ls_v2, B4s_v2, B8ls_v2, B8s_v2, B16ls_v2, B16s_v2, B32ls_v2, B32s_v2
@@ -292,14 +322,24 @@ koreacentral,DevOps 병렬 작업 1개,Azure DevOps,,1,1,plan=MS-hosted 병렬 �
 #   Standard HDD Managed Disks: S4, S6, S10, S15, S20, S30, S40, S50, S60, S70, S80
 #   추가 옵션 — 표준 HDD/SSD: transactionUnits=숫자(만 단위) / 프리미엄 SSD: burstingEnabled=[비활성 (기본)|활성화 (P30 이상)] / 프로비저닝형: diskSizeGiB, provisionedIOPS, provisionedMBps
 # [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용
+#   · Microsoft Fabric: metric=용량 (CU 시간) → capacity만 / metric=OneLake 저장소 (GB/월) → storageItem 만 사용
 # [사용량 단위] 저장·전송 항목(Azure Files/Blob/Backup 저장소/Bandwidth/Bastion 데이터 전송)은 Hours 칸에 사용량(GB 등)을 입력
 # [사용량 단위 2] Cosmos DB Serverless=백만 RU, 저장소=GB / API Management Consumption=만 콜 / ACR 레지스트리=일수, 저장소=GB / Azure DNS 영역=1(Qty=영역 수), 쿼리=백만 / Azure DevOps=1(Qty=사용자·작업 수) / Azure OpenAI=백만 토큰 / Private Link 데이터=GB
 # [사용량 단위 3] Event Hubs·Service Bus·Container Apps·Front Door 는 청구 항목(item)의 단위를 그대로 Hours 에 입력
 #   · 1 Hour/1(시간당) → 월 사용시간(730) / 1M → 백만 건 / 1 GB·1 GiB → GB(GiB) / 1 Second·1 GiB Second → 초(GiB·초) / 1/Month → 1
+# [사용량 단위 4] Microsoft Fabric 용량=월 사용시간(24×7 이면 730, F SKU 의 CU 수를 자동으로 곱함), OneLake 저장소=GB
+#   · Azure Monitor — 메트릭=샘플 수÷단위(10M 또는 1K) / 경고=1(Qty=규칙 수) / 로그=GB / 약정 계층=일수(예 30) / 웹 테스트=월 실행 횟수
+#   · Azure Key Vault — 작업(10K)=만 건 수 / 키·갱신=1(Qty=키·건수) / Managed HSM=월 사용시간(730)
+#   · GitHub — 사용자·커미터=1(Qty=인원 수) / Actions 실행=분 / 저장소·전송=GB(GiB) / Codespaces=시간
+#   · Azure Machine Learning — Qty=vCPU·GPU 수, Hours=월 사용시간. 컴퓨팅 자체 요금은 Virtual Machine 행으로 따로 적으세요
+#     (워크스페이스는 무료, 추가 요금은 리전·SKU 에 따라 0원인 경우가 많습니다 — 0원 조회는 오류가 아닙니다)
 # [지역 복제] Event Hubs·Service Bus 의 tier=Geo Replication Zone N 은 리전이 속한 존만 매칭됩니다(예 koreacentral=Zone 2)
 # [무료 허용량 주의] 일부 미터는 첫 구간이 0원(무료 허용량)이라 그 구간을 쓰면 견적이 0원이 됩니다.
 #   · 계산기는 0원이 아닌 최저 구간 단가를 씁니다 — 예) Service Bus Standard Messaging Operations(첫 13M 무료),
 #     Standard Brokered Connection(첫 1,000개 무료), Hybrid Connections Data Transfer(첫 5GB 무료),
 #     Front Door Standard Included Routing Rules(5개 포함). 무료 허용량 이하만 쓸 계획이면 그 행은 빼세요
 # [글로벌 서비스] Azure Front Door 는 Region 열을 무시하고 zone(요금 존)으로 가격이 정해집니다. Zone 1=북미·유럽, Zone 2=아시아 태평양(한국·일본), Zone 5=인도
+#   · Azure DevOps·GitHub 도 리전 비종속(Global) 이라 Region 열이 가격에 영향을 주지 않습니다
+# [미지원 — 별도 산정 필요] Elastic Cloud(Elasticsearch)는 Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다.
+#   · 자체 관리형으로 올린다면 Virtual Machine + Disk 행으로, 관리형(Elastic Cloud)이면 Elastic 견적을 그대로 옮겨 적으세요
 # [Region 코드] koreacentral, koreasouth, japaneast, japanwest, southeastasia, eastasia, australiaeast, australiasoutheast, centralindia, southindia, westindia, indonesiacentral, malaysiawest, newzealandnorth, eastus, eastus2, centralus, northcentralus, southcentralus, westus, westus2, westus3, westcentralus, canadacentral, canadaeast, mexicocentral, brazilsouth, westeurope, northeurope, uksouth, ukwest, francecentral, germanywestcentral, switzerlandnorth, norwayeast, swedencentral, polandcentral, italynorth, spaincentral, austriaeast, uaenorth, qatarcentral, israelcentral, southafricanorth

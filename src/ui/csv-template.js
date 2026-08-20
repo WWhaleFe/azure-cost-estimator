@@ -148,17 +148,32 @@ export function buildExampleRows() {
     ['koreacentral', 'Service Bus(Premium MU)','Service Bus',                '',             '1', '730',  'tier=Premium; item=Premium Messaging Unit'],
     ['koreacentral', 'Service Bus(하이브리드 연결)','Service Bus',              '',             '1', '730',  'tier=Hybrid Connections; item=Hybrid Connections Listener Unit'],
     ['koreacentral', 'Service Bus(WCF Relay)', 'Service Bus',                '',             '1', '730',  'tier=WCF Relay; item=WCF Relay'],
+    ['koreacentral', '모니터 메트릭 수집',      'Azure Monitor',              '',             '1', '10',   'group=메트릭; item=메트릭 수집 (10M 샘플)'],
+    ['koreacentral', '모니터 경고 20개',        'Azure Monitor',              '',             '20', '1',   'group=경고 (월); item=리소스 모니터링 - 5분 주기'],
+    ['koreacentral', '모니터 기본 로그 500GB',  'Azure Monitor',              '',             '1', '500',  'group=로그; item=기본 로그 수집 (GB)'],
+    ['koreacentral', '모니터 약정 100GB/일',    'Azure Monitor',              '',             '1', '30',   'group=약정 계층 (일); item=100 GB/일 약정'],
     ['koreacentral', '로그 수집 100GB',        'Log Analytics',              '',             '1', '100',  'metric=Data Ingestion'],
     ['koreacentral', '로그 보존 500GB',        'Log Analytics',              '',             '1', '500',  'metric=Data Retention'],
     ['koreacentral', 'Sentinel(PAYG 100GB)',  'Microsoft Sentinel',         '',             '1', '100',  'model=Pay-as-you-go'],
     ['koreacentral', 'Sentinel(100GB 커밋 30일)','Microsoft Sentinel',       '',             '1', '30',   'model=100 GB Commitment Tier'],
+    ['koreacentral', 'Key Vault 작업 100만건',  'Azure Key Vault',            '',             '1', '100',  'tier=Standard; metric=작업 (10K)'],
+    ['koreacentral', 'Key Vault HSM 키 10개',   'Azure Key Vault',            '',             '10', '1',   'tier=Premium; metric=HSM 보호 RSA 2048비트 키 (키/월)'],
+    ['koreacentral', 'Managed HSM(B1)',         'Azure Key Vault',            '',             '1', '730',  'tier=Managed HSM; metric=Standard B1 인스턴스 (시간)'],
     ['koreacentral', 'Synapse DW(DW100c)',    'Azure Synapse Analytics',    '',             '1', '730',  'component=Dedicated SQL Pool (DWU); dwuLevel=DW100c'],
     ['koreacentral', 'Synapse 서버리스(2TB)',  'Azure Synapse Analytics',    '',             '1', '2',    'component=Serverless SQL Pool (Data Processed)'],
+    ['koreacentral', 'Fabric 용량(F64)',       'Microsoft Fabric',           '',             '1', '730',  'metric=용량 (CU 시간); capacity=F64'],
+    ['koreacentral', 'Fabric 용량(F2 소규모)',  'Microsoft Fabric',           '',             '1', '730',  'metric=용량 (CU 시간); capacity=F2'],
+    ['koreacentral', 'OneLake 저장소 5TB',     'Microsoft Fabric',           '',             '1', '5000', 'metric=OneLake 저장소 (GB/월); storageItem=OneLake 저장소 Hot (GB/월)'],
     ['koreacentral', 'OpenAI 입력(GPT-4.1 mini 10M)','Azure OpenAI',        '',             '1', '10',   'model=GPT-4.1 mini; metric=입력 토큰'],
     ['koreacentral', 'OpenAI 출력(GPT-4.1 mini 3M)','Azure OpenAI',         '',             '1', '3',    'model=GPT-4.1 mini; metric=출력 토큰'],
     ['koreacentral', 'OpenAI 임베딩(small 20M)','Azure OpenAI',              '',             '1', '20',   'model=text-embedding-3-small; metric=입력 토큰'],
+    ['koreacentral', 'ML 추론 vCPU 추가요금',   'Azure Machine Learning',     '',             '32', '730', 'metric=vCPU 추가 요금 (시간)'],
+    ['koreacentral', 'ML 추론 GPU 추가요금',    'Azure Machine Learning',     '',             '1', '730',  'metric=GPU 추가 요금 (시간)'],
     ['koreacentral', 'DevOps Basic 5명',       'Azure DevOps',               '',             '5', '1',    'plan=Basic Plan 사용자 (월)'],
     ['koreacentral', 'DevOps 병렬 작업 1개',    'Azure DevOps',               '',             '1', '1',    'plan=MS-hosted 병렬 작업 (월)'],
+    ['koreacentral', 'GHE 사용자 50명',        'GitHub',                     '',             '50', '1',   'plan=GitHub Enterprise 사용자 (월)'],
+    ['koreacentral', 'Copilot Business 20명',  'GitHub',                     '',             '20', '1',   'plan=Copilot Business 사용자 (월)'],
+    ['koreacentral', 'Actions Linux 10000분',  'GitHub',                     '',             '1', '10000','plan=Actions Linux 실행 (분)'],
   ];
 }
 
@@ -375,16 +390,26 @@ export function buildOptionGuide() {
 
   // 조건부 옵션이 있는 서비스 안내
   lines.push('# [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용');
+  lines.push('#   · Microsoft Fabric: metric=용량 (CU 시간) → capacity만 / metric=OneLake 저장소 (GB/월) → storageItem 만 사용');
   lines.push('# [사용량 단위] 저장·전송 항목(Azure Files/Blob/Backup 저장소/Bandwidth/Bastion 데이터 전송)은 Hours 칸에 사용량(GB 등)을 입력');
   lines.push('# [사용량 단위 2] Cosmos DB Serverless=백만 RU, 저장소=GB / API Management Consumption=만 콜 / ACR 레지스트리=일수, 저장소=GB / Azure DNS 영역=1(Qty=영역 수), 쿼리=백만 / Azure DevOps=1(Qty=사용자·작업 수) / Azure OpenAI=백만 토큰 / Private Link 데이터=GB');
   lines.push('# [사용량 단위 3] Event Hubs·Service Bus·Container Apps·Front Door 는 청구 항목(item)의 단위를 그대로 Hours 에 입력');
   lines.push('#   · 1 Hour/1(시간당) → 월 사용시간(730) / 1M → 백만 건 / 1 GB·1 GiB → GB(GiB) / 1 Second·1 GiB Second → 초(GiB·초) / 1/Month → 1');
+  lines.push('# [사용량 단위 4] Microsoft Fabric 용량=월 사용시간(24×7 이면 730, F SKU 의 CU 수를 자동으로 곱함), OneLake 저장소=GB');
+  lines.push('#   · Azure Monitor — 메트릭=샘플 수÷단위(10M 또는 1K) / 경고=1(Qty=규칙 수) / 로그=GB / 약정 계층=일수(예 30) / 웹 테스트=월 실행 횟수');
+  lines.push('#   · Azure Key Vault — 작업(10K)=만 건 수 / 키·갱신=1(Qty=키·건수) / Managed HSM=월 사용시간(730)');
+  lines.push('#   · GitHub — 사용자·커미터=1(Qty=인원 수) / Actions 실행=분 / 저장소·전송=GB(GiB) / Codespaces=시간');
+  lines.push('#   · Azure Machine Learning — Qty=vCPU·GPU 수, Hours=월 사용시간. 컴퓨팅 자체 요금은 Virtual Machine 행으로 따로 적으세요');
+  lines.push('#     (워크스페이스는 무료, 추가 요금은 리전·SKU 에 따라 0원인 경우가 많습니다 — 0원 조회는 오류가 아닙니다)');
   lines.push('# [지역 복제] Event Hubs·Service Bus 의 tier=Geo Replication Zone N 은 리전이 속한 존만 매칭됩니다(예 koreacentral=Zone 2)');
   lines.push('# [무료 허용량 주의] 일부 미터는 첫 구간이 0원(무료 허용량)이라 그 구간을 쓰면 견적이 0원이 됩니다.');
   lines.push('#   · 계산기는 0원이 아닌 최저 구간 단가를 씁니다 — 예) Service Bus Standard Messaging Operations(첫 13M 무료),');
   lines.push('#     Standard Brokered Connection(첫 1,000개 무료), Hybrid Connections Data Transfer(첫 5GB 무료),');
   lines.push('#     Front Door Standard Included Routing Rules(5개 포함). 무료 허용량 이하만 쓸 계획이면 그 행은 빼세요');
   lines.push('# [글로벌 서비스] Azure Front Door 는 Region 열을 무시하고 zone(요금 존)으로 가격이 정해집니다. Zone 1=북미·유럽, Zone 2=아시아 태평양(한국·일본), Zone 5=인도');
+  lines.push('#   · Azure DevOps·GitHub 도 리전 비종속(Global) 이라 Region 열이 가격에 영향을 주지 않습니다');
+  lines.push('# [미지원 — 별도 산정 필요] Elastic Cloud(Elasticsearch)는 Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다.');
+  lines.push('#   · 자체 관리형으로 올린다면 Virtual Machine + Disk 행으로, 관리형(Elastic Cloud)이면 Elastic 견적을 그대로 옮겨 적으세요');
 
   lines.push('# [Region 코드] ' + Object.keys(REGION_LABEL).join(', '));
   return lines;
