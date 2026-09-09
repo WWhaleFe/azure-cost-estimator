@@ -108,7 +108,31 @@ http://localhost:5173/
 
 폴더 선택을 지원하는 브라우저(Chrome/Edge)에서는 저장할 폴더를 고르는 창이 떠서 지정한 위치에 두 파일이 저장됩니다. 그 외 브라우저에서는 두 파일이 자동으로 다운로드 폴더에 받아집니다.
 
-### 7. CSV 양식으로 일괄 입력
+### 7. MS 형식으로 내보내기 (v129)
+
+상단 우측 **"MS 형식으로 내보내기"** 버튼은 견적을 **MS 가격 계산기(azure.microsoft.com/pricing/calculator)의 Export 산출물과 같은 파일**로 저장합니다. 파일명도 MS 와 같은 `ExportedEstimate.xlsx` 입니다. 기존 "엑셀 내보내기"(자체 서식·5개 가격 그룹 비교)는 그대로 있고, 이 버튼이 하나 더 붙는 형태입니다.
+
+MS 산출물을 그대로 따릅니다 — 시트명 `Your Estimate`, 열 구성 `Service category / Service type / Custom name / Region / Description / Estimated monthly cost / Estimated upfront cost`, Segoe UI Light 글꼴, 헤더 채우기, 통화 서식(`[$$]#,##0.00`), `Support · Licensing Program · Billing Account · Billing Profile · Total` 요약 블록, 회색 면책 문구와 생성 시각까지.
+
+- **결제 옵션 선택** — 버튼 왼쪽 드롭다운에서 `Pay as you go / 1·3 year savings plan / 1·3 year reserved` 중 하나를 고릅니다. 고른 값은 금액뿐 아니라 MS 와 같은 방식으로 Description 문구에도 표기됩니다(`… x 730 Hours (3 year reserved), …`).
+- **분류 매핑** — 앱의 ServiceCategory 를 MS 체계로 옮깁니다(`Virtual Machine` → `Compute / Virtual Machines`, `Azure Kubernetes Service` → `Containers / Azure Kubernetes Service (AKS)` …).
+- **Custom name** — 표의 **분류** 칸(예: `Web/WAS Server`)이 그대로 들어갑니다.
+- **Region** — `Korea Central (한국 중부)` 같은 화면 라벨에서 한국어 주석을 떼고 MS 영문 표기(`Korea Central`)로 적습니다.
+- 선택한 결제 옵션의 가격이 아직 없는 행은 **0 원으로 나가며**, 몇 행이 그랬는지 알림이 뜹니다. 조회를 마친 뒤 다시 내보내세요.
+
+#### MS 산출물과 자동으로 같아지지 않는 부분
+
+| 항목 | 상태 |
+|---|---|
+| 파일 서식·열 구성·요약 블록·면책 문구 | **완전 일치** — `samples/ExportedEstimate.xlsx` 와 xlsx 파트를 글자 단위로 대조하는 테스트가 지킵니다 |
+| Description 문장 | VM 첫 절만 원본으로 확인됨(`MS_DESCRIPTION_VERIFIED`). 나머지 서비스는 같은 규칙으로 조립한 근사치입니다 |
+| 행 묶음 방식 | MS 는 VM 한 항목에 관리 디스크·데이터 전송을 딸려 넣습니다(`… OS Only; 0 managed disks – S4; Inter Region transfer type, 5 GB …`). 이 도구는 각각 별도 행이라 **같은 시나리오라도 행 수가 다릅니다** |
+| 금액 | 둘 다 Retail Prices API 가 출처라 원칙적으로 같지만, 미터 선택이 다르면 어긋납니다(서비스별 수준은 `docs/service-status.csv`) |
+| Estimated upfront cost | 이 도구는 예약·절약 단가를 시간당으로 환산해 월 비용에 녹이므로 **항상 0** 입니다 |
+
+Description 문장을 서비스별로 확정하려면 MS 계산기에서 해당 서비스 견적을 내보내 `samples/` 에 넣고 대조 테스트를 추가하면 됩니다 — VM 에 한 것과 같은 방식입니다.
+
+### 8. CSV 양식으로 일괄 입력
 
 행이 많을 때 일일이 입력하는 대신, 정해진 양식의 CSV를 업로드하여 견적 행을 한 번에 만들 수 있습니다. (지원 서비스: 드롭다운에 있는 전 서비스)
 
@@ -309,7 +333,9 @@ HTML 파일을 더블클릭으로 열면 발생합니다. 위의 "방법 2. 로�
     │   ├── csv-template.js        CSV 양식 본문 생성(예시 행 + 옵션 사전, DOM 비의존)
     │   ├── bulk-resolve.js        일괄 조회 동시 실행 풀 + 빈칸 자동 재조회(DOM 비의존)
     │   ├── progress-modal.js      조회 진행 팝업(<dialog> 모달 — 조회 중 배경 조작 차단)
-    │   └── export-csv.js          엑셀 내보내기 + CSV 양식 다운로드/업로드/직렬화
+    │   ├── export-csv.js          엑셀 내보내기 + CSV 양식 다운로드/업로드/직렬화
+    │   ├── ms-estimate.js        MS 가격 계산기 내보내기 형식 생성(OOXML·ZIP, DOM 비의존)
+    │   └── export-ms.js          "MS 형식으로 내보내기" 버튼 연결
     ├── diagnostics.js             연결 진단, 환경별 안내 모달
     └── ui-and-bootstrap.js        행/표/옵션 패널/부트스트랩 + UI훅 등록
 ```

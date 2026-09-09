@@ -2,6 +2,20 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v129 — 2026-09-09
+- feat: **MS 가격 계산기 형식으로 내보내기** — 견적을 MS 계산기(azure.microsoft.com/pricing/calculator)의 Export 산출물과 **같은 파일**로 저장한다. 파일명도 MS 와 같은 `ExportedEstimate.xlsx`. 기존 "엑셀 내보내기"(자체 서식·5개 가격 그룹 비교)는 그대로 두고 버튼을 하나 더 붙였다
+- **근거 자료로 형식을 확정했다** — `samples/ExportedEstimate.xlsx`(MS 계산기에서 실제로 내려받은 파일)를 해체해 규칙을 그대로 옮겼다: 시트명 `Your Estimate`, 열 폭 24/24/24/24/50/30/30/30, Segoe UI Light 글꼴 6종(제목 b14 · 부제 b12 · 헤더 b11 · 면책 i11), 헤더 채우기 `FFDDEBF7` · 면책 밴드 `FFD3D3D3`, 숫자 서식 `[$$]#,##0.00`, 테두리 2종, `cellXfs` 18개, `A1:Z1000` 빈 셀 패딩(A~E=s3 · F~G=s5 · H=s7 · I~Z=s1), 병합 4곳, `Support · Licensing Program · Billing Account · Billing Profile · Total` 요약 블록과 생성 시각 문구
+- **SheetJS 를 쓰지 않고 OOXML 을 직접 쓴다** (`ui/ms-estimate.js`) — SheetJS 로는 "비슷하게 생긴 엑셀"까지만 나오고 셀 스타일 인덱스·패딩·병합 구성이 달라진다. MS 산출물과 **나란히 놓고 쓸 수 있어야** 하므로 파트 7개를 직접 만들고 **무압축(stored) ZIP** 으로 묶는다(압축 라이브러리 의존 없음, 견적 파일 500KB 안팎). 출력은 결정적이다(ZIP 타임스탬프 고정)
+- **결제 옵션 선택** — 버튼 왼쪽 드롭다운에서 `Pay as you go / 1·3 year savings plan / 1·3 year reserved`. 고른 값은 금액뿐 아니라 MS 와 같은 방식으로 Description 문구에도 들어간다(`… x 730 Hours (3 year reserved), …`). 선택한 옵션의 가격이 없는 행은 0 원으로 나가고 **몇 행이 그랬는지 알린다**(조용히 틀리지 않도록)
+- **분류 매핑 `MS_TAXONOMY`** — 앱 ServiceCategory 45종 → MS 의 `Service category / Service type`(`Virtual Machine` → `Compute / Virtual Machines`, `Azure Kubernetes Service` → `Containers / Azure Kubernetes Service (AKS)`, `Disk` → `Storage / Managed Disks` …). **Custom name** 은 표의 *분류* 칸, **Region** 은 화면 라벨에서 한국어 주석을 뗀 영문 표기(`Korea Central (한국 중부)` → `Korea Central`)
+- **통화** — 숫자 서식과 면책 문구가 함께 바뀐다(KRW → `[$₩]#,##0.00` · `All prices shown are in Korea – Won (₩) KRW.`)
+- **fix ⚠️ ZIP 중앙 디렉터리 크기가 12바이트 부풀어 있었다** — EOCD 를 쓰는 도중의 오프셋으로 크기를 계산해, `unzip -t` 가 `reported length of central directory is 12 bytes too long` 을 냈다(엑셀이 "손상됨"으로 열 수 있는 상태). EOCD 직전 오프셋을 고정해 계산하도록 고치고 회귀 테스트를 넣었다
+- **MS 산출물과 자동으로 같아지지 않는 부분을 문서에 명시했다** — ① Description 문장은 **VM 첫 절만 원본으로 확인**(`MS_DESCRIPTION_VERIFIED`), 나머지는 같은 규칙으로 조립한 근사치 ② MS 는 VM 한 항목에 관리 디스크·데이터 전송을 딸려 넣어(`… OS Only; 0 managed disks – S4; Inter Region transfer type, 5 GB …`) 같은 시나리오라도 **행 수가 다르다** ③ 금액은 둘 다 Retail Prices API 가 출처지만 미터 선택이 다르면 어긋난다 ④ 예약·절약 단가를 시간당으로 환산하므로 `Estimated upfront cost` 는 항상 0. 서비스별 문장을 확정하려면 MS 내보내기 원본을 `samples/` 에 추가하고 대조 테스트를 늘리면 된다
+- **테스트**: `ms-estimate-export.test.js` 신규 20종 — 핵심은 **같은 견적을 넣었을 때 xlsx 파트 7개가 원본과 글자 하나까지 같은지** 대조하는 것이다(`[Content_Types].xml`·`_rels/.rels`·`workbook.xml`·`workbook.xml.rels`·`sheet1.xml`·`styles.xml`·`sharedStrings.xml`). 그 밖에 ZIP 중앙 디렉터리 크기, 항목 수에 따른 요약 블록 이동, 분류 매핑, 리전 라벨 정리, 결제 옵션 표기, 생성 시각 표기, 통화 전환을 본다
+- **검증(브라우저)**: VM 행 1건·`3 year reserved` 로 실제 내보내기 — 파일명 `ExportedEstimate.xlsx`, MIME `…spreadsheetml.sheet`, ZIP 매직 `50 4b 03 04`, 519,885 bytes, 상태 표시줄 `MS 형식 내보내기 완료 · 1건 · 3 year reserved`, 콘솔 오류 0. `unzip -t` · Python `zipfile.testzip()` 통과
+- 영향 파일: src/ui/ms-estimate.js(신규), src/ui/export-ms.js(신규), src/ui-and-bootstrap.js, index.html, samples/ExportedEstimate.xlsx(신규 — 형식 근거 자료), test/ms-estimate-export.test.js(신규), README.md, CHANGELOG.md
+- 검증: `npm test` **168 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v128 — 2026-08-20
 - feat/fix: **Azure OpenAI 배포 유형** · **무료 허용량 차감** · **ML 워크스페이스 0원 항목**. 기존 견적서를 이 도구로 옮길 때 막히던 지점들을 걷어내면서 **GPT-5 계열 단가 2배 과다 산정 버그**를 함께 잡았다
 - **fix ⚠️ Azure OpenAI GPT-5 계열이 표준 단가의 2배로 계산되고 있었다** (`services/azure-openai.ts`) — API 의 `pp` 접두 미터는 **우선 처리(Priority Processing)** 로 표준의 정확히 2배다(koreacentral GPT-5 입력: 표준 `GPT 5 Inpt Glbl` 1,809.1875 vs `5 pp inp Gl` 3,618.375). 예전 카탈로그가 GPT-5·5 mini·5.1·5.2 를 **pp 미터로 하드코딩**해 두어 네 모델 전부 2배였다. 이제 base 를 `gpt 5…` 로 잡아 표준 미터만 매칭한다(pp 는 범위 외)

@@ -29,6 +29,14 @@
         <button id="btnCsvImport" class="btn btn-secondary">CSV 불러오기</button>
         <input type="file" id="fileCsvImport" accept=".csv" style="display:none" />
         <button id="btnExport" class="btn btn-excel">엑셀 내보내기</button>
+        <select id="msExportPlan" class="border border-[#d2d0ce] rounded-sm px-2 py-1" title="MS 형식 내보내기에 담을 결제 옵션입니다. MS 가격 계산기의 Description 문구에도 그대로 표기됩니다.">
+          <option value="payg" selected>Pay as you go</option>
+          <option value="sp1">1 year savings plan</option>
+          <option value="sp3">3 year savings plan</option>
+          <option value="ri1">1 year reserved</option>
+          <option value="ri3">3 year reserved</option>
+        </select>
+        <button id="btnExportMs" class="btn btn-excel" title="MS 가격 계산기의 Export 산출물(ExportedEstimate.xlsx)과 같은 서식·열 구성으로 저장합니다.">MS 형식으로 내보내기</button>
       </div>
     </div>
   </header>

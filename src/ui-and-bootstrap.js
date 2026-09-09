@@ -710,3 +710,4 @@ bootDiagnostics();
 
 // 엑셀 내보내기 + CSV 기능은 별도 모듈에서 로드(부수효과로 버튼 핸들러 등록)
 import './ui/export-csv.js';
+import './ui/export-ms.js';
