@@ -7,6 +7,7 @@ import { sortRowsForView, nextSortState, sortStatusText } from './ui/table-sort.
 import { registerUIHooks } from './core/ui-hooks.js';
 import { bootDiagnostics } from './diagnostics.js';
 import { SERVICE_CATEGORY_ORDER } from './ui/service-order.js';
+import { initColumnResize, syncColgroup } from './ui/column-resize.js';
 
 // setStatus/updatePriceCells/updateTotalsRow/showToast 는 아래에서 function 선언(호이스팅)되므로
 // 여기서 UI 훅을 미리 등록해 resolver/서비스가 역호출할 수 있게 한다.
@@ -336,6 +337,7 @@ function _applyColumnVisibility(groupKey, visible) {
   var label = COLUMN_LABELS[groupKey] || groupKey;
   if (visible) table.classList.remove('hide-' + groupKey);
   else table.classList.add('hide-' + groupKey);
+  syncColgroup();   // 숨긴 열의 <col> 도 같이 빼야 뒤 열이 한 칸씩 밀리지 않는다
   setStatus('ok', label + (visible ? ' 열을 표시했습니다.' : ' 열을 숨겼습니다(데이터는 유지).'));
 }
 
@@ -459,7 +461,7 @@ function _syncSortUI(){
 document.querySelector('#mainTable thead').addEventListener('click',(e)=>{
   const th=e.target.closest('.th-sort'); if(!th) return;
   // 헤더 안의 체크박스·채우기 버튼 클릭은 정렬로 취급하지 않는다
-  if(e.target.closest('input,button,label')) return;
+  if(e.target.closest('input,button,label,.col-resizer')) return;
   sortState=nextSortState(sortState, th.dataset.sort);
   _syncSortUI(); render();
 });
@@ -539,7 +541,15 @@ function renderConfigPanel(){
     if(r.serviceCategory==='Virtual Machine'){
       const series=r.options.series;
       if(series&&typeof REG.VM_INSTANCE_CATALOG!=='undefined'&&REG.VM_INSTANCE_CATALOG[series])
-        instanceOptions=REG.VM_INSTANCE_CATALOG[series].map(i=>({value:i.name,label:`${i.name} (vCPU:${i.vCPU}${(i.ram!==undefined&&i.ram!==null)?' RAM:'+i.ram+'GB':''})`}));
+        // 라벨은 MS 가격 계산기 인스턴스 드롭다운과 같은 순서로 적는다
+        // (vCPU → RAM → GPU → 임시 스토리지). 카탈로그에 없는 항목만 빠진다.
+        instanceOptions=REG.VM_INSTANCE_CATALOG[series].map(i=>{
+          const spec=[`vCPU:${i.vCPU}`];
+          if(i.ram!==undefined&&i.ram!==null)spec.push(`RAM:${i.ram}GB`);
+          if(i.gpu)spec.push(`GPU:${i.gpu}`);
+          if(i.temp!==undefined&&i.temp!==null)spec.push(`Temp:${i.temp}GB`);
+          return {value:i.name,label:`${i.name} (${spec.join(' ')})`};
+        });
     }
     const sel=r.options.instance||r.skuName||'';
     instanceHtml=`<div class="config-field" style="grid-column:1/-1;"><label>인스턴스</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`;
@@ -704,6 +714,7 @@ function showToast(msg,kind){
   setTimeout(function(){t.classList.remove('show');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},250);},dur);
 }
 
+initColumnResize();
 addRow();addRow();addRow();
 setStatus('ok','준비 완료');
 bootDiagnostics();

@@ -76,18 +76,21 @@
   </div>
 
   <div class="bg-white border border-[#e1dfdd] rounded-sm" style="overflow-x:auto;">
-    <table class="grid-table" id="mainTable" style="min-width:1800px;">
+    <!-- 열 너비는 <colgroup> 이 단독으로 정한다(table-layout:fixed).
+         한 열을 끌어도 다른 열 폭이 따라 움직이지 않게 하려는 구조 — ui/column-resize.js 참고. -->
+    <table class="grid-table grid-table-resizable" id="mainTable">
+      <colgroup id="mainTableCols"></colgroup>
       <thead>
         <tr>
-          <th rowspan="2" style="width:24px;"></th>
-          <th rowspan="2" style="width:34px;">#</th>
-          <th rowspan="2" style="width:110px;" class="th-sort" data-sort="region" title="클릭: 오름차순 → 내림차순 → 원본 순서">Region<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:170px;" class="th-sort" data-sort="category" title="클릭: 오름차순 → 내림차순 → 원본 순서">분류<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:130px;" class="th-sort" data-sort="serviceCategory" title="클릭: 오름차순 → 내림차순 → 원본 순서">Service Category<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:140px;" class="th-sort" data-sort="skuName" title="클릭: 오름차순 → 내림차순 → 원본 순서">Service name (SKU)<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:260px;" class="th-sort" data-sort="detail" title="클릭: 오름차순 → 내림차순 → 원본 순서">상세 사양<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:44px;" class="th-sort" data-sort="qty" title="클릭: 오름차순 → 내림차순 → 원본 순서">Qty<span class="sort-ind"></span></th>
-          <th rowspan="2" style="width:80px;" class="th-sort" data-sort="usage" title="클릭: 오름차순 → 내림차순 → 원본 순서">사용량<br>(Hours)<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="drag"></th>
+          <th rowspan="2" data-col="no">#</th>
+          <th rowspan="2" data-col="region" class="th-sort" data-sort="region" title="클릭: 오름차순 → 내림차순 → 원본 순서">Region<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="category" class="th-sort" data-sort="category" title="클릭: 오름차순 → 내림차순 → 원본 순서">분류<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="serviceCategory" class="th-sort" data-sort="serviceCategory" title="클릭: 오름차순 → 내림차순 → 원본 순서">Service Category<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="skuName" class="th-sort" data-sort="skuName" title="클릭: 오름차순 → 내림차순 → 원본 순서">Service name (SKU)<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="detail" class="th-sort" data-sort="detail" title="클릭: 오름차순 → 내림차순 → 원본 순서">상세 사양<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="qty" class="th-sort" data-sort="qty" title="클릭: 오름차순 → 내림차순 → 원본 순서">Qty<span class="sort-ind"></span></th>
+          <th rowspan="2" data-col="usage" class="th-sort" data-sort="usage" title="클릭: 오름차순 → 내림차순 → 원본 순서">사용량<br>(Hours)<span class="sort-ind"></span></th>
           <!-- 체크박스(엑셀 출력 선택)가 텍스트 앞(왼쪽)에 배치. 절약/예약 그룹은 아래에 '채우기' 토글 버튼(v75) -->
           <th colspan="3" class="group-payg th-with-checkbox">
             <label class="th-checkbox-label">
@@ -118,24 +121,24 @@
             </label>
             <button type="button" id="btnFillCol-ri3" class="th-fill-btn" title="이 열의 빈 칸을 용량제 값으로 채우기 / 다시 누르면 채운 값 지우기">채우기</button>
           </th>
-          <th rowspan="2" style="width:100px;">Action</th>
+          <th rowspan="2" data-col="action">Action</th>
         </tr>
         <tr>
-          <th class="group-payg th-sort" style="width:82px;" data-sort="payg.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
-          <th class="group-payg th-sort" style="width:96px;" data-sort="payg.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-payg th-sort" style="width:96px;" data-sort="payg.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-sp1 th-sort" style="width:82px;" data-sort="sp1.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
-          <th class="group-sp1 th-sort" style="width:96px;" data-sort="sp1.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-sp1 th-sort" style="width:96px;" data-sort="sp1.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-sp3 th-sort" style="width:82px;" data-sort="sp3.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
-          <th class="group-sp3 th-sort" style="width:96px;" data-sort="sp3.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-sp3 th-sort" style="width:96px;" data-sort="sp3.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-ri1 th-sort" style="width:82px;" data-sort="ri1.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
-          <th class="group-ri1 th-sort" style="width:96px;" data-sort="ri1.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-ri1 th-sort" style="width:96px;" data-sort="ri1.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-ri3 th-sort" style="width:82px;" data-sort="ri3.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
-          <th class="group-ri3 th-sort" style="width:96px;" data-sort="ri3.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
-          <th class="group-ri3 th-sort" style="width:96px;" data-sort="ri3.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-payg th-sort" data-col="payg.unit" data-sort="payg.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
+          <th class="group-payg th-sort" data-col="payg.monthly" data-sort="payg.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-payg th-sort" data-col="payg.year" data-sort="payg.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-sp1 th-sort" data-col="sp1.unit" data-sort="sp1.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
+          <th class="group-sp1 th-sort" data-col="sp1.monthly" data-sort="sp1.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-sp1 th-sort" data-col="sp1.year" data-sort="sp1.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-sp3 th-sort" data-col="sp3.unit" data-sort="sp3.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
+          <th class="group-sp3 th-sort" data-col="sp3.monthly" data-sort="sp3.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-sp3 th-sort" data-col="sp3.year" data-sort="sp3.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-ri1 th-sort" data-col="ri1.unit" data-sort="ri1.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
+          <th class="group-ri1 th-sort" data-col="ri1.monthly" data-sort="ri1.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-ri1 th-sort" data-col="ri1.year" data-sort="ri1.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-ri3 th-sort" data-col="ri3.unit" data-sort="ri3.unit" title="클릭: 오름차순 → 내림차순 → 원본 순서">Unit<br>Price<span class="sort-ind"></span></th>
+          <th class="group-ri3 th-sort" data-col="ri3.monthly" data-sort="ri3.monthly" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Monthly<br>Cost<span class="sort-ind"></span></th>
+          <th class="group-ri3 th-sort" data-col="ri3.year" data-sort="ri3.year" title="클릭: 오름차순 → 내림차순 → 원본 순서">1 Year<br>Cost<span class="sort-ind"></span></th>
         </tr>
       </thead>
       <tbody id="gridBody"></tbody>

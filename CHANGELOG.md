@@ -2,6 +2,35 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v130 — 2026-09-28
+- feat: **NVads A10 v5 GPU 시리즈 신설** + **상세 사양 표기 통일** + **열 너비 드래그 조절**. MS 가격 계산기에는 있는데 이 도구에는 없어서 고를 수 없던 A10 계열을 채우고, 그 과정에서 "CSV 로 넣은 GPU 행만 상세 사양이 `Linux` 한 마디"인 버그를 잡았다
+- **feat `NVads A10 v5 (GPU)` 시리즈 6종** (`services/vm.ts`) — `NV6ads` · `NV12ads` · `NV18ads` · `NV36ads` · `NV36adms` · `NV72ads` `_A10_v5`. 범주=GPU 에서 고를 수 있다. koreacentral 라이브 API 로 6종 전부 `Standard_<name>` 매칭 확인(PAYG Linux `NV6ads` US$0.613 … `NV72ads` US$8.802 — MS 계산기 표시와 같은 값, 예약 1Y/3Y 도 존재)
+- **feat 카탈로그에 `gpu`·`temp` 필드 추가** — GPU 계열은 "몇 코어 몇 GB" 만으로는 구분이 안 된다(NV36ads 와 NV36adms 는 같은 36 vCPU 인데 RAM 과 GPU 구성이 다르다). 가속기 표기(`A10 1/6 (4GB)` … `A10 x2 (48GB)`)와 임시 디스크 용량을 함께 싣고, 기존 GPU 시리즈(N-series · NC A100 v4 · NC H100 v5 · ND A100 v4 · ND H100 v5)도 같은 기준으로 채웠다. 값의 출처는 Microsoft Learn 의 시리즈 문서(Basics / Local Storage / Accelerators 표)
+  - **임시 스토리지(`temp`)의 기준은 MS 가격 계산기 표기다** — 이 도구는 계산기와 나란히 놓고 대조하는 용도라 화면에 같은 숫자가 떠야 한다. 계산기와 Learn 시리즈 문서는 값이 꽤 어긋나므로(아래) 어느 쪽을 썼는지 코드 주석에 남겼다
+    | 인스턴스 | 계산기 표기(채택) | Learn `Temp Disk Size` |
+    | --- | --- | --- |
+    | `NV12ads_A10_v5` | 320 GB | 360 GiB |
+    | `NV36ads_A10_v5` | 720 GB | 1,440 GiB |
+    | `NV36adms_A10_v5` | 720 GB | 2,880 GiB |
+    | `NV72ads_A10_v5` | 1,400 GB | 2,880 GiB |
+    | `NC4as_T4_v3` | 180 GB | 176 GiB |
+    | `NC64as_T4_v3` | 2,880 GB | 2,816 GiB |
+    | `NC24ads_A100_v4` | 1,123 GB | 64 GiB (+NVMe 960) |
+    | `NC96ads_A100_v4` | 4,492 GB | 256 GiB (+NVMe 960×4) |
+  - NCads A100 v4 의 계산기 값은 **임시 디스크 + 로컬 NVMe 합계**다(Learn 의 'Modernization guide' 도 `Temp Storage (SSD) GiB: 1123 / 2246 / 4492` 로 같게 적는다). NCasT4_v3 의 차이는 GiB↔GB 반올림 표기 차이
+- **상세 사양을 한 가지 순서로 통일** — `운영체제, CPU:Ncore RAM:XGB, GPU:…, Temp:…GB`. 시리즈마다 있는 값만 들어가고 순서는 항상 같다. 인스턴스 드롭다운 라벨도 MS 계산기와 같은 순서(`NV72ads_A10_v5 (vCPU:72 RAM:880GB GPU:A10 x2 (48GB) Temp:2880GB)`)로 맞췄다
+- **fix ⚠️ CSV 로 불러온 VM 행은 상세 사양이 운영체제만 남았다** — CSV 는 SKU(인스턴스)만 주고 **시리즈를 주지 않는다**. 그러면 `_applyStepVisibility` 가 시리즈를 목록 첫 항목(`B-series`)으로 되돌려 카탈로그 조회가 빗나가고, `CPU:…core RAM:…GB` 가 통째로 빠졌다. 화면에서 직접 고른 행과 CSV 로 넣은 행의 표기가 달라지는 원인이었다. 이제 **인스턴스명으로 시리즈를 역추적**(`_vm_seriesOfInstance`)해 시리즈·범주(필요하면 계층)를 채운 뒤 상세를 만든다. 카탈로그에 없는 SKU 는 손대지 않는다(조용히 틀리게 고치지 않기 위해)
+- **feat 열 너비 드래그 조절** (`ui/column-resize.js` 신규, `index.html`, `css/main.css`) — 헤더 오른쪽 경계를 끌면 그 열의 너비가 바뀐다. **요구는 "한 열을 조절해도 다른 열은 그대로"** 였다
+  - 기본 `table-layout:auto` 로는 불가능하다 — 브라우저가 내용에 맞춰 전체를 다시 배분하므로 한 열만 늘려도 옆 열이 밀린다. 그래서 ① `table-layout:fixed` ② 너비는 `<colgroup><col>` 만 결정 ③ `<table>` 폭 = 보이는 열 너비의 합. 이러면 바뀌는 건 **그 열의 `<col>` 하나와 표 전체 폭뿐**이고 나머지 `<col>` 은 건드리지 않는다(가로 스크롤은 기존 바깥 div 가 그대로 맡는다)
+  - **'열 보기' 숨김과 맞물리는 부분** — 열 숨김은 td/th 에 `display:none` 을 거는 방식이라, 숨긴 열의 `<col>` 을 같이 빼지 않으면 그 뒤 열이 한 칸씩 밀려 폭이 어긋난다. `syncColgroup()` 이 **보이는 열만** col 로 그리고, 체크박스를 누를 때마다 다시 그린다. 숨긴 동안에도 그 열의 너비 값은 보관돼 다시 표시하면 조절해 둔 대로 돌아온다
+  - 하한은 열마다(`qty` 36px … `detail` 80px), 상한은 900px. 경계 **더블클릭 = 그 열만 기본 너비**. 조절값은 `localStorage('aceColWidths.v1')` 에 저장하고, 범위를 벗어난 저장값은 무시하고 기본값을 쓴다
+  - 경계 드래그가 **정렬로 새지 않게** 했다(리사이저에서 mousedown/click 전파를 막고, 정렬 핸들러의 무시 대상에 `.col-resizer` 추가)
+- **테스트**: `vm-gpu-spec.test.js` 신규 12종(시리즈 노출·6종 목록·**계산기 표기 대조**·기존 GPU 시리즈 temp 대조·부분 GPU 표기·상세 형식 3종·시리즈 역추적 4종), `column-resize.test.js` 신규 9종(핵심은 **한 열을 바꿨을 때 나머지 24개 열 값이 그대로인지**. 그 밖에 합계 증분, min/max, 숨김 시 제외·너비 보관, reset, 저장값 검증). DOM 비의존 순수 모델(`createColumnModel`)로 뽑아 node 환경에서 돌린다
+- **검증(브라우저)**: 상세 사양 열 경계를 실제로 끌어 `260px → 412px` — **나머지 24개 열은 1px 도 움직이지 않았고** 표 폭만 `2462px → 2614px`. 정렬은 걸리지 않았고 localStorage 에 저장됨. '절약 1년' 숨김 시 col 25 → 22 로 줄고 헤더·본문·col 정렬 일치. NVads A10 v5 6종이 드롭다운에 사양과 함께 뜨고, `NV72ads_A10_v5` 선택 시 상세 사양 `CPU:72core RAM:880GB, GPU:A10 x2 (48GB), Temp:1400GB`
+  - 로컬 `vite dev` 에서는 가격 조회가 되지 않는다(`/api/prices` Vercel 함수가 없고 공개 CORS 프록시가 전부 실패) — 기존 SKU 도 같으므로 이번 변경과 무관하다. SKU 매칭은 Retail Prices API 를 직접 호출해 6종 전부 확인했다
+- 영향 파일: src/services/vm.ts, src/ui/column-resize.js(신규), src/ui-and-bootstrap.js, index.html, css/main.css, azure-quote-template_file.csv(양식 재생성 — 시리즈 목록에 NVads A10 v5 추가), test/vm-gpu-spec.test.js(신규), test/column-resize.test.js(신규), README.md, CHANGELOG.md
+- 검증: `npm test` **188 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v129 — 2026-09-09
 - feat: **MS 가격 계산기 형식으로 내보내기** — 견적을 MS 계산기(azure.microsoft.com/pricing/calculator)의 Export 산출물과 **같은 파일**로 저장한다. 파일명도 MS 와 같은 `ExportedEstimate.xlsx`. 기존 "엑셀 내보내기"(자체 서식·5개 가격 그룹 비교)는 그대로 두고 버튼을 하나 더 붙였다
 - **근거 자료로 형식을 확정했다** — `samples/ExportedEstimate.xlsx`(MS 계산기에서 실제로 내려받은 파일)를 해체해 규칙을 그대로 옮겼다: 시트명 `Your Estimate`, 열 폭 24/24/24/24/50/30/30/30, Segoe UI Light 글꼴 6종(제목 b14 · 부제 b12 · 헤더 b11 · 면책 i11), 헤더 채우기 `FFDDEBF7` · 면책 밴드 `FFD3D3D3`, 숫자 서식 `[$$]#,##0.00`, 테두리 2종, `cellXfs` 18개, `A1:Z1000` 빈 셀 패딩(A~E=s3 · F~G=s5 · H=s7 · I~Z=s1), 병합 4곳, `Support · Licensing Program · Billing Account · Billing Profile · Total` 요약 블록과 생성 시각 문구

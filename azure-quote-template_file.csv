@@ -138,12 +138,12 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #     업로드 시 경고 없이 그 부모의 첫 번째 값으로 바뀌므로(대체) 반드시 짝을 맞추세요.
 #   · "미사용" 은 그 조합에서 무시되는 옵션 키입니다(적어도 계산에 영향 없음).
 # Virtual Machine | SKU=인스턴스(예 D4s_v5, 선택 series에 속해야 함) | Options: os=[Linux|Windows|Red Hat Enterprise Linux|SUSE]; swType=[(OS Only)|SQL Server (Enterprise)|SQL Server (Standard)|SQL Server (Web)|BizTalk Server (Enterprise)|BizTalk Server (Standard)]; tier=[Standard|Basic|Spot]; license=[라이선스 포함|Azure Hybrid Benefit]; category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅]
-#   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
+#   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
 #   ↳ tier=[Standard|Spot], category=일반적인 용도 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|A-series v2]
 #   ↳ tier=[Standard|Spot], category=컴퓨팅 최적화 → series=[F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|FX-series]
 #   ↳ tier=[Standard|Spot], category=메모리에 최적화 → series=[E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)]
 #   ↳ tier=[Standard|Spot], category=Storage에 최적화 → series=[L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)]
-#   ↳ tier=[Standard|Spot], category=GPU → series=[N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)]
+#   ↳ tier=[Standard|Spot], category=GPU → series=[N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)]
 #   ↳ tier=[Standard|Spot], category=고성능 컴퓨팅 → series=[HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
 #   ↳ tier=Basic, category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅] → series=[A-series (Basic)] | 미사용: category
 # Azure Kubernetes Service | SKU=비움 | Options: aksTier=[Standard (표준)|Automatic]; slaOption=[No SLA (free, non-production)|SLA|SLA and Long Term Support]
@@ -314,6 +314,7 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   NC H100 v5 (GPU): NC40ads_H100_v5, NC80adis_H100_v5
 #   ND A100 v4 (GPU): ND96amsr_A100_v4
 #   ND H100 v5 (GPU): ND96isr_H100_v5
+#   NVads A10 v5 (GPU): NV6ads_A10_v5, NV12ads_A10_v5, NV18ads_A10_v5, NV36ads_A10_v5, NV36adms_A10_v5, NV72ads_A10_v5
 #   A-series v2: A1_v2, A2_v2, A4_v2, A8_v2, A2m_v2, A4m_v2, A8m_v2
 #   FX-series: FX4mds, FX12mds, FX24mds, FX36mds, FX48mds
 #   HB-series v4 (HPC): HB176-24rs_v4, HB176-48rs_v4, HB176-96rs_v4, HB176-144rs_v4, HB176rs_v4

@@ -7,7 +7,7 @@ import type { Row, ApiItem } from '../core/kernel.js';
 // ================================================================
 
 // 전체 시리즈 목록(범주=전체에서 사용)
-var _VM_ALL_SERIES = ['B-series','Bs-series v2','Bas-series v2 (AMD)','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','D-series v7','Dd-series v7','Das-series v7 (AMD)','Dad-series v7 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','Eas-series v6 (AMD)','Ead-series v6 (AMD)','E-series v7','Ed-series v7','Eas-series v7 (AMD)','Ead-series v7 (AMD)','F-series v2','Fas-series v7 (AMD)','Fals-series v7 (AMD)','L-series v3','Las-series v3 (AMD)','L-series v4','Las-series v4 (AMD)','M-series','Ms-series v3 (Medium Memory)','Mds-series v3 (Medium Memory)','N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'];
+var _VM_ALL_SERIES = ['B-series','Bs-series v2','Bas-series v2 (AMD)','D-series v3','D-series v4','D-series v5','D-series v6','Dd-series v6','Das-series v5 (AMD)','Das-series v6 (AMD)','D-series v7','Dd-series v7','Das-series v7 (AMD)','Dad-series v7 (AMD)','E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','Eas-series v6 (AMD)','Ead-series v6 (AMD)','E-series v7','Ed-series v7','Eas-series v7 (AMD)','Ead-series v7 (AMD)','F-series v2','Fas-series v7 (AMD)','Fals-series v7 (AMD)','L-series v3','Las-series v3 (AMD)','L-series v4','Las-series v4 (AMD)','M-series','Ms-series v3 (Medium Memory)','Mds-series v3 (Medium Memory)','N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)','NVads A10 v5 (GPU)','A-series v2','FX-series','HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'];
 // 범주(계산기 'Category')별 시리즈 — 계산기 라벨과 동일
 var _VM_CATEGORY_SERIES: Record<string,string[]> = {
   '전체':            _VM_ALL_SERIES,
@@ -15,7 +15,7 @@ var _VM_CATEGORY_SERIES: Record<string,string[]> = {
   '컴퓨팅 최적화':    ['F-series v2','Fas-series v7 (AMD)','Fals-series v7 (AMD)','FX-series'],
   '메모리에 최적화':  ['E-series v3','E-series v4','E-series v5','E-series v6','Ed-series v6','Eas-series v5 (AMD)','Eas-series v6 (AMD)','Ead-series v6 (AMD)','E-series v7','Ed-series v7','Eas-series v7 (AMD)','Ead-series v7 (AMD)','M-series','Ms-series v3 (Medium Memory)','Mds-series v3 (Medium Memory)'],
   'Storage에 최적화': ['L-series v3','Las-series v3 (AMD)','L-series v4','Las-series v4 (AMD)'],
-  'GPU':             ['N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)'],
+  'GPU':             ['N-series (GPU)','NC A100 v4 (GPU)','NC H100 v5 (GPU)','ND A100 v4 (GPU)','ND H100 v5 (GPU)','NVads A10 v5 (GPU)'],
   '고성능 컴퓨팅':    ['HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'],
 };
 
@@ -58,7 +58,7 @@ REG['_vm_applyStepVisibility'] = function(r: Row) {
 // koreacentral 라이브 API(serviceName='Virtual Machines', Consumption)로 가격 조회가 검증된 SKU만 수록.
 // vCPU=SKU명 파싱, RAM=시리즈 표준 사양(M/N 일부 사이즈는 사양 미상이라 RAM 생략 → 라벨에 vCPU만 표시).
 // 다른 리전에선 일부 SKU가 없을 수 있음(그 경우 해당 인스턴스는 "매칭 없음"으로 표시).
-var VM_INSTANCE_CATALOG: Record<string, Array<{ name: string; vCPU: number; ram?: number }>> = REG.VM_INSTANCE_CATALOG = {
+var VM_INSTANCE_CATALOG: Record<string, Array<{ name: string; vCPU: number; ram?: number; temp?: number; gpu?: string }>> = REG.VM_INSTANCE_CATALOG = {
   'B-series': [{name:'B1ls',vCPU:1,ram:0.5},{name:'B1s',vCPU:1,ram:1},{name:'B1ms',vCPU:1,ram:2},{name:'B2s',vCPU:2,ram:4},{name:'B2ms',vCPU:2,ram:8},{name:'B4ms',vCPU:4,ram:16},{name:'B8ms',vCPU:8,ram:32},{name:'B12ms',vCPU:12,ram:48},{name:'B16ms',vCPU:16,ram:64},{name:'B20ms',vCPU:20,ram:80}],
   // 버스터블 v2 (Intel Bsv2 / AMD Basv2). armSkuName='Standard_<name>'으로 조회.
   'Bs-series v2': [{name:'B2ts_v2',vCPU:2,ram:1},{name:'B2ls_v2',vCPU:2,ram:4},{name:'B2s_v2',vCPU:2,ram:8},{name:'B4ls_v2',vCPU:4,ram:8},{name:'B4s_v2',vCPU:4,ram:16},{name:'B8ls_v2',vCPU:8,ram:16},{name:'B8s_v2',vCPU:8,ram:32},{name:'B16ls_v2',vCPU:16,ram:32},{name:'B16s_v2',vCPU:16,ram:64},{name:'B32ls_v2',vCPU:32,ram:64},{name:'B32s_v2',vCPU:32,ram:128}],
@@ -102,16 +102,27 @@ var VM_INSTANCE_CATALOG: Record<string, Array<{ name: string; vCPU: number; ram?
   // M v3 중간 메모리(Intel Sapphire Rapids). _1_/_2_/_3_/_4_ 는 메모리 구성 변형(armSkuName에 그대로 포함). Msv3=로컬디스크 없음, Mdsv3=로컬디스크.
   'Ms-series v3 (Medium Memory)': [{name:'M12s_v3',vCPU:12,ram:240},{name:'M24s_v3',vCPU:24,ram:480},{name:'M48s_1_v3',vCPU:48,ram:974},{name:'M96s_1_v3',vCPU:96,ram:974},{name:'M96s_2_v3',vCPU:96,ram:1946},{name:'M176s_3_v3',vCPU:176,ram:2794},{name:'M176s_4_v3',vCPU:176,ram:3892}],
   'Mds-series v3 (Medium Memory)': [{name:'M12ds_v3',vCPU:12,ram:240},{name:'M24ds_v3',vCPU:24,ram:480},{name:'M48ds_1_v3',vCPU:48,ram:974},{name:'M96ds_1_v3',vCPU:96,ram:974},{name:'M96ds_2_v3',vCPU:96,ram:1946},{name:'M176ds_3_v3',vCPU:176,ram:2794},{name:'M176ds_4_v3',vCPU:176,ram:3892}],
-  'N-series (GPU)': [{name:'NC4as_T4_v3',vCPU:4,ram:28},{name:'NC8as_T4_v3',vCPU:8,ram:56},{name:'NC16as_T4_v3',vCPU:16,ram:110},{name:'NC64as_T4_v3',vCPU:64,ram:440},{name:'NC6s_v3',vCPU:6,ram:112},{name:'NC12s_v3',vCPU:12,ram:224},{name:'NC24s_v3',vCPU:24,ram:448},{name:'NV4as_v4',vCPU:4,ram:14},{name:'NV8as_v4',vCPU:8,ram:28},{name:'NV16as_v4',vCPU:16,ram:56},{name:'NV32as_v4',vCPU:32,ram:112}],
+  'N-series (GPU)': [{name:'NC4as_T4_v3',vCPU:4,ram:28,temp:180,gpu:'T4 x1 (16GB)'},{name:'NC8as_T4_v3',vCPU:8,ram:56,temp:360,gpu:'T4 x1 (16GB)'},{name:'NC16as_T4_v3',vCPU:16,ram:110,temp:360,gpu:'T4 x1 (16GB)'},{name:'NC64as_T4_v3',vCPU:64,ram:440,temp:2880,gpu:'T4 x4 (64GB)'},{name:'NC6s_v3',vCPU:6,ram:112,temp:736,gpu:'V100 x1 (16GB)'},{name:'NC12s_v3',vCPU:12,ram:224,temp:1474,gpu:'V100 x2 (32GB)'},{name:'NC24s_v3',vCPU:24,ram:448,temp:2948,gpu:'V100 x4 (64GB)'},{name:'NV4as_v4',vCPU:4,ram:14,temp:88,gpu:'MI25 1/8 (2GB)'},{name:'NV8as_v4',vCPU:8,ram:28,temp:176,gpu:'MI25 1/4 (4GB)'},{name:'NV16as_v4',vCPU:16,ram:56,temp:352,gpu:'MI25 1/2 (8GB)'},{name:'NV32as_v4',vCPU:32,ram:112,temp:704,gpu:'MI25 x1 (16GB)'}],
   // GPU 신규 계열(v101 이후). armSkuName='Standard_<name>'으로 조회. RAM은 시리즈 표준 사양(GiB).
+  // temp(임시 스토리지)는 **MS 가격 계산기 표기**를 기준으로 한다 — 계산기는 GB 로 반올림한
+  // 'Temp Storage (SSD)' 값을 쓰고(NCasT4_v3 180/360/360/2880), Learn 시리즈 문서의
+  // Temp Disk Size(GiB) 열(176/352/352/2816)과 숫자가 다르다.
   // NCads A100 v4: NVIDIA A100 80GB PCIe(1/2/4 GPU). koreacentral·polandcentral·italynorth 등 광범위 제공.
-  'NC A100 v4 (GPU)': [{name:'NC24ads_A100_v4',vCPU:24,ram:220},{name:'NC48ads_A100_v4',vCPU:48,ram:440},{name:'NC96ads_A100_v4',vCPU:96,ram:880}],
+  // temp = 계산기 표기(임시 디스크 64/128/256GiB + GPU 1개당 로컬 NVMe 960GiB 를 합친 값).
+  // Learn 시리즈 문서의 'Temp Disk Size' 열만 보면 64/128/256 이라 계산기와 어긋난다.
+  'NC A100 v4 (GPU)': [{name:'NC24ads_A100_v4',vCPU:24,ram:220,temp:1123,gpu:'A100 x1 (80GB)'},{name:'NC48ads_A100_v4',vCPU:48,ram:440,temp:2246,gpu:'A100 x2 (160GB)'},{name:'NC96ads_A100_v4',vCPU:96,ram:880,temp:4492,gpu:'A100 x4 (320GB)'}],
   // NCads H100 v5: NVIDIA H100 NVL 94GB(1/2 GPU). skuName이 'NC40adsH100v5'(밑줄 없음)이라 정규화 매칭에 의존.
-  'NC H100 v5 (GPU)': [{name:'NC40ads_H100_v5',vCPU:40,ram:320},{name:'NC80adis_H100_v5',vCPU:80,ram:640}],
+  'NC H100 v5 (GPU)': [{name:'NC40ads_H100_v5',vCPU:40,ram:320,temp:3576,gpu:'H100 NVL x1 (94GB)'},{name:'NC80adis_H100_v5',vCPU:80,ram:640,temp:7152,gpu:'H100 NVL x2 (188GB)'}],
   // NDamsr A100 v4: NVIDIA A100 80GB SXM ×8(InfiniBand). polandcentral·italynorth 등.
-  'ND A100 v4 (GPU)': [{name:'ND96amsr_A100_v4',vCPU:96,ram:1900}],
+  'ND A100 v4 (GPU)': [{name:'ND96amsr_A100_v4',vCPU:96,ram:1900,temp:6400,gpu:'A100 x8 (640GB)'}],
   // NDsr H100 v5: NVIDIA H100 80GB SXM ×8(InfiniBand). koreacentral·polandcentral 등.
-  'ND H100 v5 (GPU)': [{name:'ND96isr_H100_v5',vCPU:96,ram:1900}],
+  // 임시 디스크 1,024GiB + 로컬 NVMe 28TiB(8디스크)가 따로 붙는다.
+  'ND H100 v5 (GPU)': [{name:'ND96isr_H100_v5',vCPU:96,ram:1900,temp:1024,gpu:'H100 x8 (640GB)'}],
+  // NVads A10 v5: NVIDIA A10(24GB)을 1/6~2개로 쪼개 쓰는 GPU 가상 데스크톱·그래픽 계열. koreacentral 제공.
+  // temp = MS 가격 계산기 인스턴스 드롭다운의 'Temporary storage' 표기 그대로(견적서를 계산기와
+  // 나란히 놓고 대조하기 위함). Learn 시리즈 문서의 Temp Disk Size(GiB)와는 다른 사이즈가 있다
+  // (NV12=360GiB, NV36ads=1440GiB, NV36adms/NV72=2880GiB) — 바꿀 때 둘 중 어느 쪽인지 확인할 것.
+  'NVads A10 v5 (GPU)': [{name:'NV6ads_A10_v5',vCPU:6,ram:55,temp:180,gpu:'A10 1/6 (4GB)'},{name:'NV12ads_A10_v5',vCPU:12,ram:110,temp:320,gpu:'A10 1/3 (8GB)'},{name:'NV18ads_A10_v5',vCPU:18,ram:220,temp:720,gpu:'A10 1/2 (12GB)'},{name:'NV36ads_A10_v5',vCPU:36,ram:440,temp:720,gpu:'A10 x1 (24GB)'},{name:'NV36adms_A10_v5',vCPU:36,ram:880,temp:720,gpu:'A10 x1 (24GB)'},{name:'NV72ads_A10_v5',vCPU:72,ram:880,temp:1400,gpu:'A10 x2 (48GB)'}],
   'A-series v2': [{name:'A1_v2',vCPU:1,ram:2},{name:'A2_v2',vCPU:2,ram:4},{name:'A4_v2',vCPU:4,ram:8},{name:'A8_v2',vCPU:8,ram:16},{name:'A2m_v2',vCPU:2,ram:16},{name:'A4m_v2',vCPU:4,ram:32},{name:'A8m_v2',vCPU:8,ram:64}],
   'FX-series': [{name:'FX4mds',vCPU:4,ram:84},{name:'FX12mds',vCPU:12,ram:252},{name:'FX24mds',vCPU:24,ram:504},{name:'FX36mds',vCPU:36,ram:756},{name:'FX48mds',vCPU:48,ram:1008}],
   // HPC 시리즈(HB/HC/HX): 'HB176-Nrs_v4'는 제약 코어(실제 사용 vCPU=N) → vCPU를 명시값으로 지정.
@@ -178,15 +189,50 @@ REG['_vmSwLicenseHourly'] = async function(productName: string | null, vcpu: num
   return { hourly: chosen.price, band: chosen };
 };
 
+// 인스턴스명 → 그 인스턴스가 속한 시리즈 (카탈로그 역인덱스)
+REG['_vm_seriesOfInstance'] = function(name: string) {
+  if (!name) return '';
+  for (const sr in VM_INSTANCE_CATALOG) {
+    if (VM_INSTANCE_CATALOG[sr].some(i => i.name === name)) return sr;
+  }
+  return '';
+};
+// 시리즈 → 그 시리즈를 담고 있는 범주('전체' 제외). 없으면 '전체'.
+function _vmCategoryOfSeries(series: string) {
+  for (const cat in _VM_CATEGORY_SERIES) {
+    if (cat === '전체') continue;
+    if (_VM_CATEGORY_SERIES[cat].indexOf(series) >= 0) return cat;
+  }
+  return '전체';
+}
+
 // detail 빌더
 REG['_buildDetail_Virtual_Machine'] = function(r: Row) {
   const o = r.options;
+  // CSV 불러오기는 SKU(인스턴스)만 주고 시리즈·범주는 주지 않는다. 그대로 두면
+  // _applyStepVisibility 가 시리즈를 목록 첫 항목으로 돌려놔 카탈로그 조회가 빗나가고,
+  // 상세 사양이 'Linux' 한 마디로만 남는다(화면에서 고른 행과 표기가 달라짐).
+  // 인스턴스명으로 시리즈를 역추적해 채워, 어느 경로로 들어온 행이든 같은 상세를 쓴다.
+  if (o.instance && !(VM_INSTANCE_CATALOG[o.series] || []).some(i => i.name === o.instance)) {
+    const found = REG['_vm_seriesOfInstance'](o.instance);
+    if (found) {
+      o.series = found;
+      if (found === 'A-series (Basic)') o.tier = 'Basic';           // Basic 계층 전용 목록
+      else if (o.tier === 'Basic') o.tier = 'Standard';
+      const catList = _VM_CATEGORY_SERIES[o.category];
+      if (!catList || catList.indexOf(found) < 0) o.category = _vmCategoryOfSeries(found);
+    }
+  }
   if (REG['_vm_applyStepVisibility']) REG['_vm_applyStepVisibility'](r);
   r.skuName = o.instance || '';
   const inst = (VM_INSTANCE_CATALOG[o.series]||[]).find(i=>i.name===o.instance);
   const parts = [];
   if (o.os) parts.push(o.os);
+  // 상세 사양은 어느 시리즈든 같은 순서(CPU → RAM → GPU → 임시 스토리지)로 적는다.
+  // 카탈로그에 없는 값(RAM 미상 M/HPC 사이즈, GPU 없는 시리즈)만 조용히 빠진다.
   if (inst) parts.push(`CPU:${inst.vCPU}core` + ((inst.ram!==undefined&&inst.ram!==null) ? ` RAM:${inst.ram}GB` : ''));
+  if (inst && inst.gpu) parts.push(`GPU:${inst.gpu}`);
+  if (inst && inst.temp !== undefined && inst.temp !== null) parts.push(`Temp:${inst.temp}GB`);
   if (o.tier && o.tier!=='Standard') parts.push(o.tier);
   if (o.os && o.os!=='Linux' && o.license) parts.push(o.license);
   if (o.swType && o.swType!=='(OS Only)') parts.push(o.swType);
