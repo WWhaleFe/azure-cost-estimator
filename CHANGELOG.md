@@ -2,6 +2,11 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v132 — 2026-10-07
+- feat: **CSV 양식에 저사양 VM 예시 행 추가** — `koreacentral, 저사양 서버(저메모리), Virtual Machine, D4ls_v5, 1, 730, … category=일반적인 용도; series=Dls-series v5`. v131 에서 넣은 저메모리 D 계열을 양식에서 바로 볼 수 있게 B-series 예시 다음에 두었다
+- 영향 파일: src/ui/csv-template.js, azure-quote-template_file.csv(양식 재생성), CHANGELOG.md
+- 검증: `npm test` **204 pass / 9 skip**, `RUN_LIVE=1` 양식 전 행 라이브 조회 통과(새 행 포함), `tsc --noEmit` 0, `vite build` 성공
+
 ## v131 — 2026-10-07
 - feat: **범용 D 계열 변형 12개 시리즈 추가** — D 계열은 4GB/vCPU 표준형만 있어 `D4ls v5`(4 vCPU · 8GB) 같은 저사양 VM 을 고를 수 없었다. koreacentral Retail Prices API 의 VM SKU 전체(1,497종)를 받아 카탈로그와 비교하고, 빠진 D 계열 중 **가격이 실제로 잡히는 것만** 넣었다. 모두 범주=일반적인 용도
   - **저메모리(2GB/vCPU) 10종** — `Dls-series v5` · `Dlds-series v5` · `Dls-series v6` · `Dlds-series v6` · `Dals-series v6 (AMD)` · `Dalds-series v6 (AMD)` · `Dls-series v7` · `Dlds-series v7` · `Dals-series v7 (AMD)` · `Dalds-series v7 (AMD)`. `d` 가 붙은 쪽은 로컬 임시 디스크 포함. Dals/Dalds **v5 는 Azure 에 없다**

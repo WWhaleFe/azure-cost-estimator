@@ -60,6 +60,7 @@ export function buildExampleRows() {
     ['koreacentral', '웹 서버(신형 v7)',       'Virtual Machine',            'D4s_v7',       '2', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=일반적인 용도; series=D-series v7'],
     ['koreacentral', 'DB 서버(메모리 v7)',     'Virtual Machine',            'E8ds_v7',      '1', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=Ed-series v7'],
     ['koreacentral', '개발 서버(B시리즈)',     'Virtual Machine',            'B2ms',         '1', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=전체; series=B-series'],
+    ['koreacentral', '저사양 서버(저메모리)',  'Virtual Machine',            'D4ls_v5',      '1', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=일반적인 용도; series=Dls-series v5'],
     ['koreacentral', 'GPU 학습(NC A100 v4)',   'Virtual Machine',            'NC24ads_A100_v4','1','730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=NC A100 v4 (GPU)'],
     ['polandcentral','GPU 추론(ND A100 v4)',   'Virtual Machine',            'ND96amsr_A100_v4','1','730', 'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)'],
     ['koreacentral', 'Elasticsearch 노드 3대',  'Virtual Machine',            'E8s_v5',       '3', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=E-series v5'],
