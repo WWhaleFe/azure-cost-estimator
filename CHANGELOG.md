@@ -2,6 +2,17 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v131 — 2026-10-07
+- feat: **범용 D 계열 변형 12개 시리즈 추가** — D 계열은 4GB/vCPU 표준형만 있어 `D4ls v5`(4 vCPU · 8GB) 같은 저사양 VM 을 고를 수 없었다. koreacentral Retail Prices API 의 VM SKU 전체(1,497종)를 받아 카탈로그와 비교하고, 빠진 D 계열 중 **가격이 실제로 잡히는 것만** 넣었다. 모두 범주=일반적인 용도
+  - **저메모리(2GB/vCPU) 10종** — `Dls-series v5` · `Dlds-series v5` · `Dls-series v6` · `Dlds-series v6` · `Dals-series v6 (AMD)` · `Dalds-series v6 (AMD)` · `Dls-series v7` · `Dlds-series v7` · `Dals-series v7 (AMD)` · `Dalds-series v7 (AMD)`. `d` 가 붙은 쪽은 로컬 임시 디스크 포함. Dals/Dalds **v5 는 Azure 에 없다**
+  - **표준(4GB/vCPU) + 로컬 디스크 2종** — `Dd-series v5`(Ddsv5) · `Dad-series v5 (AMD)`(Dadsv5), D2~D96
+  - v7 의 D248 사이즈는 기존 D-series v7 과 같은 기준으로 제외
+  - PAYG Linux 비교: `D4s_v5` US$0.236 → `D4ls_v5` US$0.192. 12종 모두 PAYG · 절약 플랜 매칭 확인. **Dls/Dlds v7 은 koreacentral 에 예약 상품이 없어** 예약 칸이 비어 나온다(조회 실패가 아니다)
+  - `Dadsv5` 는 같은 SKU 에 `Dadsv5 Series Cloud Services` 상품(Windows 단가)이 섞여 Linux 후보가 2개 잡히지만, 리졸버가 최저가를 고르므로 Linux 0.127 이 정상 선택된다
+- **테스트**: `vm-d-series-variants.test.js` 신규 15종(범주 노출, 12개 시리즈의 사이즈 목록·RAM 비율, `D4ls_v5` 상세 표기, 인스턴스→시리즈 역추적)
+- 영향 파일: src/services/vm.ts, azure-quote-template_file.csv(양식 재생성), test/vm-d-series-variants.test.js(신규), CHANGELOG.md
+- 검증: `npm test` **204 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v130 — 2026-09-28
 - feat: **NVads A10 v5 GPU 시리즈 신설** + **상세 사양 표기 통일** + **열 너비 드래그 조절**. MS 가격 계산기에는 있는데 이 도구에는 없어서 고를 수 없던 A10 계열을 채우고, 그 과정에서 "CSV 로 넣은 GPU 행만 상세 사양이 `Linux` 한 마디"인 버그를 잡았다
 - **feat `NVads A10 v5 (GPU)` 시리즈 6종** (`services/vm.ts`) — `NV6ads` · `NV12ads` · `NV18ads` · `NV36ads` · `NV36adms` · `NV72ads` `_A10_v5`. 범주=GPU 에서 고를 수 있다. koreacentral 라이브 API 로 6종 전부 `Standard_<name>` 매칭 확인(PAYG Linux `NV6ads` US$0.613 … `NV72ads` US$8.802 — MS 계산기 표시와 같은 값, 예약 1Y/3Y 도 존재)

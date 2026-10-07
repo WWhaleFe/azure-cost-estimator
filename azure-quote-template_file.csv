@@ -138,8 +138,8 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #     업로드 시 경고 없이 그 부모의 첫 번째 값으로 바뀌므로(대체) 반드시 짝을 맞추세요.
 #   · "미사용" 은 그 조합에서 무시되는 옵션 키입니다(적어도 계산에 영향 없음).
 # Virtual Machine | SKU=인스턴스(예 D4s_v5, 선택 series에 속해야 함) | Options: os=[Linux|Windows|Red Hat Enterprise Linux|SUSE]; swType=[(OS Only)|SQL Server (Enterprise)|SQL Server (Standard)|SQL Server (Web)|BizTalk Server (Enterprise)|BizTalk Server (Standard)]; tier=[Standard|Basic|Spot]; license=[라이선스 포함|Azure Hybrid Benefit]; category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅]
-#   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
-#   ↳ tier=[Standard|Spot], category=일반적인 용도 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Das-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|A-series v2]
+#   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Dd-series v5|Dad-series v5 (AMD)|Dls-series v5|Dlds-series v5|Das-series v6 (AMD)|Dls-series v6|Dlds-series v6|Dals-series v6 (AMD)|Dalds-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|Dls-series v7|Dlds-series v7|Dals-series v7 (AMD)|Dalds-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
+#   ↳ tier=[Standard|Spot], category=일반적인 용도 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Dd-series v5|Dad-series v5 (AMD)|Dls-series v5|Dlds-series v5|Das-series v6 (AMD)|Dls-series v6|Dlds-series v6|Dals-series v6 (AMD)|Dalds-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|Dls-series v7|Dlds-series v7|Dals-series v7 (AMD)|Dalds-series v7 (AMD)|A-series v2]
 #   ↳ tier=[Standard|Spot], category=컴퓨팅 최적화 → series=[F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|FX-series]
 #   ↳ tier=[Standard|Spot], category=메모리에 최적화 → series=[E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)]
 #   ↳ tier=[Standard|Spot], category=Storage에 최적화 → series=[L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)]
@@ -282,11 +282,23 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   D-series v6: D2s_v6, D4s_v6, D8s_v6, D16s_v6, D32s_v6, D48s_v6, D64s_v6, D96s_v6, D128s_v6, D192s_v6
 #   Dd-series v6: D2ds_v6, D4ds_v6, D8ds_v6, D16ds_v6, D32ds_v6, D48ds_v6, D64ds_v6, D96ds_v6, D128ds_v6, D192ds_v6
 #   Das-series v5 (AMD): D2as_v5, D4as_v5, D8as_v5, D16as_v5, D32as_v5, D48as_v5, D64as_v5, D96as_v5
+#   Dd-series v5: D2ds_v5, D4ds_v5, D8ds_v5, D16ds_v5, D32ds_v5, D48ds_v5, D64ds_v5, D96ds_v5
+#   Dad-series v5 (AMD): D2ads_v5, D4ads_v5, D8ads_v5, D16ads_v5, D32ads_v5, D48ads_v5, D64ads_v5, D96ads_v5
 #   Das-series v6 (AMD): D2as_v6, D4as_v6, D8as_v6, D16as_v6, D32as_v6, D48as_v6, D64as_v6, D96as_v6
 #   D-series v7: D2s_v7, D4s_v7, D8s_v7, D16s_v7, D32s_v7, D48s_v7, D64s_v7, D96s_v7, D128s_v7, D192s_v7
 #   Dd-series v7: D2ds_v7, D4ds_v7, D8ds_v7, D16ds_v7, D32ds_v7, D48ds_v7, D64ds_v7, D96ds_v7, D128ds_v7, D192ds_v7
 #   Das-series v7 (AMD): D2as_v7, D4as_v7, D8as_v7, D16as_v7, D32as_v7, D48as_v7, D64as_v7, D96as_v7, D128as_v7, D160as_v7
 #   Dad-series v7 (AMD): D2ads_v7, D4ads_v7, D8ads_v7, D16ads_v7, D32ads_v7, D48ads_v7, D64ads_v7, D96ads_v7, D128ads_v7, D160ads_v7
+#   Dls-series v5: D2ls_v5, D4ls_v5, D8ls_v5, D16ls_v5, D32ls_v5, D48ls_v5, D64ls_v5, D96ls_v5
+#   Dlds-series v5: D2lds_v5, D4lds_v5, D8lds_v5, D16lds_v5, D32lds_v5, D48lds_v5, D64lds_v5, D96lds_v5
+#   Dls-series v6: D2ls_v6, D4ls_v6, D8ls_v6, D16ls_v6, D32ls_v6, D48ls_v6, D64ls_v6, D96ls_v6, D128ls_v6
+#   Dlds-series v6: D2lds_v6, D4lds_v6, D8lds_v6, D16lds_v6, D32lds_v6, D48lds_v6, D64lds_v6, D96lds_v6, D128lds_v6
+#   Dals-series v6 (AMD): D2als_v6, D4als_v6, D8als_v6, D16als_v6, D32als_v6, D48als_v6, D64als_v6, D96als_v6
+#   Dalds-series v6 (AMD): D2alds_v6, D4alds_v6, D8alds_v6, D16alds_v6, D32alds_v6, D48alds_v6, D64alds_v6, D96alds_v6
+#   Dls-series v7: D2ls_v7, D4ls_v7, D8ls_v7, D16ls_v7, D32ls_v7, D48ls_v7, D64ls_v7, D96ls_v7, D128ls_v7, D192ls_v7
+#   Dlds-series v7: D2lds_v7, D4lds_v7, D8lds_v7, D16lds_v7, D32lds_v7, D48lds_v7, D64lds_v7, D96lds_v7, D128lds_v7, D192lds_v7
+#   Dals-series v7 (AMD): D2als_v7, D4als_v7, D8als_v7, D16als_v7, D32als_v7, D48als_v7, D64als_v7, D96als_v7, D128als_v7, D160als_v7
+#   Dalds-series v7 (AMD): D2alds_v7, D4alds_v7, D8alds_v7, D16alds_v7, D32alds_v7, D48alds_v7, D64alds_v7, D96alds_v7, D128alds_v7, D160alds_v7
 #   E-series v3: E2s_v3, E4s_v3, E8s_v3, E16s_v3, E20s_v3, E32s_v3, E48s_v3, E64s_v3
 #   E-series v4: E2s_v4, E4s_v4, E8s_v4, E16s_v4, E20s_v4, E32s_v4, E48s_v4, E64s_v4
 #   E-series v5: E2s_v5, E4s_v5, E8s_v5, E16s_v5, E20s_v5, E32s_v5, E48s_v5, E64s_v5, E96s_v5
