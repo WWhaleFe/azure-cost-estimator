@@ -2,6 +2,19 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v133 — 2026-10-16
+- feat: **Azure Database for PostgreSQL (Flexible Server) 카테고리 신설** (`services/postgresql.ts`). 양식에 DB는 MySQL 만 있어서, PostgreSQL 견적(D2ds_v5 서버 + SSD 128GB)은 `#` 주석으로만 남기고 결과에 손으로 더해야 했다. 총 44 → 45개 카테고리
+  - **한 행 = 한 청구 항목** — `metric=컴퓨팅 (시간)` / 저장소·IOPS 5종(Premium SSD, Premium SSD 추가 IOPS, Premium SSD v2 저장소·IOPS·처리량) / `백업 저장소 (GB/월, 무료분 초과)`. `instanceParentKey='metric'` + `rebuildKeys=['tier']` 로 청구 항목·계층에 따라 필드가 바뀐다
+  - **컴퓨팅**: Burstable 은 **skuName 대소문자 무시 일치**로 찾는다(API 의 meterName 이 `B1MS` / `B2ms vCore` 처럼 들쭉날쭉하다). GP·MO 는 per-vCore 단가 × vCore 수. 세대마다 per-vCore 행의 skuName 이 `vCore` 또는 `1 vCore` 라 둘 다 받고, 절약 플랜이 붙는 `vCore` 를 우선한다
+  - **예약은 MySQL 과 다르게 세대별 제품 자체에 있다**(`… General Purpose Ddsv5 Series Compute`, skuName=`vCore`). 그래서 같은 productName 으로 Reservation 을 다시 조회한다. Dadsv6·Eadsv6 처럼 예약 상품이 없는 세대는 빈칸
+  - **HA** (`ha=영역 중복 HA / 동일 영역 HA`): 컴퓨팅·저장소·IOPS 단가와 절약·예약 금액을 ×2 로 잡는다. 백업 저장소는 ×1. Burstable 은 HA 를 지원하지 않아 필드를 숨긴다
+  - 범위 외(매칭 실패 정상): Single Server(레거시), Confidential Compute, Mdsv2, Extended Support, Ultra Disk, 지역 중복 백업
+- CSV 양식 예시 5행 추가(GP 2vCore, MO 4vCore HA, Burstable B2ms, 저장소 128GB, 백업 초과 100GB) + 조건부 옵션·사용량 단위 안내. `azure-quote-template_file.csv` 재생성. README·`docs/service-status.csv`(40번, 45개 기준) 갱신
+- **테스트**: `postgresql-resolve.test.js` 신규 11종(녹화 픽스처 `postgresql-koreacentral.json`, USD). per-vCore 배수, 절약·예약, HA 배수(용량제·절약·예약 모두), Burstable 대소문자 정규화·예약 없음, `1 vCore` 세대(Dadsv6), 없는 세대는 매칭 실패, 저장소·IOPS 미터 구분, 백업은 HA 미적용, 필드 전환
+- 검증(라이브 API · KRW · koreacentral): GP Ddsv5 per-vCore `167.8643/h` × 2 = `335.7285/h` → 730시간 **245,082원**, Premium SSD `178.78225/GB·월` × 128 = **22,884원**. `RUN_LIVE=1` 양식 129행 전부 조회 성공(새 PostgreSQL 5행 포함)
+- 영향 파일: src/services/postgresql.ts(신규), src/services/all.js, src/ui/service-order.js, src/ui/csv-template.js, azure-quote-template_file.csv, test/postgresql-resolve.test.js(신규), test/fixtures/postgresql-koreacentral.json(신규), README.md, docs/service-status.csv, CHANGELOG.md
+- 검증: `npm test` **215 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v132 — 2026-10-07
 - feat: **CSV 양식에 저사양 VM 예시 행 추가** — `koreacentral, 저사양 서버(저메모리), Virtual Machine, D4ls_v5, 1, 730, … category=일반적인 용도; series=Dls-series v5`. v131 에서 넣은 저메모리 D 계열을 양식에서 바로 볼 수 있게 B-series 예시 다음에 두었다
 - 영향 파일: src/ui/csv-template.js, azure-quote-template_file.csv(양식 재생성), CHANGELOG.md

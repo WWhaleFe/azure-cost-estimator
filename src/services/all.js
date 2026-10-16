@@ -19,6 +19,7 @@ import './sql-database.js';
 import './sql-managed-instance.js';
 import './sql-elastic-pool.js';
 import './mysql.js';
+import './postgresql.js';
 import './app-service.js';
 import './bastion.js';
 import './azure-files.js';

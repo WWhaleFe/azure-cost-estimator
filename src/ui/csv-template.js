@@ -128,6 +128,11 @@ export function buildExampleRows() {
     ['koreacentral', 'MySQL(개발 B1MS)',      'Azure Database for MySQL',   '',             '1', '730',  'tier=Burstable; instance=B1MS'],
     ['koreacentral', 'MySQL(GP 2vCore)',     'Azure Database for MySQL',   '',             '1', '730',  'tier=General Purpose; series=Ddsv5; vCores=2'],
     ['koreacentral', 'MySQL(BC 2vCore)',     'Azure Database for MySQL',   '',             '1', '730',  'tier=Business Critical; series=Edsv5; vCores=2'],
+    ['koreacentral', 'PostgreSQL(GP 2vCore)', 'Azure Database for PostgreSQL', '',         '1', '730',  'metric=컴퓨팅 (시간); tier=General Purpose; series=Ddsv5; vCores=2; ha=미적용'],
+    ['koreacentral', 'PostgreSQL(MO 4vCore HA)','Azure Database for PostgreSQL', '',       '1', '730',  'metric=컴퓨팅 (시간); tier=Memory Optimized; series=Edsv5; vCores=4; ha=영역 중복 HA'],
+    ['koreacentral', 'PostgreSQL(개발 B2ms)',  'Azure Database for PostgreSQL', '',         '1', '730',  'metric=컴퓨팅 (시간); tier=Burstable; instance=B2ms'],
+    ['koreacentral', 'PostgreSQL 저장소 128GB','Azure Database for PostgreSQL', '',         '1', '128',  'metric=저장소 - Premium SSD (GB/월); ha=미적용'],
+    ['koreacentral', 'PostgreSQL 백업 초과 100GB','Azure Database for PostgreSQL', '',      '1', '100',  'metric=백업 저장소 (GB/월, 무료분 초과)'],
     ['koreacentral', 'Cosmos DB(수동 400RU)', 'Azure Cosmos DB',            '',             '1', '730',  'model=Provisioned (수동, RU/s); rus=400'],
     ['koreacentral', 'Cosmos DB(Autoscale 1000RU)','Azure Cosmos DB',       '',             '1', '730',  'model=Autoscale (RU/s); rus=1000'],
     ['koreacentral', 'Cosmos DB(저장소 100GB)','Azure Cosmos DB',            '',             '1', '100',  'model=저장소 (Data Stored, GB)'],
@@ -396,6 +401,7 @@ export function buildOptionGuide() {
   // 조건부 옵션이 있는 서비스 안내
   lines.push('# [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용');
   lines.push('#   · Microsoft Fabric: metric=용량 (CU 시간) → capacity만 / metric=OneLake 저장소 (GB/월) → storageItem 만 사용');
+  lines.push('#   · Azure Database for PostgreSQL: metric=컴퓨팅 (시간) → tier + (Burstable=instance / 그 외=series+vCores+ha) / 저장소·IOPS → ha 만 / 백업 저장소 → 옵션 없음');
   lines.push('# [사용량 단위] 저장·전송 항목(Azure Files/Blob/Backup 저장소/Bandwidth/Bastion 데이터 전송)은 Hours 칸에 사용량(GB 등)을 입력');
   lines.push('# [사용량 단위 2] Cosmos DB Serverless=백만 RU, 저장소=GB / API Management Consumption=만 콜 / ACR 레지스트리=일수, 저장소=GB / Azure DNS 영역=1(Qty=영역 수), 쿼리=백만 / Azure DevOps=1(Qty=사용자·작업 수) / Azure OpenAI=백만 토큰 / Private Link 데이터=GB');
   lines.push('# [사용량 단위 3] Event Hubs·Service Bus·Container Apps·Front Door 는 청구 항목(item)의 단위를 그대로 Hours 에 입력');
@@ -403,6 +409,8 @@ export function buildOptionGuide() {
   lines.push('# [사용량 단위 4] Microsoft Fabric 용량=월 사용시간(24×7 이면 730, F SKU 의 CU 수를 자동으로 곱함), OneLake 저장소=GB');
   lines.push('#   · Azure Monitor — 메트릭=샘플 수÷단위(10M 또는 1K) / 경고=1(Qty=규칙 수) / 로그=GB / 약정 계층=일수(예 30) / 웹 테스트=월 실행 횟수');
   lines.push('#   · Azure Key Vault — 작업(10K)=만 건 수 / 키·갱신=1(Qty=키·건수) / Managed HSM=월 사용시간(730)');
+  lines.push('#   · Azure Database for PostgreSQL — 컴퓨팅=월 사용시간(730) / 저장소=GB(GiB) / IOPS·처리량=프로비저닝 값 / 백업=무료분(프로비저닝 저장소 크기)을 넘는 GB');
+  lines.push('#     HA(영역 중복·동일 영역)는 대기 서버 몫까지 컴퓨팅·저장소 단가를 2배로 잡습니다. 논리 DB 여러 개는 같은 서버 안이면 추가 요금이 없습니다');
   lines.push('#   · GitHub — 사용자·커미터=1(Qty=인원 수) / Actions 실행=분 / 저장소·전송=GB(GiB) / Codespaces=시간');
   lines.push('#   · Azure Machine Learning — Qty=vCPU·GPU 수, Hours=월 사용시간. 컴퓨팅 자체 요금은 Virtual Machine 행으로 따로 적으세요');
   lines.push('#     (워크스페이스는 무료, 추가 요금은 리전·SKU 에 따라 0원인 경우가 많습니다 — 0원 조회는 오류가 아닙니다)');

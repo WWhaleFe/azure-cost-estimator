@@ -1,0 +1,859 @@
+{
+  "consumption": [
+    {
+      "skuName": "IOPS Scaling",
+      "meterName": "IOPS Scaling Provisioned IOPS",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1/Month",
+      "unitPrice": 0.057,
+      "retailPrice": 0.057,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "IOPS Scaling"
+    },
+    {
+      "skuName": "Premium SSD v2 IOPS",
+      "meterName": "Premium SSD v2 IOPS Provisioned IOPS",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1/Month",
+      "unitPrice": 0.027,
+      "retailPrice": 0.027,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "V2 IOPS"
+    },
+    {
+      "skuName": "Premium SSD v2 Storage",
+      "meterName": "Premium SSD v2 Storage Data Stored",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1 GiB/Month",
+      "unitPrice": 0.131,
+      "retailPrice": 0.131,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Premium Managed Disk"
+    },
+    {
+      "skuName": "Premium SSDv2 Throughput",
+      "meterName": "Premium SSDv2 Throughput Prov Throughput (MBps)",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1/Month",
+      "unitPrice": 0.108,
+      "retailPrice": 0.108,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "V2 throughput"
+    },
+    {
+      "skuName": "Storage",
+      "meterName": "Storage Data Stored",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1 GB/Month",
+      "unitPrice": 0.131,
+      "retailPrice": 0.131,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Storage"
+    },
+    {
+      "skuName": "Ultra Disk IOPS",
+      "meterName": "Ultra Disk IOPS Provisioned IOPS",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1/Month",
+      "unitPrice": 0.1215,
+      "retailPrice": 0.1215,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Ultra Disk IOPS"
+    },
+    {
+      "skuName": "Ultra Disk Storage",
+      "meterName": "Ultra Disk Storage Data Stored",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1 GB/Month",
+      "unitPrice": 0.18225,
+      "retailPrice": 0.18225,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Ultra Disk Storage"
+    },
+    {
+      "skuName": "Ultra Disk Throughput",
+      "meterName": "Ultra Disk Throughput Prov Throughput (MBps)",
+      "productName": "Azure Database for PostgreSQL Flex Server Storage",
+      "unitOfMeasure": "1/Month",
+      "unitPrice": 0.81,
+      "retailPrice": 0.81,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Ultra Disk Throughput"
+    },
+    {
+      "skuName": "Backup Storage LRS",
+      "meterName": "Backup Storage LRS Data Stored",
+      "productName": "Azure Database for PostgreSQL Flexible Server Backup Storage",
+      "unitOfMeasure": "1 GB/Month",
+      "unitPrice": 0.095,
+      "retailPrice": 0.095,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Backup Storage"
+    },
+    {
+      "skuName": "B12ms",
+      "meterName": "B12ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1.248,
+      "retailPrice": 1.248,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B12ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.9984,
+          "retailPrice": 0.9984,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B16ms",
+      "meterName": "B16ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1.664,
+      "retailPrice": 1.664,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B16ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 1.3312,
+          "retailPrice": 1.3312,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B1MS",
+      "meterName": "B1MS",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.026,
+      "retailPrice": 0.026,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "B1MS",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.0208,
+          "retailPrice": 0.0208,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B20ms",
+      "meterName": "B20ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 2.08,
+      "retailPrice": 2.08,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B20ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 1.664,
+          "retailPrice": 1.664,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B2S",
+      "meterName": "B2S",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.104,
+      "retailPrice": 0.104,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "B2S",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.0832,
+          "retailPrice": 0.0832,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B2ms",
+      "meterName": "B2ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.208,
+      "retailPrice": 0.208,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B2ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.1664,
+          "retailPrice": 0.1664,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B4ms",
+      "meterName": "B4ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.416,
+      "retailPrice": 0.416,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B4ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.3328,
+          "retailPrice": 0.3328,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "B8ms",
+      "meterName": "B8ms vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.832,
+      "retailPrice": 0.832,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_B8ms",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.6656,
+          "retailPrice": 0.6656,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "Basic",
+      "meterName": "Basic",
+      "productName": "Azure Database for PostgreSQL Flexible Server Burstable BS Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.026,
+      "retailPrice": 0.026,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Basic",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.0208,
+          "retailPrice": 0.0208,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "1 vCore",
+      "meterName": "1 vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Dadsv6 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.1548,
+      "retailPrice": 0.1548,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_General_Purpose_Dadsv6_Series_Compute",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.12384,
+          "retailPrice": 0.12384,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.12384,
+          "retailPrice": 0.12384,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "1 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.123,
+      "retailPrice": 0.123,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "1 vCore",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.0984,
+          "retailPrice": 0.0984,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "16 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1.968,
+      "retailPrice": 1.968,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D16ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 1.5744,
+          "retailPrice": 1.5744,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "2 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.246,
+      "retailPrice": 0.246,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D2ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.1968,
+          "retailPrice": 0.1968,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "32 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 3.936,
+      "retailPrice": 3.936,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D32ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 3.1488,
+          "retailPrice": 3.1488,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "4 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.492,
+      "retailPrice": 0.492,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D4ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.3936,
+          "retailPrice": 0.3936,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "48 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 5.904,
+      "retailPrice": 5.904,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D48ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 4.7232,
+          "retailPrice": 4.7232,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "64 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 7.872,
+      "retailPrice": 7.872,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D64ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 6.2976,
+          "retailPrice": 6.2976,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "8 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.984,
+      "retailPrice": 0.984,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D8ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.7872,
+          "retailPrice": 0.7872,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "96 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 11.808,
+      "retailPrice": 11.808,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_D96ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 9.4464,
+          "retailPrice": 9.4464,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.123,
+      "retailPrice": 0.123,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_General_Purpose_Ddsv5Series_Compute_vCore",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.0984,
+          "retailPrice": 0.0984,
+          "term": "1 Year"
+        }
+      ]
+    },
+    {
+      "skuName": "1 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.15,
+      "retailPrice": 0.15,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "1 vCore",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.12,
+          "retailPrice": 0.12,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.12,
+          "retailPrice": 0.12,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "16 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 2.4,
+      "retailPrice": 2.4,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E16ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 1.92,
+          "retailPrice": 1.92,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 1.92,
+          "retailPrice": 1.92,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "2 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.3,
+      "retailPrice": 0.3,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E2ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.24,
+          "retailPrice": 0.24,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.24,
+          "retailPrice": 0.24,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "20 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 3.0,
+      "retailPrice": 3.0,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E20ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 2.4,
+          "retailPrice": 2.4,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 2.4,
+          "retailPrice": 2.4,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "32 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 4.8,
+      "retailPrice": 4.8,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E32ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 3.84,
+          "retailPrice": 3.84,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 3.84,
+          "retailPrice": 3.84,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "4 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.6,
+      "retailPrice": 0.6,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E4ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.48,
+          "retailPrice": 0.48,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.48,
+          "retailPrice": 0.48,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "48 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 7.2,
+      "retailPrice": 7.2,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E48ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 5.76,
+          "retailPrice": 5.76,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 5.76,
+          "retailPrice": 5.76,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "64 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 9.6,
+      "retailPrice": 9.6,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E64ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 7.68,
+          "retailPrice": 7.68,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 7.68,
+          "retailPrice": 7.68,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "8 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1.2,
+      "retailPrice": 1.2,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E8ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.96,
+          "retailPrice": 0.96,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.96,
+          "retailPrice": 0.96,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "96 vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 14.4,
+      "retailPrice": 14.4,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "Standard_E96ds_v5",
+      "savingsPlan": [
+        {
+          "unitPrice": 11.52,
+          "retailPrice": 11.52,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 11.52,
+          "retailPrice": 11.52,
+          "term": "3 Years"
+        }
+      ]
+    },
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 0.15,
+      "retailPrice": 0.15,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Consumption",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_Memory_Optimized_Edsv5Series_Compute_vCore",
+      "savingsPlan": [
+        {
+          "unitPrice": 0.12,
+          "retailPrice": 0.12,
+          "term": "1 Year"
+        },
+        {
+          "unitPrice": 0.12,
+          "retailPrice": 0.12,
+          "term": "3 Years"
+        }
+      ]
+    }
+  ],
+  "reservation": [
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 646.0,
+      "retailPrice": 646.0,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Reservation",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_General_Purpose_Ddsv5Series_Compute_vCore",
+      "reservationTerm": "1 Year"
+    },
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server General Purpose Ddsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1291.0,
+      "retailPrice": 1291.0,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Reservation",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_General_Purpose_Ddsv5Series_Compute_vCore",
+      "reservationTerm": "3 Years"
+    },
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 788.0,
+      "retailPrice": 788.0,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Reservation",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_Memory_Optimized_Edsv5Series_Compute_vCore",
+      "reservationTerm": "1 Year"
+    },
+    {
+      "skuName": "vCore",
+      "meterName": "vCore",
+      "productName": "Azure Database for PostgreSQL Flexible Server Memory Optimized Edsv5 Series Compute",
+      "unitOfMeasure": "1 Hour",
+      "unitPrice": 1577.0,
+      "retailPrice": 1577.0,
+      "tierMinimumUnits": 0.0,
+      "armRegionName": "koreacentral",
+      "type": "Reservation",
+      "currencyCode": "USD",
+      "armSkuName": "AzureDB_PostgreSQL_Flexible_Server_Memory_Optimized_Edsv5Series_Compute_vCore",
+      "reservationTerm": "3 Years"
+    }
+  ]
+}

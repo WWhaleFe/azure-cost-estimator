@@ -212,6 +212,20 @@ Description 문장을 서비스별로 확정하려면 MS 계산기에서 해당 
 - **Azure Monitor 와 `Log Analytics` 는 다른 카테고리**입니다. 작업 영역의 분석 로그 수집·보존·분석은 `Log Analytics`, 그 위에 붙는 기본/보조 로그·플랫폼 로그·보관·복원·검색·약정 계층은 `Azure Monitor` 입니다.
 - **Elastic Cloud(Elasticsearch)는 지원하지 않습니다.** Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다. 직접 VM 위에 올린다면 `Virtual Machine` + `Disk` 행으로, 관리형이라면 Elastic 쪽 견적을 그대로 옮겨 적으세요. 양식에 "Elasticsearch 노드 3대"(VM `E8s_v5` ×3) + "Elasticsearch 데이터 디스크"(Disk `P20`) 예시 행이 있습니다.
 
+#### Azure Database for PostgreSQL (v133 추가)
+
+Flexible Server 기준입니다. **한 행에 청구 항목 하나**를 적습니다. 서버 한 대를 견적하려면 보통 컴퓨팅 행과 저장소 행, 이렇게 2행이 됩니다.
+
+| 청구 항목 (`metric`) | 함께 쓰는 옵션 | Qty / Hours 넣는 법 |
+| --- | --- | --- |
+| `컴퓨팅 (시간)` | `tier=Burstable` + `instance=B1MS…B20ms` / `tier=General Purpose·Memory Optimized` + `series=Ddsv5…` + `vCores=2…96` + `ha` | Qty=서버 수, Hours=월 사용시간(730) |
+| `저장소 - Premium SSD (GB/월)` 등 저장소·IOPS 5종 | `ha` | Hours=GB(GiB) 또는 프로비저닝 IOPS·MBps |
+| `백업 저장소 (GB/월, 무료분 초과)` | 없음 | Hours=**무료분을 넘는 GB**. 프로비저닝 저장소 크기까지는 무료라, 그 안이면 행이 필요 없습니다 |
+
+- **고가용성(`ha=영역 중복 HA / 동일 영역 HA`)** 을 고르면 대기 서버 몫까지 더해 컴퓨팅·저장소 단가가 **2배**가 됩니다(백업 제외). Burstable 은 HA 를 지원하지 않습니다.
+- 같은 서버 안의 **논리 DB 여러 개는 추가 요금이 없습니다.** 행을 따로 만들지 마세요.
+- 예약(1·3년)은 세대별 제품에 있습니다. Dadsv6·Eadsv6 같은 신세대는 예약 상품이 없어 **예약 칸이 비는 게 정상**입니다.
+
 #### Azure OpenAI 배포 유형 (v128)
 
 같은 모델·같은 토큰 종류라도 **배포 유형에 따라 미터와 단가가 다릅니다.** 지정하지 않으면 최대 2배까지 어긋나므로 `deploymentType` 을 반드시 함께 적으세요.
