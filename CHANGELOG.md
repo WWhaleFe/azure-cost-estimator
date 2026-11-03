@@ -2,6 +2,18 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v134 — 2026-11-03
+- feat: **Azure Virtual Desktop 카테고리 신설** (`services/avd.ts`). AVD 견적에서 외부 고객 사용자당 접속 요금은 양식에 넣을 수 없어 결과에 손으로 더해야 했다. 총 45 → 46개 카테고리
+  - `metric` 4종 — 사용자 접속 데스크톱+앱(USD 10) / 앱 전용(USD 5.5) / 앱→데스크톱 업그레이드(USD 4.5) (사용자/월), Azure Local 서비스 요금(USD 0.01/vCPU·시간)
+  - Retail API 는 구 명칭 `serviceName='Windows Virtual Desktop'`, `productName='Azure Virtual Desktop'`. 같은 skuName 에 단가가 같은 미터가 2개씩(`… User` / `… Users`) 있어 단가 → meterName 순으로 하나만 고른다
+- feat: **Virtual Machine `os=Windows 10/11 (AVD)`** — AVD 세션 호스트(Windows 10/11 단일·멀티 세션)는 Linux 컴퓨팅 요율로 과금된다(MS 가격 공시). 이 OS 를 고르면 Linux 미터로 조회하고 라이선스 가산·표기를 하지 않는다. 상태줄에 `AVD 세션 호스트(Linux 요율)` 표시. Windows Server 세션 호스트는 기존 `os=Windows`
+- CSV 양식에 AVD 한 세트 예시 7행(세션 호스트 D8s_v5 ×3, OS 디스크 P10 ×3, FSLogix Files v2 1TiB, 송신 200GB, 외부 사용자 데스크톱 50명·앱 30명, Azure Local 64 vCPU) + `[Azure Virtual Desktop]` 작성 안내(내부/외부 사용자 구분, MS 세션 호스트 크기 가이드) 추가. `azure-quote-template_file.csv` 재생성
+- fix: MS 계산기 내보내기 분류표(`MS_TAXONOMY`)에 빠져 있던 `Azure Database for PostgreSQL`(v133) 추가, `Azure Virtual Desktop` 추가
+- **테스트**: `avd-resolve.test.js` 신규 9종(녹화 픽스처 `avd-koreacentral.json`, USD). 사용자 요금 3종·Azure Local 단가, 중복 미터 결정론, metric 정규화, VM AVD OS = Linux 단가(용량제·절약·예약) < Windows, 상세에 라이선스 미표기
+- 검증(라이브 API · KRW · koreacentral): D8s_v5 AVD(Linux 요율) `631.3708/h` × 730 × 3대 = **1,382,702원** (os=Windows 였다면 `1,123.626/h` → 2,460,741원), 데스크톱+앱 사용자 `13,376.5원/월`. `RUN_LIVE=1` 양식 136행 전부 조회 성공
+- 영향 파일: src/services/avd.ts(신규), src/services/vm.ts, src/services/all.js, src/ui/service-order.js, src/ui/csv-template.js, src/ui/ms-estimate.js, azure-quote-template_file.csv, test/avd-resolve.test.js(신규), test/fixtures/avd-koreacentral.json(신규), README.md, docs/service-status.csv, CHANGELOG.md
+- 검증: `npm test` **224 pass / 9 skip**, `tsc --noEmit` 0, `vite build` 성공
+
 ## v133 — 2026-10-16
 - feat: **Azure Database for PostgreSQL (Flexible Server) 카테고리 신설** (`services/postgresql.ts`). 양식에 DB는 MySQL 만 있어서, PostgreSQL 견적(D2ds_v5 서버 + SSD 128GB)은 `#` 주석으로만 남기고 결과에 손으로 더해야 했다. 총 44 → 45개 카테고리
   - **한 행 = 한 청구 항목** — `metric=컴퓨팅 (시간)` / 저장소·IOPS 5종(Premium SSD, Premium SSD 추가 IOPS, Premium SSD v2 저장소·IOPS·처리량) / `백업 저장소 (GB/월, 무료분 초과)`. `instanceParentKey='metric'` + `rebuildKeys=['tier']` 로 청구 항목·계층에 따라 필드가 바뀐다

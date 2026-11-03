@@ -1,0 +1,106 @@
+{
+ "_meta": {
+  "note": "Windows Virtual Desktop koreacentral USD (Retail Prices API, 2026-11-03)",
+  "recorded": "fixture"
+ },
+ "consumption": [
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 10.0,
+   "unitPrice": 10.0,
+   "armRegionName": "koreacentral",
+   "meterName": "Desktop & App Hosting User",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "Desktop & App Hosting",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 0.01,
+   "unitPrice": 0.01,
+   "armRegionName": "koreacentral",
+   "meterName": "AVD for Azure Stack HCI Service Fee/vCPU",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "AVD for Azure Stack HCI",
+   "armSkuName": "AVD for Azure Stack HCI",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Hour",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 10.0,
+   "unitPrice": 10.0,
+   "armRegionName": "koreacentral",
+   "meterName": "Desktop & App Hosting Desktop and App Users",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "Desktop & App Hosting",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 4.5,
+   "unitPrice": 4.5,
+   "armRegionName": "koreacentral",
+   "meterName": "App to Desktop Upgrade Upgrade Users",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "App to Desktop Upgrade",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 5.5,
+   "unitPrice": 5.5,
+   "armRegionName": "koreacentral",
+   "meterName": "App Hosting User",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "App Hosting",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 4.5,
+   "unitPrice": 4.5,
+   "armRegionName": "koreacentral",
+   "meterName": "App to Desktop Upgrade User",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "App to Desktop Upgrade",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  },
+  {
+   "currencyCode": "USD",
+   "tierMinimumUnits": 0.0,
+   "retailPrice": 5.5,
+   "unitPrice": 5.5,
+   "armRegionName": "koreacentral",
+   "meterName": "App Hosting App Users",
+   "productName": "Azure Virtual Desktop",
+   "skuName": "App Hosting",
+   "armSkuName": "",
+   "serviceName": "Windows Virtual Desktop",
+   "unitOfMeasure": "1/Month",
+   "type": "Consumption"
+  }
+ ]
+}

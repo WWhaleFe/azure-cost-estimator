@@ -65,6 +65,14 @@ export function buildExampleRows() {
     ['polandcentral','GPU 추론(ND A100 v4)',   'Virtual Machine',            'ND96amsr_A100_v4','1','730', 'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)'],
     ['koreacentral', 'Elasticsearch 노드 3대',  'Virtual Machine',            'E8s_v5',       '3', '730',  'os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=E-series v5'],
     ['koreacentral', 'Elasticsearch 데이터 디스크','Disk',                     'P20',          '3', '730',  'diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0'],
+    // AVD 한 세트(v134): 세션 호스트 VM(os=Windows 10/11 (AVD) → Linux 요율) + OS 디스크 + FSLogix 프로필 + 송신 + 외부 사용자 접속 요금
+    ['koreacentral', 'AVD 세션 호스트(멀티세션)', 'Virtual Machine',          'D8s_v5',       '3', '730',  'os=Windows 10/11 (AVD); swType=(OS Only); tier=Standard; license=라이선스 포함; category=일반적인 용도; series=D-series v5'],
+    ['koreacentral', 'AVD 세션 호스트 OS 디스크', 'Disk',                      'P10',          '3', '730',  'diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0'],
+    ['koreacentral', 'AVD FSLogix 프로필(1TiB)', 'Azure Files Provisioned v2', '',            '1', '730',  'media=SSD; redundancy=LRS; storageGiB=1024; iops=3000; throughput=125'],
+    ['koreacentral', 'AVD 인터넷 송신 200GB',    'Bandwidth',                  '',             '1', '200',  'direction=Outbound (Internet Egress)'],
+    ['koreacentral', 'AVD 외부 사용자 50명(데스크톱)', 'Azure Virtual Desktop', '',            '50', '1',   'metric=사용자 접속 - 데스크톱+앱 (사용자/월)'],
+    ['koreacentral', 'AVD 외부 사용자 30명(앱 전용)', 'Azure Virtual Desktop', '',             '30', '1',   'metric=사용자 접속 - 앱 전용 (사용자/월)'],
+    ['koreacentral', 'AVD Azure Local 64vCPU',   'Azure Virtual Desktop',      '',             '64', '730', 'metric=Azure Local 서비스 요금 (vCPU/시간)'],
     ['koreacentral', 'AKS 클러스터(SLA)',     'Azure Kubernetes Service',   '',             '1', '730',  'aksTier=Standard (표준); slaOption=SLA'],
     ['koreacentral', 'AKS 클러스터(LTS)',     'Azure Kubernetes Service',   '',             '1', '730',  'aksTier=Standard (표준); slaOption=SLA and Long Term Support'],
     ['koreacentral', '컨테이너 앱(vCPU 활성)',  'Container Apps',             '',             '1', '2628000', 'plan=Standard; item=Standard vCPU Active Usage'],
@@ -398,6 +406,16 @@ export function buildOptionGuide() {
     lines.push('#   추가 옵션 — 표준 HDD/SSD: transactionUnits=숫자(만 단위) / 프리미엄 SSD: burstingEnabled=[비활성 (기본)|활성화 (P30 이상)] / 프로비저닝형: diskSizeGiB, provisionedIOPS, provisionedMBps');
   }
 
+  // Azure Virtual Desktop — 세션 호스트는 VM 요금, 접속 권한은 라이선스 또는 사용자당 요금(v134)
+  lines.push('# [Azure Virtual Desktop] AVD 견적은 아래 행을 조합합니다(양식 위쪽 "AVD …" 예시 7행 참고).');
+  lines.push('#   · 세션 호스트 = Virtual Machine 행. Windows 10/11(단일·멀티 세션)은 os=Windows 10/11 (AVD) — MS 공시대로 Linux 요율로 계산됩니다');
+  lines.push('#     (os=Windows 로 적으면 Windows 라이선스 요율이 붙어 과다 견적). Windows Server 세션 호스트는 os=Windows');
+  lines.push('#   · OS 디스크=Disk / FSLogix 프로필=Azure Files Provisioned v2(또는 Azure Files Premium) / 송신 트래픽=Bandwidth / AVD Insights 로그=Log Analytics');
+  lines.push('#   · 사용자 접속 권한: 내부 사용자는 M365 E3/E5/F3·Windows E3/E5 등 라이선스에 포함 → 행 불필요');
+  lines.push('#     외부 고객에게 제공할 때만 Azure Virtual Desktop 행(metric=사용자 접속 …)을 넣고 Qty=월 접속 사용자 수, Hours=1');
+  lines.push('#   · Azure Local(구 Azure Stack HCI) 위 세션 호스트는 metric=Azure Local 서비스 요금 (vCPU/시간), Qty=vCPU 수, Hours=730');
+  lines.push('#   · 세션 호스트 대수(MS 크기 조정 가이드, 멀티세션 vCPU당 최대 사용자): Light 6 / Medium 4 / Heavy 2 / Power 1명, VM 은 8 vCPU 이상 권장(예 D8s_v5)');
+  lines.push('#     예) Medium 사용자 동시 접속 96명 ÷ (D8s_v5 8 vCPU × 4명) = 3대 → 위 "AVD 세션 호스트(멀티세션)" 행 Qty=3. 업무 시간만 켜면 Hours 를 줄이세요(예 22일×10시간=220)');
   // 조건부 옵션이 있는 서비스 안내
   lines.push('# [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용');
   lines.push('#   · Microsoft Fabric: metric=용량 (CU 시간) → capacity만 / metric=OneLake 저장소 (GB/월) → storageItem 만 사용');

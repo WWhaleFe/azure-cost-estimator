@@ -9,6 +9,13 @@ koreacentral,GPU 학습(NC A100 v4),Virtual Machine,NC24ads_A100_v4,1,730,os=Lin
 polandcentral,GPU 추론(ND A100 v4),Virtual Machine,ND96amsr_A100_v4,1,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=GPU; series=ND A100 v4 (GPU)
 koreacentral,Elasticsearch 노드 3대,Virtual Machine,E8s_v5,3,730,os=Linux; swType=(OS Only); tier=Standard; license=라이선스 포함; category=메모리에 최적화; series=E-series v5
 koreacentral,Elasticsearch 데이터 디스크,Disk,P20,3,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,AVD 세션 호스트(멀티세션),Virtual Machine,D8s_v5,3,730,os=Windows 10/11 (AVD); swType=(OS Only); tier=Standard; license=라이선스 포함; category=일반적인 용도; series=D-series v5
+koreacentral,AVD 세션 호스트 OS 디스크,Disk,P10,3,730,diskSubType=프리미엄 SSD; redundancy=LRS; snapshotGB=0
+koreacentral,AVD FSLogix 프로필(1TiB),Azure Files Provisioned v2,,1,730,media=SSD; redundancy=LRS; storageGiB=1024; iops=3000; throughput=125
+koreacentral,AVD 인터넷 송신 200GB,Bandwidth,,1,200,direction=Outbound (Internet Egress)
+koreacentral,AVD 외부 사용자 50명(데스크톱),Azure Virtual Desktop,,50,1,metric=사용자 접속 - 데스크톱+앱 (사용자/월)
+koreacentral,AVD 외부 사용자 30명(앱 전용),Azure Virtual Desktop,,30,1,metric=사용자 접속 - 앱 전용 (사용자/월)
+koreacentral,AVD Azure Local 64vCPU,Azure Virtual Desktop,,64,730,metric=Azure Local 서비스 요금 (vCPU/시간)
 koreacentral,AKS 클러스터(SLA),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA
 koreacentral,AKS 클러스터(LTS),Azure Kubernetes Service,,1,730,aksTier=Standard (표준); slaOption=SLA and Long Term Support
 koreacentral,컨테이너 앱(vCPU 활성),Container Apps,,1,2628000,plan=Standard; item=Standard vCPU Active Usage
@@ -143,7 +150,7 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   · "↳" 줄은 부모 옵션에 따라 달라지는 하위 값입니다. 부모와 짝이 맞지 않는 값을 적으면
 #     업로드 시 경고 없이 그 부모의 첫 번째 값으로 바뀌므로(대체) 반드시 짝을 맞추세요.
 #   · "미사용" 은 그 조합에서 무시되는 옵션 키입니다(적어도 계산에 영향 없음).
-# Virtual Machine | SKU=인스턴스(예 D4s_v5, 선택 series에 속해야 함) | Options: os=[Linux|Windows|Red Hat Enterprise Linux|SUSE]; swType=[(OS Only)|SQL Server (Enterprise)|SQL Server (Standard)|SQL Server (Web)|BizTalk Server (Enterprise)|BizTalk Server (Standard)]; tier=[Standard|Basic|Spot]; license=[라이선스 포함|Azure Hybrid Benefit]; category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅]
+# Virtual Machine | SKU=인스턴스(예 D4s_v5, 선택 series에 속해야 함) | Options: os=[Linux|Windows|Red Hat Enterprise Linux|SUSE|Windows 10/11 (AVD)]; swType=[(OS Only)|SQL Server (Enterprise)|SQL Server (Standard)|SQL Server (Web)|BizTalk Server (Enterprise)|BizTalk Server (Standard)]; tier=[Standard|Basic|Spot]; license=[라이선스 포함|Azure Hybrid Benefit]; category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅]
 #   ↳ tier=[Standard|Spot], category=전체 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Dd-series v5|Dad-series v5 (AMD)|Dls-series v5|Dlds-series v5|Das-series v6 (AMD)|Dls-series v6|Dlds-series v6|Dals-series v6 (AMD)|Dalds-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|Dls-series v7|Dlds-series v7|Dals-series v7 (AMD)|Dalds-series v7 (AMD)|E-series v3|E-series v4|E-series v5|E-series v6|Ed-series v6|Eas-series v5 (AMD)|Eas-series v6 (AMD)|Ead-series v6 (AMD)|E-series v7|Ed-series v7|Eas-series v7 (AMD)|Ead-series v7 (AMD)|F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|L-series v3|Las-series v3 (AMD)|L-series v4|Las-series v4 (AMD)|M-series|Ms-series v3 (Medium Memory)|Mds-series v3 (Medium Memory)|N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)|A-series v2|FX-series|HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
 #   ↳ tier=[Standard|Spot], category=일반적인 용도 → series=[B-series|Bs-series v2|Bas-series v2 (AMD)|D-series v3|D-series v4|D-series v5|D-series v6|Dd-series v6|Das-series v5 (AMD)|Dd-series v5|Dad-series v5 (AMD)|Dls-series v5|Dlds-series v5|Das-series v6 (AMD)|Dls-series v6|Dlds-series v6|Dals-series v6 (AMD)|Dalds-series v6 (AMD)|D-series v7|Dd-series v7|Das-series v7 (AMD)|Dad-series v7 (AMD)|Dls-series v7|Dlds-series v7|Dals-series v7 (AMD)|Dalds-series v7 (AMD)|A-series v2]
 #   ↳ tier=[Standard|Spot], category=컴퓨팅 최적화 → series=[F-series v2|Fas-series v7 (AMD)|Fals-series v7 (AMD)|FX-series]
@@ -152,6 +159,7 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   ↳ tier=[Standard|Spot], category=GPU → series=[N-series (GPU)|NC A100 v4 (GPU)|NC H100 v5 (GPU)|ND A100 v4 (GPU)|ND H100 v5 (GPU)|NVads A10 v5 (GPU)]
 #   ↳ tier=[Standard|Spot], category=고성능 컴퓨팅 → series=[HB-series v4 (HPC)|HC-series (HPC)|HX-series (HPC)]
 #   ↳ tier=Basic, category=[전체|일반적인 용도|컴퓨팅 최적화|메모리에 최적화|Storage에 최적화|GPU|고성능 컴퓨팅] → series=[A-series (Basic)] | 미사용: category
+# Azure Virtual Desktop | SKU=비움 | Options: metric=[사용자 접속 - 데스크톱+앱 (사용자/월)|사용자 접속 - 앱 전용 (사용자/월)|사용자 접속 - 앱→데스크톱 업그레이드 (사용자/월)|Azure Local 서비스 요금 (vCPU/시간)]
 # Azure Kubernetes Service | SKU=비움 | Options: aksTier=[Standard (표준)|Automatic]; slaOption=[No SLA (free, non-production)|SLA|SLA and Long Term Support]
 #   ↳ aksTier=Automatic → 미사용: slaOption
 # Container Apps | SKU=비움 | Options: plan=[Standard|Dedicated|Dynamic Sessions|Hybrid]; item=[Standard vCPU Active Usage|Standard vCPU Idle Usage|Standard Memory Active Usage|Standard Memory Idle Usage|Standard Requests|Standard NC T4 v3 GPU Usage|Standard NC A100 v4 GPU Usage|Dedicated Plan Management|Dedicated vCPU Usage|Dedicated Memory Usage|Dedicated GPU Usage|Dynamic Sessions|Hybrid vCPU Usage]
@@ -352,6 +360,15 @@ koreacentral,Actions Linux 10000분,GitHub,,1,10000,plan=Actions Linux 실행 (�
 #   Standard SSD Managed Disks: E1, E2, E3, E4, E6, E10, E15, E20, E30, E40, E50, E60, E70, E80
 #   Standard HDD Managed Disks: S4, S6, S10, S15, S20, S30, S40, S50, S60, S70, S80
 #   추가 옵션 — 표준 HDD/SSD: transactionUnits=숫자(만 단위) / 프리미엄 SSD: burstingEnabled=[비활성 (기본)|활성화 (P30 이상)] / 프로비저닝형: diskSizeGiB, provisionedIOPS, provisionedMBps
+# [Azure Virtual Desktop] AVD 견적은 아래 행을 조합합니다(양식 위쪽 "AVD …" 예시 7행 참고).
+#   · 세션 호스트 = Virtual Machine 행. Windows 10/11(단일·멀티 세션)은 os=Windows 10/11 (AVD) — MS 공시대로 Linux 요율로 계산됩니다
+#     (os=Windows 로 적으면 Windows 라이선스 요율이 붙어 과다 견적). Windows Server 세션 호스트는 os=Windows
+#   · OS 디스크=Disk / FSLogix 프로필=Azure Files Provisioned v2(또는 Azure Files Premium) / 송신 트래픽=Bandwidth / AVD Insights 로그=Log Analytics
+#   · 사용자 접속 권한: 내부 사용자는 M365 E3/E5/F3·Windows E3/E5 등 라이선스에 포함 → 행 불필요
+#     외부 고객에게 제공할 때만 Azure Virtual Desktop 행(metric=사용자 접속 …)을 넣고 Qty=월 접속 사용자 수, Hours=1
+#   · Azure Local(구 Azure Stack HCI) 위 세션 호스트는 metric=Azure Local 서비스 요금 (vCPU/시간), Qty=vCPU 수, Hours=730
+#   · 세션 호스트 대수(MS 크기 조정 가이드, 멀티세션 vCPU당 최대 사용자): Light 6 / Medium 4 / Heavy 2 / Power 1명, VM 은 8 vCPU 이상 권장(예 D8s_v5)
+#     예) Medium 사용자 동시 접속 96명 ÷ (D8s_v5 8 vCPU × 4명) = 3대 → 위 "AVD 세션 호스트(멀티세션)" 행 Qty=3. 업무 시간만 켜면 Hours 를 줄이세요(예 22일×10시간=220)
 # [조건부 옵션] Backup: metric=보호 인스턴스 → workload만 / metric=백업 저장소 → storageTier+redundancy 만 사용
 #   · Microsoft Fabric: metric=용량 (CU 시간) → capacity만 / metric=OneLake 저장소 (GB/월) → storageItem 만 사용
 #   · Azure Database for PostgreSQL: metric=컴퓨팅 (시간) → tier + (Burstable=instance / 그 외=series+vCores+ha) / 저장소·IOPS → ha 만 / 백업 저장소 → 옵션 없음

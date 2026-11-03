@@ -16,6 +16,7 @@
 // 앱의 serviceCategory → MS 내보내기의 A열/B열. MS 계산기가 쓰는 영문 표기 그대로.
 export const MS_TAXONOMY = {
   'Virtual Machine':                  ['Compute', 'Virtual Machines'],
+  'Azure Virtual Desktop':            ['Compute', 'Azure Virtual Desktop'],
   'App Service':                      ['Compute', 'App Service'],
   'Azure Kubernetes Service':         ['Containers', 'Azure Kubernetes Service (AKS)'],
   'Container Apps':                   ['Containers', 'Azure Container Apps'],
@@ -44,6 +45,7 @@ export const MS_TAXONOMY = {
   'Azure SQL Database Elastic Pool':  ['Databases', 'Azure SQL Database'],
   'Azure SQL Managed Instance':       ['Databases', 'Azure SQL Managed Instance'],
   'Azure Database for MySQL':         ['Databases', 'Azure Database for MySQL'],
+  'Azure Database for PostgreSQL':    ['Databases', 'Azure Database for PostgreSQL'],
   'Azure Cosmos DB':                  ['Databases', 'Azure Cosmos DB'],
   'Azure Cache for Redis':            ['Databases', 'Azure Cache for Redis'],
   'API Management':                   ['Integration', 'API Management'],
@@ -160,7 +162,8 @@ function describeVirtualMachine(row, ctx) {
   const tail = [];
   if (o.tier && o.tier !== 'Standard') tail.push(normalizeOptionValue(o.tier));
   if (o.os) {
-    const lic = o.os !== 'Linux' && o.license ? ` (${normalizeOptionValue(o.license)})` : '';
+    // AVD 세션 호스트(Windows 10/11)는 Linux 요율이라 라이선스 구분이 없다
+    const lic = o.os !== 'Linux' && o.os !== 'Windows 10/11 (AVD)' && o.license ? ` (${normalizeOptionValue(o.license)})` : '';
     tail.push(`${o.os}${lic}`);
   }
   tail.push(normalizeOptionValue(o.swType || '(OS Only)'));

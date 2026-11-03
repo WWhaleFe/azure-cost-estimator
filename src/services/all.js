@@ -6,6 +6,7 @@
 // ※ 서비스 추가 시 이 파일에 import 한 줄만 넣으면 앱·양식·테스트에 함께 반영된다.
 // ================================================================
 import './vm.js';
+import './avd.js';
 import './aks.js';
 import './disk.js';
 import './vpn-gateway.js';

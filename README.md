@@ -212,6 +212,21 @@ Description 문장을 서비스별로 확정하려면 MS 계산기에서 해당 
 - **Azure Monitor 와 `Log Analytics` 는 다른 카테고리**입니다. 작업 영역의 분석 로그 수집·보존·분석은 `Log Analytics`, 그 위에 붙는 기본/보조 로그·플랫폼 로그·보관·복원·검색·약정 계층은 `Azure Monitor` 입니다.
 - **Elastic Cloud(Elasticsearch)는 지원하지 않습니다.** Azure Marketplace SaaS 라 Retail Prices API 에 단가가 없습니다. 직접 VM 위에 올린다면 `Virtual Machine` + `Disk` 행으로, 관리형이라면 Elastic 쪽 견적을 그대로 옮겨 적으세요. 양식에 "Elasticsearch 노드 3대"(VM `E8s_v5` ×3) + "Elasticsearch 데이터 디스크"(Disk `P20`) 예시 행이 있습니다.
 
+#### Azure Virtual Desktop (v134 추가)
+
+AVD 요금은 **세션 호스트 인프라**와 **사용자 접속 권한** 두 덩어리입니다. 양식에 `AVD …` 예시 7행이 한 세트로 들어 있습니다.
+
+| 비용 | 적는 카테고리 | 작성법 |
+| --- | --- | --- |
+| 세션 호스트(Windows 10/11 단일·멀티 세션) | `Virtual Machine` | `os=Windows 10/11 (AVD)` — MS 공시대로 **Linux 요율**로 조회합니다. `os=Windows` 로 적으면 Windows 라이선스 요율이 붙어 과다 견적이 됩니다 |
+| 세션 호스트(Windows Server) | `Virtual Machine` | `os=Windows` (라이선스 포함 또는 AHB) |
+| OS 디스크 · FSLogix 프로필 · 송신 · Insights 로그 | `Disk` · `Azure Files Provisioned v2` · `Bandwidth` · `Log Analytics` | 일반 리소스와 같음 |
+| 외부 고객 사용자 접속 | `Azure Virtual Desktop` | `metric=사용자 접속 - 데스크톱+앱 / 앱 전용 / 앱→데스크톱 업그레이드 (사용자/월)`, Qty=월 접속 사용자 수, Hours=1 |
+| Azure Local(구 Azure Stack HCI) 세션 호스트 | `Azure Virtual Desktop` | `metric=Azure Local 서비스 요금 (vCPU/시간)`, Qty=vCPU 수, Hours=730 |
+
+- **내부 사용자**는 M365 E3/E5/F3 · Windows E3/E5 등 라이선스에 접속 권한이 포함되어 있어 `Azure Virtual Desktop` 행이 필요 없습니다. 사용자당 요금은 외부 상업용으로만 쓸 수 있습니다.
+- 세션 호스트 대수: MS 크기 조정 가이드 기준 멀티세션 vCPU 당 최대 사용자 Light 6 / Medium 4 / Heavy 2 / Power 1명, VM 은 8 vCPU 이상(예 `D8s_v5`) 권장.
+
 #### Azure Database for PostgreSQL (v133 추가)
 
 Flexible Server 기준입니다. **한 행에 청구 항목 하나**를 적습니다. 서버 한 대를 견적하려면 보통 컴퓨팅 행과 저장소 행, 이렇게 2행이 됩니다.

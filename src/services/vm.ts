@@ -19,11 +19,16 @@ var _VM_CATEGORY_SERIES: Record<string,string[]> = {
   '고성능 컴퓨팅':    ['HB-series v4 (HPC)','HC-series (HPC)','HX-series (HPC)'],
 };
 
+// AVD 세션 호스트(Windows 10/11 단일·멀티 세션)는 Linux 컴퓨팅 요율로 과금된다(Azure Virtual Desktop 가격 공시).
+// → 이 OS 를 고르면 Linux 미터로 조회하고 라이선스 가산·AHB 구분을 하지 않는다. 사용자 접속 요금은 avd.ts.
+export const VM_OS_AVD = 'Windows 10/11 (AVD)';
+
 // 카테고리 정의 등록
 REG._svcDefs['Virtual Machine'] = {
   apiServiceName: 'Virtual Machines',
   steps: [
-    { key:'os',       label:'운영 체제', options:['Linux','Windows','Red Hat Enterprise Linux','SUSE'] },
+    { key:'os',       label:'운영 체제', options:['Linux','Windows','Red Hat Enterprise Linux','SUSE',VM_OS_AVD],
+      tooltip:'Windows 10/11 (AVD) 는 Azure Virtual Desktop 세션 호스트(Windows 10/11 단일·멀티 세션)용입니다. MS 공시대로 Linux 요율로 조회합니다. Windows Server 세션 호스트는 Windows 를 고르세요.' },
     { key:'swType',   label:'유형',      options:['(OS Only)','SQL Server (Enterprise)','SQL Server (Standard)','SQL Server (Web)','BizTalk Server (Enterprise)','BizTalk Server (Standard)'] },
     { key:'tier',     label:'계층',      options:['Standard','Basic','Spot'] },
     { key:'license',  label:'라이선스',  options:['라이선스 포함','Azure Hybrid Benefit'] },
@@ -249,7 +254,7 @@ REG['_buildDetail_Virtual_Machine'] = function(r: Row) {
   if (inst && inst.gpu) parts.push(`GPU:${inst.gpu}`);
   if (inst && inst.temp !== undefined && inst.temp !== null) parts.push(`Temp:${inst.temp}GB`);
   if (o.tier && o.tier!=='Standard') parts.push(o.tier);
-  if (o.os && o.os!=='Linux' && o.license) parts.push(o.license);
+  if (o.os && o.os!=='Linux' && o.os!==VM_OS_AVD && o.license) parts.push(o.license);
   if (o.swType && o.swType!=='(OS Only)') parts.push(o.swType);
   r.detail = parts.join(', ');
 };
@@ -278,7 +283,9 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
       .replace(/^\s*(standard|basic)[_ ]/,'')
       .replace(/[_ ]/g,'');
     const skuM =(it: ApiItem)=>{ const t=norm(row.skuName); if(!t) return false; return norm(it.skuName)===t||norm(it.meterName)===t; };
-    const osC=row.options.os||'Linux', tierC=row.options.tier||'Standard';
+    // AVD 세션 호스트(Windows 10/11)는 Linux 요율 — 이후 가격 판정은 Linux 로 취급
+    const isAvdOs=row.options.os===VM_OS_AVD;
+    const osC=isAvdOs?'Linux':(row.options.os||'Linux'), tierC=row.options.tier||'Standard';
     const isRhelSuse = osC.includes('Red Hat') || osC==='SUSE';
     const licC=row.options.license||'라이선스 포함', isAHB=licC==='Azure Hybrid Benefit', isPaid=osC!=='Linux';
     const base=(it: ApiItem)=>{ if((it.type||'').toLowerCase()!=='consumption') return false; if(it.armSkuName!==armSku||!skuM(it)||isDev(it)) return false; if(tierC==='Spot'?!isSpot(it):isSpot(it)) return false; if(!(it.unitOfMeasure||'').toLowerCase().includes('hour')) return false; if(Number(it.tierMinimumUnits||0)!==0) return false; return true; };
@@ -337,7 +344,8 @@ REG['_resolve_Virtual_Machine'] = async function(row: Row, cur: string) {
       if(swProduct) swMsg = swMatched ? ` +SW(${swType}${swBandLabel?' / '+swBandLabel:''}):${swHourly.toFixed(4)}/h` : ` +SW(${swType}):미매칭`;
       let osMsg='';
       if(isRhelSuse && !isAHB) osMsg = osLicMatched ? ` +${osC.includes('Red Hat')?'RHEL':'SUSE'}(${osLicBand}):${osLicHourly.toFixed(4)}/h` : ` +${osC.includes('Red Hat')?'RHEL':'SUSE'}:미매칭`;
-      setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}${osMsg}`);
+      const avdMsg=isAvdOs?' · AVD 세션 호스트(Linux 요율)':'';
+      setStatus('ok',`${row.skuName} 완료 [${tags.join(', ')}] · PAYG ${Number(row.paygItem.unitPrice).toFixed(4)}/h${swMsg}${osMsg}${avdMsg}`);
     }
     else {
       // 매칭 실패 → 먼저 결과를 즉시 알리고, 리전 확인은 백그라운드로 돌린다.
