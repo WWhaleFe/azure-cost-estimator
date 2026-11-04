@@ -2,6 +2,13 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v135 — 2026-11-03
+- feat: **MS 형식 내보내기에서 AVD 세션 호스트를 `Azure Virtual Desktop` 으로 표기** — `os=Windows 10/11 (AVD)` 인 Virtual Machine 행은 청구 미터는 VM 그대로지만, 견적서 A·B열을 `Compute / Azure Virtual Desktop` 으로 옮겨 AVD 묶음으로 보이게 했다. 다른 VM 행은 `Virtual Machines` 유지. 설명(Description) 문구는 VM 규칙 그대로(`… Windows 10/11 (AVD), OS Only`)
+  - `msTaxonomy(serviceCategory, row)` — row 를 받으면 행 단위 예외 반영. `buildMsEstimateModel` 이 row 를 넘긴다
+  - 앱 표·일반 엑셀/CSV 내보내기의 ServiceCategory 는 그대로 `Virtual Machine`(업로드 양식 호환)
+- 영향 파일: src/ui/ms-estimate.js, test/ms-estimate-export.test.js, CHANGELOG.md
+- 검증: `npm test` **225 pass / 9 skip**(분류 테스트 1종 추가), `tsc --noEmit` 0, `vite build` 성공
+
 ## v134 — 2026-11-03
 - feat: **Azure Virtual Desktop 카테고리 신설** (`services/avd.ts`). AVD 견적에서 외부 고객 사용자당 접속 요금은 양식에 넣을 수 없어 결과에 손으로 더해야 했다. 총 45 → 46개 카테고리
   - `metric` 4종 — 사용자 접속 데스크톱+앱(USD 10) / 앱 전용(USD 5.5) / 앱→데스크톱 업그레이드(USD 4.5) (사용자/월), Azure Local 서비스 요금(USD 0.01/vCPU·시간)

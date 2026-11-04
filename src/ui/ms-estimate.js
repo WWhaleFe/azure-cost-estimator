@@ -63,7 +63,16 @@ export const MS_TAXONOMY = {
   'GitHub':                           ['Developer tools', 'GitHub'],
 };
 
-export function msTaxonomy(serviceCategory) {
+// AVD 세션 호스트 VM(os='Windows 10/11 (AVD)', services/vm.ts VM_OS_AVD 와 같은 값).
+// 청구는 Virtual Machines 미터지만, 견적서에서는 AVD 묶음으로 보이게 분류를 옮긴다.
+// (vm.ts 를 import 하면 서비스 레지스트리까지 끌려오므로 값만 둔다 — DOM·REG 비의존 유지)
+const VM_OS_AVD = 'Windows 10/11 (AVD)';
+
+/** row 를 주면 행 단위 예외(AVD 세션 호스트 VM → Azure Virtual Desktop)까지 반영한다. */
+export function msTaxonomy(serviceCategory, row) {
+  if (serviceCategory === 'Virtual Machine' && row && row.options && row.options.os === VM_OS_AVD) {
+    return MS_TAXONOMY['Azure Virtual Desktop'];
+  }
   return MS_TAXONOMY[serviceCategory] || ['Other', serviceCategory || ''];
 }
 
@@ -163,7 +172,7 @@ function describeVirtualMachine(row, ctx) {
   if (o.tier && o.tier !== 'Standard') tail.push(normalizeOptionValue(o.tier));
   if (o.os) {
     // AVD 세션 호스트(Windows 10/11)는 Linux 요율이라 라이선스 구분이 없다
-    const lic = o.os !== 'Linux' && o.os !== 'Windows 10/11 (AVD)' && o.license ? ` (${normalizeOptionValue(o.license)})` : '';
+    const lic = o.os !== 'Linux' && o.os !== VM_OS_AVD && o.license ? ` (${normalizeOptionValue(o.license)})` : '';
     tail.push(`${o.os}${lic}`);
   }
   tail.push(normalizeOptionValue(o.swType || '(OS Only)'));
@@ -279,7 +288,7 @@ export function buildMsEstimateModel(rows, opts = {}) {
   const currency = opts.currency || 'USD';
 
   const items = (rows || []).filter((r) => r && r.serviceCategory).map((r) => {
-    const [category, type] = msTaxonomy(r.serviceCategory);
+    const [category, type] = msTaxonomy(r.serviceCategory, r);
     const d = calc(r[itemKey], Number(r.qty) || 0, Number(r.usage) || 0);
     return {
       category,

@@ -127,6 +127,17 @@ describe('견적 행 → MS 모델', () => {
     expect(msTaxonomy('Azure Kubernetes Service')).toEqual(['Containers', 'Azure Kubernetes Service (AKS)']);
   });
 
+  // v135 — AVD 세션 호스트 VM 은 청구 미터는 VM 이지만 견적서에서는 AVD 로 묶어 보인다
+  it('os=Windows 10/11 (AVD) VM 행은 Azure Virtual Desktop 으로 분류한다', () => {
+    const avdRow = { ...vmRow, category: 'AVD 세션 호스트', options: { ...vmRow.options, os: 'Windows 10/11 (AVD)' } };
+    expect(msTaxonomy('Virtual Machine', avdRow)).toEqual(['Compute', 'Azure Virtual Desktop']);
+    expect(msTaxonomy('Virtual Machine', vmRow)).toEqual(['Compute', 'Virtual Machines']);
+    const m = buildMsEstimateModel([avdRow, vmRow], { calc, vmSpec, regionLabelMap: REGION_LABEL });
+    expect(m.items.map((i) => i.type)).toEqual(['Azure Virtual Desktop', 'Virtual Machines']);
+    expect(m.items[0].description)
+      .toBe('1 D2s v3 (2 vCPUs, 8 GB RAM) x 730 Hours (Pay as you go), Windows 10/11 (AVD), OS Only');
+  });
+
   it('VM 설명은 MS 문장 규칙(첫 절)을 따른다', () => {
     expect(buildMsDescription(vmRow, 'payg', { vmSpec }))
       .toBe('1 D2s v3 (2 vCPUs, 8 GB RAM) x 730 Hours (Pay as you go), Windows (License included), OS Only');
