@@ -2,6 +2,16 @@
 
 버전 번호는 정수 체계(vNN)를 따릅니다. 새 버전을 맨 위에 추가합니다.
 
+## v136 — 2026-11-05
+- feat: **Azure Virtual Desktop 카테고리를 고르면 옵션 패널 맨 위에 안내 표시** — AVD 카테고리에는 세션 호스트 VM 선택이 없어 VM 견적이 빠진 것처럼 보였다. 사용 형태별로 필요한 행을 정리해 보여 준다
+  - 사내 직원 사용: 세션 호스트 VM 필요 · AVD 행 불필요(접속 권한이 M365/Windows E3·E5 등에 포함)
+  - 외부 고객 상용 제공: 세션 호스트 VM 필요 · AVD 행 필요(사용자 접속 요금)
+  - Azure Local(온프레미스): 세션 호스트 VM 불필요(고객 현장 장비) · AVD 행 필요(Azure Local 서비스 요금)
+  - 세션 호스트는 Virtual Machine 행에서 `os=Windows 10/11 (AVD)`, 디스크·FSLogix·송신은 각 카테고리로 적도록 안내
+- 서비스 정의에 `panelNote`(정적 HTML) 필드 추가 — `renderConfigPanel` 이 패널 맨 위 전체 폭 안내로 그린다. 다른 카테고리도 같은 방식으로 쓸 수 있다
+- 영향 파일: src/services/avd.ts, src/core/types.ts, src/ui-and-bootstrap.js, test/avd-resolve.test.js, CHANGELOG.md
+- 검증: `npm test` **226 pass / 9 skip**(안내 문구 테스트 1종 추가), `tsc --noEmit` 0, `vite build` 성공, 로컬 화면에서 안내 표시 확인
+
 ## v135 — 2026-11-03
 - feat: **MS 형식 내보내기에서 AVD 세션 호스트를 `Azure Virtual Desktop` 으로 표기** — `os=Windows 10/11 (AVD)` 인 Virtual Machine 행은 청구 미터는 VM 그대로지만, 견적서 A·B열을 `Compute / Azure Virtual Desktop` 으로 옮겨 AVD 묶음으로 보이게 했다. 다른 VM 행은 `Virtual Machines` 유지. 설명(Description) 문구는 VM 규칙 그대로(`… Windows 10/11 (AVD), OS Only`)
   - `msTaxonomy(serviceCategory, row)` — row 를 받으면 행 단위 예외 반영. `buildMsEstimateModel` 이 row 를 넘긴다

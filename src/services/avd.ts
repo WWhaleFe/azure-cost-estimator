@@ -42,6 +42,16 @@ REG._svcDefs['Azure Virtual Desktop'] = {
       tooltip:'사용자당 접속 요금은 외부 고객에게 제공할 때만 냅니다. 내부 사용자는 M365 E3/E5/F3 등 라이선스에 포함되어 행이 필요 없습니다. 세션 호스트 VM 은 Virtual Machine 행(os=Windows 10/11 (AVD))으로 따로 적으세요.' },
   ],
   instanceField: false,
+  // v136 — 카테고리를 고르면 패널 맨 위에 뜨는 안내. 사용 형태별로 세션 호스트 VM 행과 이 카테고리 행이 필요한지 정리
+  panelNote:
+    '<strong>AVD 견적 구성 — 사용 형태별 필요 행</strong>'
+    + '<ul style="margin:4px 0 4px 16px;padding:0;">'
+    + '<li><strong>사내 직원 사용</strong>: 세션 호스트 VM <strong>필요</strong> · 이 카테고리 행 <strong>불필요</strong> (접속 권한이 M365 E3/E5 · Windows E3/E5 등 라이선스에 포함)</li>'
+    + '<li><strong>외부 고객 상용 제공</strong>: 세션 호스트 VM <strong>필요</strong> · 이 카테고리 행 <strong>필요</strong> (사용자 접속 요금, Qty=사용자 수)</li>'
+    + '<li><strong>Azure Local(온프레미스)</strong>: 세션 호스트 VM <strong>불필요</strong> (고객 현장 장비) · 이 카테고리 행 <strong>필요</strong> (Azure Local 서비스 요금, Qty=vCPU 수)</li>'
+    + '</ul>'
+    + '세션 호스트 VM 은 <strong>Virtual Machine</strong> 행에서 OS 를 <strong>Windows 10/11 (AVD)</strong> 로 골라 추가하세요(Linux 요율). '
+    + 'OS 디스크 · FSLogix 프로필(Azure Files) · 송신 트래픽(Bandwidth)도 각 카테고리 행으로 적습니다.',
 };
 
 REG['_buildDetail_Azure_Virtual_Desktop'] = function(r: Row) {

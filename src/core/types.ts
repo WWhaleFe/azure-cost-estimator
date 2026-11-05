@@ -62,6 +62,8 @@ export interface ServiceDef {
   instanceParentKey?: string;
   rebuildKeys?: string[];
   _applyStepVisibility?: (r: Row) => void;
+  /** 옵션 패널 맨 위에 띄우는 안내(정적 HTML, 서비스 정의에서만 채운다) */
+  panelNote?: string;
   [k: string]: any;
 }
 

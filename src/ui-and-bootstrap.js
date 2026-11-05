@@ -554,7 +554,9 @@ function renderConfigPanel(){
     const sel=r.options.instance||r.skuName||'';
     instanceHtml=`<div class="config-field" style="grid-column:1/-1;"><label>인스턴스</label><select data-opt-key="instance" ${instanceOptions.length===0?'disabled':''}><option value="">${instanceOptions.length===0?'상위 옵션을 먼저 선택하세요':'선택...'}</option>${instanceOptions.map(o=>`<option value="${escapeHtml(o.value)}" ${sel===o.value?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select></div>`;
   }
-  $configContent.innerHTML=allSteps.map(renderStep).join('')+instanceHtml;
+  // 서비스 정의의 panelNote(정적 HTML)를 패널 맨 위 전체 폭 안내로 띄운다(v136, AVD)
+  const noteHtml=def.panelNote?`<div class="config-field" style="grid-column:1/-1;"><div style="background:#f0f6ff;border:1px solid #b3d4ff;border-radius:2px;padding:6px 10px;font-size:11px;color:#0050a0;line-height:1.5;">&#9432; ${def.panelNote}</div></div>`:'';
+  $configContent.innerHTML=noteHtml+allSteps.map(renderStep).join('')+instanceHtml;
   _bindConfigEvents(r,def);
 }
 

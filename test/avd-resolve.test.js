@@ -88,6 +88,14 @@ describe('Azure Virtual Desktop — 사용자당 접속 요금', () => {
     expect(r.paygItem.unitPrice).toBe(0.01);
   });
 
+  it('패널 안내에 사용 형태 3가지와 세션 호스트 VM 작성법이 있다(v136)', () => {
+    const note = REG._svcDefs['Azure Virtual Desktop'].panelNote;
+    expect(note).toContain('사내 직원 사용');
+    expect(note).toContain('외부 고객 상용 제공');
+    expect(note).toContain('Azure Local(온프레미스)');
+    expect(note).toContain(VM_OS_AVD);
+  });
+
   it('알 수 없는 metric 은 첫 항목(데스크톱+앱)으로 정규화하고 상세를 채운다', async () => {
     const r = await resolveAvd({ metric: '없는 항목' });
     expect(r.options.metric).toBe('사용자 접속 - 데스크톱+앱 (사용자/월)');
